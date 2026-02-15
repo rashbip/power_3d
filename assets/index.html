@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js Viewer</title>
+
+        <!-- Babylon.js -->
+        <script src="full/babylon.js"></script>
+        <script src="full/babylon.ktx2Decoder.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                background-color: transparent;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="renderCanvas"></canvas>
+        <script>
+            const canvas = document.getElementById("renderCanvas");
+            const engine = new BABYLON.Engine(canvas, true);
+
+            const createScene = function () {
+                const scene = new BABYLON.Scene(engine);
+                scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+
+                const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, new BABYLON.Vector3(0, 0, 0), scene);
+                camera.attachControl(canvas, true);
+                
+                const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+                
+                const box = BABYLON.MeshBuilder.CreateBox("box", {}, scene);
+                
+                return scene;
+            };
+
+            const scene = createScene();
+
+            engine.runRenderLoop(function () {
+                scene.render();
+            });
+
+            window.addEventListener("resize", function () {
+                engine.resize();
+            });
+
+            // Communication with Flutter
+            window.addEventListener("message", (event) => {
+                // Handle messages from Flutter if needed
+                console.log("Received message from Flutter:", event.data);
+            });
+
+            function sendMessageToFlutter(message) {
+                if (window.FlutterChannel) {
+                    window.FlutterChannel.postMessage(JSON.stringify(message));
+                }
+            }
+        </script>
+    </body>
+</html>
