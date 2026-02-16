@@ -13,7 +13,7 @@ class Power3D extends ConsumerStatefulWidget {
   final bool lazy;
   final Widget? errorWidget;
   final Widget Function(BuildContext context, Power3DManager notifier)?
-  placeholderBuilder;
+  loadingUi;
 
   const Power3D({
     super.key,
@@ -21,7 +21,7 @@ class Power3D extends ConsumerStatefulWidget {
     this.onMessage,
     this.lazy = false,
     this.errorWidget,
-    this.placeholderBuilder,
+    this.loadingUi,
   });
 
   factory Power3D.fromAsset(
@@ -32,7 +32,7 @@ class Power3D extends ConsumerStatefulWidget {
     Function(String)? onMessage,
     bool lazy = false,
     Widget Function(BuildContext context, Power3DManager notifier)?
-    placeholderBuilder,
+    loadingUi,
   }) {
     return Power3D(
       key: key,
@@ -44,7 +44,7 @@ class Power3D extends ConsumerStatefulWidget {
       onMessage: onMessage,
       lazy: lazy,
       errorWidget: errorWidget,
-      placeholderBuilder: placeholderBuilder,
+      loadingUi: loadingUi,
     );
   }
 
@@ -56,7 +56,7 @@ class Power3D extends ConsumerStatefulWidget {
     Function(String)? onMessage,
     bool lazy = false,
     Widget Function(BuildContext context, Power3DManager notifier)?
-    placeholderBuilder,
+    loadingUi,
   }) {
     return Power3D(
       key: key,
@@ -68,7 +68,7 @@ class Power3D extends ConsumerStatefulWidget {
       onMessage: onMessage,
       lazy: lazy,
       errorWidget: errorWidget,
-      placeholderBuilder: placeholderBuilder,
+      loadingUi: loadingUi,
     );
   }
 
@@ -80,7 +80,7 @@ class Power3D extends ConsumerStatefulWidget {
     Function(String)? onMessage,
     bool lazy = false,
     Widget Function(BuildContext context, Power3DManager notifier)?
-    placeholderBuilder,
+    loadingUi,
   }) {
     final String path = file is String ? file : file.path;
     return Power3D(
@@ -93,7 +93,7 @@ class Power3D extends ConsumerStatefulWidget {
       onMessage: onMessage,
       lazy: lazy,
       errorWidget: errorWidget,
-      placeholderBuilder: placeholderBuilder,
+      loadingUi: loadingUi,
     );
   }
 
@@ -107,7 +107,6 @@ class _Power3DState extends ConsumerState<Power3D> {
   @override
   void initState() {
     super.initState();
-    // Use addPostFrameCallback to ensure context and ref are ready
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!widget.lazy && mounted) {
         _initController();
@@ -166,33 +165,29 @@ class _Power3DState extends ConsumerState<Power3D> {
     final state = ref.watch(power3DManagerProvider(_viewerId));
     final notifier = ref.read(power3DManagerProvider(_viewerId).notifier);
 
-    if (!state.isInitialized) {
-      if (widget.placeholderBuilder != null) {
-        return widget.placeholderBuilder!(context, notifier);
-      }
-      return Center(
-        child: ElevatedButton.icon(
-          onPressed: () {
-            _initController();
-            setState(() {});
-          },
-          icon: const Icon(Icons.play_arrow),
-          label: const Text('Load 3D Model'),
+    // If the model is fully loaded, show the viewer (with potential error/loading overlays)
+    if (state.status == Power3DStatus.loaded) {
+      return SizedBox.expand(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (_controller != null) WebViewWidget(controller: _controller!),
+          ],
         ),
       );
     }
 
-    return SizedBox.expand(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (_controller != null) WebViewWidget(controller: _controller!),
-          if (state.status == Power3DStatus.loading)
-            const Center(child: CircularProgressIndicator()),
-          if (state.status == Power3DStatus.error)
-            widget.errorWidget ?? const Center(child: Text("Error")),
-        ],
-      ),
-    );
+    // If we have an error, show the error widget
+    if (state.status == Power3DStatus.error) {
+      return widget.errorWidget ?? const Center(child: Text("Error"));
+    }
+
+    // Otherwise (status is initial or loading), show the loading UI
+    if (widget.loadingUi != null) {
+      return widget.loadingUi!(context, notifier);
+    }
+
+    // Default Fallback
+    return const Center(child: CircularProgressIndicator());
   }
 }
