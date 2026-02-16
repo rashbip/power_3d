@@ -27,6 +27,7 @@ flutter:
   assets:
     - assets/index.html
     - assets/babylon/babylon.js
+    - assets/babylon/babylonjs.loaders.min.js
 
   # To add assets to your application, add an assets section, like this:
   # assets:

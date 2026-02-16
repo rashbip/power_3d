@@ -75,6 +75,19 @@ class Power3DManager extends _$Power3DManager {
     }
   }
 
+  Future<void> resetView() async {
+    await _controller?.runJavaScript('resetView()');
+  }
+
+  Future<void> toggleAutoRotate(bool enabled) async {
+    state = state.copyWith(autoRotate: enabled);
+    await _controller?.runJavaScript('toggleAutoRotate($enabled)');
+  }
+
+  Future<void> takeScreenshot() async {
+    await _controller?.runJavaScript('takeScreenshot()');
+  }
+
   void handleWebViewMessage(String message) {
     try {
       final data = jsonDecode(message);
@@ -89,6 +102,8 @@ class Power3DManager extends _$Power3DManager {
           status: Power3DStatus.error,
           errorMessage: data['message'],
         );
+      } else if (data['type'] == 'screenshot') {
+        state = state.copyWith(lastScreenshot: data['data']);
       }
     } catch (e) {
       // Ignore parse errors from JS

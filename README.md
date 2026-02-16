@@ -34,6 +34,10 @@ Power3D.fromNetwork(
 )
 ```
 
+## Performance & Storage
+
+Power3D uses **CDN-hosted Babylon.js** (~2MB from cache) instead of bundling large files locally. This keeps your app size small. See [Babylon.js Optimization Guide](docs/babylonjs_optimization.md) for details.
+
 ## Documentation
 
 For detailed usage, check out the [Usage Guide](docs/usage.md).

@@ -6,9 +6,9 @@
 
         <title>Babylon.js Viewer</title>
 
-        <!-- Babylon.js -->
+    
         <script src="babylon/babylon.js"></script>
-
+        <script src="babylon/babylonjs.loaders.min.js"></script>
         <style>
             html, body {
                 overflow: hidden;
@@ -30,7 +30,7 @@
         <canvas id="renderCanvas"></canvas>
         <script>
             const canvas = document.getElementById("renderCanvas");
-                                const engine = new BABYLON.Engine(canvas, true);
+                                                                        const engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
                 let scene;
 
             const createScene = function () {
@@ -61,14 +61,20 @@
                         sendMessageToFlutter({ type: 'status', message: 'loading', fileName: fileName });
 
                         if (!scene) throw new Error("Viewer not ready");
-                        
-                        // Clear existing meshes except internal camera/lights if necessary
-                        // For simplicity, we dispose everything non-camera/light or just all meshes
+
                         scene.meshes.slice().forEach(m => m.dispose());
 
                         let sceneFilename = data;
+
+                        // For Base64 binary data, convert to Blob URL
                         if (type === 'base64') {
-                            sceneFilename = "data:base64," + data;
+                            const binaryString = atob(data);
+                            const bytes = new Uint8Array(binaryString.length);
+                            for (let i = 0; i < binaryString.length; i++) {
+                                bytes[i] = binaryString.charCodeAt(i);
+                            }
+                            const blob = new Blob([bytes], { type: 'application/octet-stream' });
+                            sceneFilename = URL.createObjectURL(blob);
                         }
 
                         const extension = (fileName && fileName.includes('.'))
@@ -79,21 +85,47 @@
 
                         const result = await BABYLON.SceneLoader.ImportMeshAsync("", "", sceneFilename, scene, null, extension);
 
+                        // Clean up Blob URL if created
+                        if (type === 'base64') {
+                            URL.revokeObjectURL(sceneFilename);
+                        }
+                        
                         if (result.meshes.length > 0) {
-                        scene.createDefaultCameraOrLight(true, true, true);
+                            scene.createDefaultCameraOrLight(true, true, true);
                             if (scene.activeCamera) scene.activeCamera.attachControl(canvas, true);
-                    }
+                        }
 
                         sendMessageToFlutter({ type: 'status', message: 'loaded', fileName: fileName });
                     } catch (e) {
                         console.error("Load Error:", e);
-                        let errMsg = e.message || "Load failed";
-                        if (errMsg.length > 200 || errMsg.includes("data:")) {
-                            errMsg = errMsg.split("data:")[0] + " (Resource failed to load)";
-                    }
-                        sendMessageToFlutter({ type: 'error', message: errMsg });
-                    }
-                }
+                                                                                                            sendMessageToFlutter({ type: 'error', message: e.message || "Failed to load 3D model" });
+                                                                                                        }
+                                                                                                    }
+
+                                                                                                    function resetView() {
+                                                                                                        if (scene && scene.activeCamera) {
+                                                                                                            scene.activeCamera.restoreState();
+                                                                                                            // If no state saved, just re-create default
+                                                                                                            if (scene.meshes.length > 0) {
+                                                                                                                scene.createDefaultCameraOrLight(true, true, true);
+                                                                                                                if (scene.activeCamera) scene.activeCamera.attachControl(canvas, true);
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+
+                                                                                                    function toggleAutoRotate(enabled) {
+                                                                                                        if (scene && scene.activeCamera) {
+                                                                                                            scene.activeCamera.useAutoRotationBehavior = enabled;
+                                                                                                        }
+                                                                                                    }
+
+    async function takeScreenshot() {
+        if (engine && scene) {
+            BABYLON.Tools.CreateScreenshot(engine, scene.activeCamera, { precision: 1 }, function (data) {
+                sendMessageToFlutter({ type: 'screenshot', data: data });
+            });
+        }
+    }
 
             function sendMessageToFlutter(message) {
                 if (window.FlutterChannel) {

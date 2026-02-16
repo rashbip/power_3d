@@ -75,6 +75,25 @@ Power3D uses Riverpod for state management. You can access the `Power3DManager` 
 - `loaded`: Model is visible and interactive.
 - `error`: Something went wrong.
 
-## Error Handling
+## 3D Controls
 
-Power3D provides a built-in error UI with a retry mechanism. You can customize this by listening to messages or checking the state.
+You can control the viewer programmatically using the `Power3DManager`.
+
+### Essential Controls
+- **`resetView()`**: Resets the camera to its initial position.
+- **`toggleAutoRotate(bool enabled)`**: Toggles automatic rotation of the model.
+- **`takeScreenshot()`**: Captures the current view. The result is stored in the state's `lastScreenshot` (Base64).
+
+```dart
+// Example: Using controls in a ConsumerWidget
+final notifier = ref.read(power3DManagerProvider(modelPath).notifier);
+
+notifier.resetView();
+notifier.toggleAutoRotate(true);
+notifier.takeScreenshot();
+```
+
+### State Properties
+- **`autoRotate`**: Current rotation status.
+- **`lastScreenshot`**: The latest captured image data.
+- **`currentModelName`**: Name of the model currently loaded.
