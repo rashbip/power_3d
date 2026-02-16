@@ -2,6 +2,7 @@ import 'package:example/options/asset_example.dart';
 import 'package:example/options/error_example.dart';
 import 'package:example/options/network_example.dart';
 import 'package:example/options/placeholder_example.dart';
+import 'package:example/options/environment_example.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -67,6 +68,14 @@ class HomePage extends StatelessWidget {
             subtitle: 'Provide your own error UI',
             icon: Icons.error_outline,
             target: const ErrorExample(),
+          ),
+          const SizedBox(height: 16),
+          _buildExampleCard(
+            context,
+            title: 'Environment Builder',
+            subtitle: 'Sync Flutter background with 3D camera',
+            icon: Icons.landscape,
+            target: const EnvironmentExample(),
           ),
         ],
       ),

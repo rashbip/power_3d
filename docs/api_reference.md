@@ -14,6 +14,8 @@ The main widget for displaying 3D models.
 | `lazy` | `bool` | If true, the viewer won't initialize until `controller.initialize()` is called. |
 | `loadingUi` | `Widget Function(...)` | Custom widget to show during loading state. |
 | `errorWidget` | `Widget?` | Custom widget to show on error state. |
+| `environmentBuilder` | `Widget Function(...)` | Custom background widget that reactive to camera. |
+| `environmentConfig` | `EnvironmentConfig?` | High-level controls for background sync (rotation, zoom, etc). |
 
 ### Constructors
 - `Power3D.fromAsset(path, ...)`

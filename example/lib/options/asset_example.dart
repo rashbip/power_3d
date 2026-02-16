@@ -104,9 +104,9 @@ class _AssetExampleState extends State<AssetExample> {
                 heroTag: 'rotate',
                 backgroundColor: state.autoRotate ? Colors.indigoAccent : null,
                 onPressed: () => _controller.updateRotation(
+                  direction: RotationDirection.counterClockwise,
                   enabled: !state.autoRotate,
-                  speed: 2.0,
-                  stopAfter: const Duration(seconds: 3),
+                  speed: 14.0,
                 ),
                 child: const Icon(Icons.rotate_right),
               ),
@@ -144,7 +144,7 @@ class _AssetExampleState extends State<AssetExample> {
                     subtitle: Slider(
                       value: state.rotationSpeed,
                       min: 0.1,
-                      max: 5.0,
+                      max: 500,
                       onChanged: (val) =>
                           _controller.updateRotation(speed: val),
                     ),
