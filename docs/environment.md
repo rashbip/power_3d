@@ -1,54 +1,41 @@
-# Environment Builder
+# Environment (Background)
 
-The `environmentBuilder` allows you to render a Flutter widget behind your 3D model. With `EnvironmentConfig`, you can easily sync this background with camera movements without manual math.
+Power3D allows you to render a Flutter widget behind the 3D model. This is useful for creating consistent backgrounds, gradients, or overlays.
 
-## Easy Setup with EnvironmentConfig
+## Usage
 
-Use `EnvironmentConfig` to automatically apply transforms (zoom, rotation, parallax) to your background.
+Use the `environmentBuilder` property to provide a widget that will be placed in a `Stack` behind the 3D viewer.
 
 ```dart
 Power3D.fromAsset(
   'assets/model.glb',
-  environmentConfig: const EnvironmentConfig(
-    syncRotation: true,         // Pans horizontally with camera
-    syncVerticalRotation: true, // Pans vertically with camera
-    syncZoom: true,             // Scales with zoom
-    rotationSensitivity: 1.5,   // Optional: adjust speed
-  ),
   environmentBuilder: (context, state) {
-    return Image.asset('assets/space_bg.jpg', fit: BoxFit.cover);
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue, Colors.black],
+        ),
+      ),
+    );
   },
 )
 ```
 
-### Configuration Options
-
-| Property               | Description                                                        |
-| :--------------------- | :----------------------------------------------------------------- |
-| `syncRotation`         | If true, background pans horizontally as camera Alpha changes.     |
-| `syncVerticalRotation` | If true, background pans vertically as camera Beta changes.        |
-| `syncZoom`             | If true, background scales automatically as camera Radius changes. |
-| `autoRotate`           | If true, background rotates independently (obj stays steady).      |
-| `autoRotationSpeed`    | Speed factor for the independent background rotation.              |
-| `rotationSensitivity`  | Adjusts how far the background pans horizontally.                  |
-| `zoomSensitivity`      | Adjusts how much the background scales.                            |
-
-## Manual Control
-
-If you need full control, the `environmentBuilder` provides the `Power3DState` containing raw telemetry:
-
-- `state.cameraAlpha`: Horizontal rotation in radians.
-- `state.cameraBeta`: Vertical rotation in radians.
-- `state.cameraRadius`: Distance from the object (zoom level).
+### Accessing State
+The `environmentBuilder` provides the current `Power3DState`, allowing you to react to loading status or camera movements if needed.
 
 ```dart
 environmentBuilder: (context, state) {
-  return Transform.scale(
-    scale: 5.0 / state.cameraRadius,
-    child: MyWidget(),
-  );
+  if (state.status == Power3DStatus.loading) {
+     return Center(child: CircularProgressIndicator());
+  }
+  
+  // You can also use state.cameraAlpha, state.cameraBeta etc. 
+  // for manual parallax effects if desired.
+  return MyBackgroundWidget();
 }
 ```
 
-> [!IMPORTANT]
-> The environment widget is automatically wrapped in an `IgnorePointer`, so it will not intercept touch events intended for the 3D viewer.
+### Important Notes
+- The background widget is wrapped in an `IgnorePointer` by default to ensure touch events reach the 3D viewer.
+- The background is only shown when the 3D model is loaded (`Power3DStatus.loaded`).

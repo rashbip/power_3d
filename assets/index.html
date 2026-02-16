@@ -139,46 +139,10 @@
                                 if (scene.activeCamera) {
                                     scene.activeCamera.attachControl(canvas, true);
                                     applyInitialSettings(scene.activeCamera);
-                                                        reportCameraTelemetry(true);
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        let skyboxDome = null;
-                                        async function setSkybox(data, fileName, type) {
-                                            if (!scene) return;
-
-                                            if (skyboxDome) {
-                                                skyboxDome.dispose();
-                                                skyboxDome = null;
-                        }
-
-                        if (!data) return;
-
-                        let skyboxUrl = data;
-                        if (type === 'base64') {
-                            const binaryString = atob(data);
-                            const bytes = new Uint8Array(binaryString.length);
-                            for (let i = 0; i < binaryString.length; i++) {
-                                bytes[i] = binaryString.charCodeAt(i);
+                                    reportCameraTelemetry(true);
+                                }
                             }
-                            const blob = new Blob([bytes], { type: 'image/jpeg' });
-                            skyboxUrl = URL.createObjectURL(blob);
                         }
-
-                        skyboxDome = new BABYLON.PhotoDome(
-                            "skyboxDome",
-                            skyboxUrl,
-                            {
-                                resolution: 32,
-                                size: 1000
-                            },
-                            scene
-                        );
-
-                        skyboxDome.mesh.isPickable = false;
-                        skyboxDome.imageMode = BABYLON.PhotoDome.MODE_MONOSCOPIC;
                     }
 
                                             let rotationTimeout = null;

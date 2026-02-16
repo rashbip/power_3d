@@ -21,13 +21,6 @@ class Power3DController extends ValueNotifier<Power3DState> {
   void initialize() {
     if (value.isInitialized) return;
     value = value.copyWith(isInitialized: true);
-
-    // If a skybox was already set in state before init, apply it now
-    if (value.skyboxPath != null && value.skyboxSource != null) {
-      setSkybox(
-        Power3DData(path: value.skyboxPath!, source: value.skyboxSource!),
-      );
-    }
   }
 
   Future<void> loadModel(Power3DData data) async {
@@ -77,48 +70,6 @@ class Power3DController extends ValueNotifier<Power3DState> {
     }
   }
 
-  /// Sets the 3D skybox (background) natively in Babylon.js.
-  /// This creates a PhotoDome that surrounds the 3D world.
-  Future<void> setSkybox(Power3DData data) async {
-    value = value.copyWith(skyboxPath: data.path, skyboxSource: data.source);
-
-    if (_webViewController == null) return;
-
-    try {
-      String? encodedData;
-      String type = 'url';
-      String fileName = data.fileName ?? p.basename(data.path);
-
-      switch (data.source) {
-        case Power3DSource.asset:
-          final byteData = await rootBundle.load(data.path);
-          final bytes = byteData.buffer.asUint8List();
-          encodedData = base64Encode(bytes);
-          type = 'base64';
-          break;
-        case Power3DSource.network:
-          encodedData = data.path;
-          type = 'url';
-          break;
-        case Power3DSource.file:
-          final file = File(data.path);
-          if (await file.exists()) {
-            final bytes = await file.readAsBytes();
-            encodedData = base64Encode(bytes);
-            type = 'base64';
-          } else {
-            throw Exception("File not found: ${data.path}");
-          }
-          break;
-      }
-
-      await _webViewController!.runJavaScript(
-        'setSkybox("$encodedData", "$fileName", "$type")',
-      );
-    } catch (e) {
-      debugPrint("Failed to set skybox: $e");
-    }
-  }
 
   Future<void> resetView() async {
     await _webViewController?.runJavaScript('resetView()');
