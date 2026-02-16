@@ -92,7 +92,10 @@
                         
                         if (result.meshes.length > 0) {
                             scene.createDefaultCameraOrLight(true, true, true);
-                            if (scene.activeCamera) scene.activeCamera.attachControl(canvas, true);
+                            if (scene.activeCamera) {
+                                scene.activeCamera.attachControl(canvas, true);
+                                applyInitialSettings(scene.activeCamera);
+                            }
                         }
 
                         sendMessageToFlutter({ type: 'status', message: 'loaded', fileName: fileName });
@@ -102,22 +105,75 @@
                                                                                                         }
                                                                                                     }
 
-                                                                                                    function resetView() {
-                                                                                                        if (scene && scene.activeCamera) {
-                                                                                                            scene.activeCamera.restoreState();
-                                                                                                            // If no state saved, just re-create default
-                                                                                                            if (scene.meshes.length > 0) {
-                                                                                                                scene.createDefaultCameraOrLight(true, true, true);
-                                                                                                                if (scene.activeCamera) scene.activeCamera.attachControl(canvas, true);
-                                                                                                            }
-                                                                                                        }
-                                                                                                    }
+                    function resetView() {
+                        if (scene && scene.activeCamera) {
+                            scene.activeCamera.restoreState();
+                            // If no state saved, just re-create default
+                            if (scene.meshes.length > 0) {
+                                scene.createDefaultCameraOrLight(true, true, true);
+                                                        if (scene.activeCamera) {
+                                                            scene.activeCamera.attachControl(canvas, true);
+                                                            applyInitialSettings(scene.activeCamera);
+                                                        }
+                                                    }
+                                                }
+                                            }
 
-                                                                                                    function toggleAutoRotate(enabled) {
-                                                                                                        if (scene && scene.activeCamera) {
-                                                                                                            scene.activeCamera.useAutoRotationBehavior = enabled;
-                                                                                                        }
-                                                                                                    }
+                                            let rotationTimeout = null;
+
+                                            function toggleAutoRotate(enabled, speed = 1.0, direction = 'clockwise', stopAfterMs = null) {
+                                                if (scene && scene.activeCamera) {
+                                                    const camera = scene.activeCamera;
+                                                    camera.useAutoRotationBehavior = enabled;
+
+                                                    if (enabled && camera.autoRotationBehavior) {
+                                                        // speed typically around 0.1 in Babylon for idle rotation
+                                                        // we can scale it.
+                                                        camera.autoRotationBehavior.idleRotationSpeed = (direction === 'clockwise' ? 1 : -1) * (speed * 0.1);
+
+                                                        // Handle stop after
+                                                        if (rotationTimeout) clearTimeout(rotationTimeout);
+                                                        if (stopAfterMs) {
+                                                            rotationTimeout = setTimeout(() => {
+                                                                camera.useAutoRotationBehavior = false;
+                                                                sendMessageToFlutter({ type: 'statusChange', key: 'autoRotate', value: false });
+                                                            }, stopAfterMs);
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            function setLockPosition(locked) {
+                                                if (scene && scene.activeCamera) {
+                                                    const camera = scene.activeCamera;
+                                                    if (locked) {
+                                                        // Disable panning (Ctrl + Right Click or Two finger drag)
+                                                        camera.panningSensibility = 0;
+                                                    } else {
+                                                        camera.panningSensibility = 1000; // Default usually around 1000
+                                                    }
+                                                }
+                                            }
+
+                    function updateZoom(enabled, min = 1.0, max = 20.0) {
+                        if (scene && scene.activeCamera) {
+                        const camera = scene.activeCamera;
+                        if (!enabled) {
+                            camera.lowerRadiusLimit = camera.radius;
+                            camera.upperRadiusLimit = camera.radius;
+                        } else {
+                            camera.lowerRadiusLimit = min;
+                            camera.upperRadiusLimit = max;
+                        }
+                            }
+                        }
+
+                        function applyInitialSettings(camera) {
+                            // Default settings matching Power3DState defaults
+                            camera.lowerRadiusLimit = 1.0;
+                            camera.upperRadiusLimit = 20.0;
+                            camera.panningSensibility = 0; // Locked by default
+                }
 
     async function takeScreenshot() {
         if (engine && scene) {

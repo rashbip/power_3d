@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'src/models/power3d_model.dart';
-import 'src/viewmodel/power3d_viewmodel.dart';
+import 'src/controller/power3d_controller.dart';
 
 export 'src/models/power3d_model.dart';
-export 'src/viewmodel/power3d_viewmodel.dart';
+export 'src/controller/power3d_controller.dart';
 
-class Power3D extends ConsumerStatefulWidget {
+class Power3D extends StatefulWidget {
+  final Power3DController? controller;
   final Power3DData? initialModel;
   final Function(String)? onMessage;
   final bool lazy;
   final Widget? errorWidget;
-  final Widget Function(BuildContext context, Power3DManager notifier)?
+  final Widget Function(BuildContext context, Power3DController controller)?
   loadingUi;
 
   const Power3D({
     super.key,
+    this.controller,
     this.initialModel,
     this.onMessage,
     this.lazy = false,
@@ -27,15 +28,17 @@ class Power3D extends ConsumerStatefulWidget {
   factory Power3D.fromAsset(
     String path, {
     Key? key,
+    Power3DController? controller,
     String? fileName,
     Widget? errorWidget,
     Function(String)? onMessage,
     bool lazy = false,
-    Widget Function(BuildContext context, Power3DManager notifier)?
+    Widget Function(BuildContext context, Power3DController controller)?
     loadingUi,
   }) {
     return Power3D(
       key: key,
+      controller: controller,
       initialModel: Power3DData(
         path: path,
         source: Power3DSource.asset,
@@ -51,15 +54,17 @@ class Power3D extends ConsumerStatefulWidget {
   factory Power3D.fromNetwork(
     String url, {
     Key? key,
+    Power3DController? controller,
     String? fileName,
     Widget? errorWidget,
     Function(String)? onMessage,
     bool lazy = false,
-    Widget Function(BuildContext context, Power3DManager notifier)?
+    Widget Function(BuildContext context, Power3DController controller)?
     loadingUi,
   }) {
     return Power3D(
       key: key,
+      controller: controller,
       initialModel: Power3DData(
         path: url,
         source: Power3DSource.network,
@@ -75,16 +80,18 @@ class Power3D extends ConsumerStatefulWidget {
   factory Power3D.fromFile(
     dynamic file, {
     Key? key,
+    Power3DController? controller,
     String? fileName,
     Widget? errorWidget,
     Function(String)? onMessage,
     bool lazy = false,
-    Widget Function(BuildContext context, Power3DManager notifier)?
+    Widget Function(BuildContext context, Power3DController controller)?
     loadingUi,
   }) {
     final String path = file is String ? file : file.path;
     return Power3D(
       key: key,
+      controller: controller,
       initialModel: Power3DData(
         path: path,
         source: Power3DSource.file,
@@ -98,15 +105,17 @@ class Power3D extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<Power3D> createState() => _Power3DState();
+  State<Power3D> createState() => _Power3DState();
 }
 
-class _Power3DState extends ConsumerState<Power3D> {
-  WebViewController? _controller;
+class _Power3DState extends State<Power3D> {
+  WebViewController? _webViewController;
+  late Power3DController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = widget.controller ?? Power3DController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!widget.lazy && mounted) {
         _initController();
@@ -114,7 +123,27 @@ class _Power3DState extends ConsumerState<Power3D> {
     });
   }
 
-  String get _viewerId => widget.initialModel?.path ?? 'default';
+  @override
+  void didUpdateWidget(Power3D oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.controller != oldWidget.controller) {
+      if (oldWidget.controller == null) {
+        _controller.dispose();
+      }
+      _controller = widget.controller ?? Power3DController();
+      if (_webViewController != null) {
+        _controller.setWebViewController(_webViewController!);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
+    super.dispose();
+  }
 
   void _initController() {
     if (!mounted) return;
@@ -126,9 +155,7 @@ class _Power3DState extends ConsumerState<Power3D> {
         NavigationDelegate(
           onPageFinished: (String url) {
             if (mounted && widget.initialModel != null) {
-              ref
-                  .read(power3DManagerProvider(_viewerId).notifier)
-                  .loadModel(widget.initialModel!);
+              _controller.loadModel(widget.initialModel!);
             }
           },
           onWebResourceError: (WebResourceError error) {
@@ -140,9 +167,7 @@ class _Power3DState extends ConsumerState<Power3D> {
         'FlutterChannel',
         onMessageReceived: (JavaScriptMessage message) {
           if (mounted) {
-            ref
-                .read(power3DManagerProvider(_viewerId).notifier)
-                .handleWebViewMessage(message.message);
+            _controller.handleWebViewMessage(message.message);
             if (widget.onMessage != null) {
               widget.onMessage!(message.message);
             }
@@ -152,42 +177,44 @@ class _Power3DState extends ConsumerState<Power3D> {
       ..loadFlutterAsset('packages/power3d/assets/index.html');
 
     setState(() {
-      _controller = controller;
+      _webViewController = controller;
     });
 
-    final notifier = ref.read(power3DManagerProvider(_viewerId).notifier);
-    notifier.setController(controller);
-    notifier.initialize();
+    _controller.setWebViewController(controller);
+    _controller.initialize();
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(power3DManagerProvider(_viewerId));
-    final notifier = ref.read(power3DManagerProvider(_viewerId).notifier);
+    return ValueListenableBuilder<Power3DState>(
+      valueListenable: _controller,
+      builder: (context, state, child) {
+        // If the model is fully loaded, show the viewer
+        if (state.status == Power3DStatus.loaded) {
+          return SizedBox.expand(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (_webViewController != null)
+                  WebViewWidget(controller: _webViewController!),
+              ],
+            ),
+          );
+        }
 
-    // If the model is fully loaded, show the viewer (with potential error/loading overlays)
-    if (state.status == Power3DStatus.loaded) {
-      return SizedBox.expand(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (_controller != null) WebViewWidget(controller: _controller!),
-          ],
-        ),
-      );
-    }
+        // If we have an error, show the error widget
+        if (state.status == Power3DStatus.error) {
+          return widget.errorWidget ?? const Center(child: Text("Error"));
+        }
 
-    // If we have an error, show the error widget
-    if (state.status == Power3DStatus.error) {
-      return widget.errorWidget ?? const Center(child: Text("Error"));
-    }
+        // Otherwise (status is initial or loading), show the loading UI
+        if (widget.loadingUi != null) {
+          return widget.loadingUi!(context, _controller);
+        }
 
-    // Otherwise (status is initial or loading), show the loading UI
-    if (widget.loadingUi != null) {
-      return widget.loadingUi!(context, notifier);
-    }
-
-    // Default Fallback
-    return const Center(child: CircularProgressIndicator());
+        // Default Fallback
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
   }
 }
