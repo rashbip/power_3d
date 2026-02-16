@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+import 'package:flutter/material.dart';
+
 enum Power3DSource {
   asset,
   network,
@@ -5,6 +8,8 @@ enum Power3DSource {
 }
 
 enum RotationDirection { clockwise, counterClockwise }
+
+enum LightType { hemispheric, directional, point }
 
 class Power3DData {
   final String path;
@@ -54,6 +59,11 @@ class Power3DState {
 
   final String? lastScreenshot;
 
+  // Lighting & Scene
+  final List<LightingConfig> lights;
+  final double exposure;
+  final double contrast;
+
   const Power3DState({
     required this.status,
     this.errorMessage,
@@ -71,6 +81,9 @@ class Power3DState {
     this.cameraBeta = 1.25, // Default Beta
     this.cameraRadius = 3.0, // Default Radius
     this.lastScreenshot,
+    this.lights = const [LightingConfig()],
+    this.exposure = 1.0,
+    this.contrast = 1.0,
   });
 
   factory Power3DState.initial() =>
@@ -93,6 +106,9 @@ class Power3DState {
     double? cameraBeta,
     double? cameraRadius,
     String? lastScreenshot,
+    List<LightingConfig>? lights,
+    double? exposure,
+    double? contrast,
   }) {
     return Power3DState(
       status: status ?? this.status,
@@ -111,6 +127,45 @@ class Power3DState {
       cameraBeta: cameraBeta ?? this.cameraBeta,
       cameraRadius: cameraRadius ?? this.cameraRadius,
       lastScreenshot: lastScreenshot ?? this.lastScreenshot,
+      lights: lights ?? this.lights,
+      exposure: exposure ?? this.exposure,
+      contrast: contrast ?? this.contrast,
+    );
+  }
+}
+
+class LightingConfig {
+  final LightType type;
+  final double intensity;
+  final Color color;
+  final math.Point<double>? direction;
+  final bool castShadows;
+  final double shadowBlur;
+
+  const LightingConfig({
+    this.type = LightType.hemispheric,
+    this.intensity = 0.7,
+    this.color = Colors.white,
+    this.direction,
+    this.castShadows = false,
+    this.shadowBlur = 10.0,
+  });
+
+  LightingConfig copyWith({
+    LightType? type,
+    double? intensity,
+    Color? color,
+    math.Point<double>? direction,
+    bool? castShadows,
+    double? shadowBlur,
+  }) {
+    return LightingConfig(
+      type: type ?? this.type,
+      intensity: intensity ?? this.intensity,
+      color: color ?? this.color,
+      direction: direction ?? this.direction,
+      castShadows: castShadows ?? this.castShadows,
+      shadowBlur: shadowBlur ?? this.shadowBlur,
     );
   }
 }

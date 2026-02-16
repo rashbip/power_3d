@@ -14,8 +14,8 @@ The main widget for displaying 3D models.
 | `lazy` | `bool` | If true, the viewer won't initialize until `controller.initialize()` is called. |
 | `loadingUi` | `Widget Function(...)` | Custom widget to show during loading state. |
 | `errorWidget` | `Widget?` | Custom widget to show on error state. |
-| `environmentBuilder` | `Widget Function(...)` | Custom background widget that reactive to camera. |
-| `environmentConfig` | `EnvironmentConfig?` | High-level controls for background sync (rotation, zoom, etc). |
+| `environmentBuilder` | `Widget Function(...)` | Custom background widget behind the 3D model. |
+| `lightingConfig` | `LightingConfig?` | Initial lighting configuration (intensity, color, type). |
 
 ### Constructors
 - `Power3D.fromAsset(path, ...)`
@@ -29,7 +29,7 @@ The main widget for displaying 3D models.
 A `ValueNotifier<Power3DState>` that provides methods to control the 3D viewer.
 
 ### Properties
-- `value`: Current `Power3DState` (status, rotation, zoom, etc.).
+- `value`: Current `Power3DState` (status, rotation, zoom, lighting, etc.).
 
 ### Methods
 
@@ -38,6 +38,9 @@ Loads a new model into the viewer.
 
 #### `resetView()`
 Resets the camera to its initial orientation and zoom.
+
+#### `updateLighting(LightingConfig config)`
+Updates the scene lighting in real-time.
 
 #### `updateRotation({bool? enabled, double? speed, RotationDirection? direction, Duration? stopAfter})`
 Updates the auto-rotation behavior.
@@ -48,8 +51,8 @@ Locks or unlocks object panning.
 #### `updateZoom({bool? enabled, double? min, double? max})`
 Updates zoom limits and toggles zooming.
 
-#### `takeScreenshot(String savePath)`
-Captures the current view and saves it to the specified local file path.
+#### `takeScreenshot()`
+Captures the current view and returns a base64 string.
 
 ---
 
@@ -62,4 +65,5 @@ Captures the current view and saves it to the specified local file path.
 | `autoRotate` | `bool` | Whether auto-rotation is active. |
 | `isPositionLocked`| `bool` | Whether panning is disabled. |
 | `enableZoom` | `bool` | Whether zooming is enabled. |
+| `lightingConfig` | `LightingConfig` | Current lighting configuration. |
 | `lastScreenshot` | `String?` | Base64 data of the last captured screenshot. |

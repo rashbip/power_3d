@@ -16,6 +16,9 @@ class Power3D extends StatefulWidget {
   loadingUi;
   final Widget Function(BuildContext context, Power3DState state)?
   environmentBuilder;
+  final List<LightingConfig>? lights;
+  final double? exposure;
+  final double? contrast;
 
   const Power3D({
     super.key,
@@ -26,6 +29,9 @@ class Power3D extends StatefulWidget {
     this.errorWidget,
     this.loadingUi,
     this.environmentBuilder,
+    this.lights,
+    this.exposure,
+    this.contrast,
   });
 
   factory Power3D.fromAsset(
@@ -40,6 +46,9 @@ class Power3D extends StatefulWidget {
     loadingUi,
     Widget Function(BuildContext context, Power3DState state)?
     environmentBuilder,
+    List<LightingConfig>? lights,
+    double? exposure,
+    double? contrast,
   }) {
     return Power3D(
       key: key,
@@ -54,6 +63,9 @@ class Power3D extends StatefulWidget {
       errorWidget: errorWidget,
       loadingUi: loadingUi,
       environmentBuilder: environmentBuilder,
+      lights: lights,
+      exposure: exposure,
+      contrast: contrast,
     );
   }
 
@@ -69,6 +81,9 @@ class Power3D extends StatefulWidget {
     loadingUi,
     Widget Function(BuildContext context, Power3DState state)?
     environmentBuilder,
+    List<LightingConfig>? lights,
+    double? exposure,
+    double? contrast,
   }) {
     return Power3D(
       key: key,
@@ -83,6 +98,9 @@ class Power3D extends StatefulWidget {
       errorWidget: errorWidget,
       loadingUi: loadingUi,
       environmentBuilder: environmentBuilder,
+      lights: lights,
+      exposure: exposure,
+      contrast: contrast,
     );
   }
 
@@ -98,6 +116,9 @@ class Power3D extends StatefulWidget {
     loadingUi,
     Widget Function(BuildContext context, Power3DState state)?
     environmentBuilder,
+    List<LightingConfig>? lights,
+    double? exposure,
+    double? contrast,
   }) {
     final String path = file is String ? file : file.path;
     return Power3D(
@@ -113,6 +134,9 @@ class Power3D extends StatefulWidget {
       errorWidget: errorWidget,
       loadingUi: loadingUi,
       environmentBuilder: environmentBuilder,
+      lights: lights,
+      exposure: exposure,
+      contrast: contrast,
     );
   }
 
@@ -128,6 +152,16 @@ class _Power3DState extends State<Power3D> {
   void initState() {
     super.initState();
     _controller = widget.controller ?? Power3DController();
+
+    if (widget.lights != null) {
+      _controller.setLights(widget.lights!);
+    }
+    if (widget.exposure != null || widget.contrast != null) {
+      _controller.updateSceneProcessing(
+        exposure: widget.exposure,
+        contrast: widget.contrast,
+      );
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!widget.lazy && mounted) {
@@ -147,6 +181,18 @@ class _Power3DState extends State<Power3D> {
       if (_webViewController != null) {
         _controller.setWebViewController(_webViewController!);
       }
+    }
+
+    if (widget.lights != oldWidget.lights && widget.lights != null) {
+      _controller.setLights(widget.lights!);
+    }
+    if ((widget.exposure != oldWidget.exposure ||
+            widget.contrast != oldWidget.contrast) &&
+        (widget.exposure != null || widget.contrast != null)) {
+      _controller.updateSceneProcessing(
+        exposure: widget.exposure,
+        contrast: widget.contrast,
+      );
     }
   }
 

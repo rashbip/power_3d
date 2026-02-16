@@ -21,6 +21,60 @@ class Power3DController extends ValueNotifier<Power3DState> {
   void initialize() {
     if (value.isInitialized) return;
     value = value.copyWith(isInitialized: true);
+
+    // Apply initial lighting
+    setLights(value.lights);
+    updateSceneProcessing(exposure: value.exposure, contrast: value.contrast);
+  }
+
+  /// Updates the list of lights in the scene.
+  Future<void> setLights(List<LightingConfig> lights) async {
+    value = value.copyWith(lights: lights);
+
+    if (_webViewController == null) return;
+
+    final List<Map<String, dynamic>> jsConfigs = lights.map((config) {
+      final colorHex =
+          '#${config.color.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+      final Map<String, dynamic> jsConfig = {
+        'type': config.type.name,
+        'intensity': config.intensity,
+        'color': colorHex,
+        'castShadows': config.castShadows,
+        'shadowBlur': config.shadowBlur,
+      };
+
+      if (config.direction != null) {
+        jsConfig['direction'] = {
+          'x': config.direction!.x,
+          'y': config.direction!.y,
+        };
+      }
+      return jsConfig;
+    }).toList();
+
+    await _webViewController!.runJavaScript(
+      'updateLighting(${jsonEncode(jsConfigs)})',
+    );
+  }
+
+  @Deprecated('Use setLights instead')
+  Future<void> updateLighting(LightingConfig config) async {
+    await setLights([config]);
+  }
+
+  /// Updates the scene-level image processing (exposure and contrast).
+  Future<void> updateSceneProcessing({
+    double? exposure,
+    double? contrast,
+  }) async {
+    value = value.copyWith(exposure: exposure, contrast: contrast);
+
+    if (_webViewController == null) return;
+
+    await _webViewController!.runJavaScript(
+      'updateSceneProcessing(${value.exposure}, ${value.contrast})',
+    );
   }
 
   Future<void> loadModel(Power3DData data) async {
