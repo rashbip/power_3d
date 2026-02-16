@@ -7,8 +7,7 @@
         <title>Babylon.js Viewer</title>
 
         <!-- Babylon.js -->
-        <script src="full/babylon.js"></script>
-        <script src="full/babylon.ktx2Decoder.js"></script>
+        <script src="babylon/babylon.js"></script>
 
         <style>
             html, body {
@@ -31,36 +30,83 @@
         <canvas id="renderCanvas"></canvas>
         <script>
             const canvas = document.getElementById("renderCanvas");
-            const engine = new BABYLON.Engine(canvas, true);
+                const engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+                let scene;
 
             const createScene = function () {
-                const scene = new BABYLON.Scene(engine);
-                scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+                const s = new BABYLON.Scene(engine);
+                s.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
-                const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, new BABYLON.Vector3(0, 0, 0), scene);
+                const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 5, new BABYLON.Vector3(0, 0, 0), s);
                 camera.attachControl(canvas, true);
                 
-                const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+                const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), s);
+                light.intensity = 0.7;
                 
-                const box = BABYLON.MeshBuilder.CreateBox("box", {}, scene);
-                
-                return scene;
+                return s;
             };
 
-            const scene = createScene();
+                scene = createScene();
 
             engine.runRenderLoop(function () {
-                scene.render();
+                if (scene) {
+                    scene.render();
+                }
             });
 
             window.addEventListener("resize", function () {
                 engine.resize();
             });
 
+                /**
+                 * Loads a 3D model into the scene.
+                 * @param {string} data - URL or Base64 string.
+                 * @param {string} fileName - Name of the file with extension.
+                 * @param {string} type - 'url' or 'base64'.
+                 */
+                async function loadModel(data, fileName, type) {
+                    try {
+                        sendMessageToFlutter({ type: 'status', message: 'loading', fileName: fileName });
+
+                        // Clear existing meshes except internal ones (lights, camera)
+                        scene.meshes.slice().forEach(m => m.dispose());
+
+                        let rootUrl = "";
+                        let sceneFilename = data;
+
+                        if (type === 'base64') {
+                            // For base64, we use a prefix to tell SceneLoader it's a data string
+                            sceneFilename = "data:" + data;
+                        }
+
+                        const result = await BABYLON.SceneLoader.ImportMeshAsync("", rootUrl, sceneFilename, scene);
+
+                        // Center the model
+                        if (result.meshes.length > 0) {
+                            const root = result.meshes[0];
+                            // Some loaders return a root node, others don't.
+                            // We can use the bounding box to center it.
+                        }
+
+                        sendMessageToFlutter({ type: 'status', message: 'loaded', fileName: fileName });
+                    } catch (e) {
+                        console.error("Load Error:", e);
+                        sendMessageToFlutter({ type: 'error', message: e.message });
+                    }
+                }
+
             // Communication with Flutter
             window.addEventListener("message", (event) => {
-                // Handle messages from Flutter if needed
-                console.log("Received message from Flutter:", event.data);
+                if (typeof event.data === 'string') {
+                    try {
+                        const command = JSON.parse(event.data);
+                        if (command.action === 'loadModel') {
+                            loadModel(command.data, command.fileName, command.type);
+                        }
+                    } catch (e) {
+                        console.error("Failed to parse message:", event.data);
+                    }
+                }
             });
 
             function sendMessageToFlutter(message) {

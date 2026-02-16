@@ -9,6 +9,9 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   webview_flutter: ^4.10.0
+  flutter_riverpod: ^2.6.1
+  path: ^1.9.0
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
@@ -20,10 +23,7 @@ flutter:
 
   assets:
     - assets/index.html
-    - assets/full/babylon.js
-    - assets/full/babylon.ktx2Decoder.js
-    - assets/full/loaders/
-    - assets/full/materialsLibrary/
+    - assets/babylon/babylon.js
 
   # To add assets to your application, add an assets section, like this:
   # assets:
