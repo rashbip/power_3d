@@ -7,7 +7,19 @@
         <title>Babylon.js Viewer</title>
 
         <!-- Babylon.js -->
-        <script src="babylon/babylon.js"></script>
+        <script src="babylon/babylon.js"
+            onerror="sendMessageToFlutter({type:'error', message:'Failed to load babylon.js'})"></script>
+        
+        <script>
+            // Pre-define sendMessageToFlutter for script errors
+            function sendMessageToFlutter(message) {
+                if (window.FlutterChannel) {
+                    window.FlutterChannel.postMessage(JSON.stringify(message));
+                } else {
+                    console.log("FlutterChannel not ready:", message);
+                }
+            }
+        </script>
 
         <style>
             html, body {
@@ -59,14 +71,19 @@
             });
 
                 /**
-                 * Loads a 3D model into the scene.
-                 * @param {string} data - URL or Base64 string.
-                 * @param {string} fileName - Name of the file with extension.
-                 * @param {string} type - 'url' or 'base64'.
-                 */
+             * Loads a 3D model into the scene.
+             * @param {string} data - URL or Base64 string.
+             * @param {string} fileName - Name of the file with extension.
+             * @param {string} type - 'url' or 'base64'.
+             */
                 async function loadModel(data, fileName, type) {
                     try {
+                        console.log(`Loading model: ${fileName} (${type})`);
                         sendMessageToFlutter({ type: 'status', message: 'loading', fileName: fileName });
+
+                        if (!scene) {
+                            throw new Error("Scene not initialized");
+                        }
 
                         // Clear existing meshes except internal ones (lights, camera)
                         scene.meshes.slice().forEach(m => m.dispose());
@@ -79,19 +96,36 @@
                             sceneFilename = "data:" + data;
                         }
 
-                        const result = await BABYLON.SceneLoader.ImportMeshAsync("", rootUrl, sceneFilename, scene);
+                        // Extract extension for Babylon loading plugins
+                        const extension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
 
-                        // Center the model
+                        console.log(`Using extension: ${extension}`);
+
+                        const result = await BABYLON.SceneLoader.ImportMeshAsync(
+                            "",
+                            rootUrl,
+                            sceneFilename,
+                            scene,
+                            null,
+                            extension
+                        );
+                    
+                        // Auto-focus camera on the loaded model
                         if (result.meshes.length > 0) {
                             const root = result.meshes[0];
-                            // Some loaders return a root node, others don't.
-                            // We can use the bounding box to center it.
+                        // If multiple meshes, we might need a common parent or bounding box
+                        scene.createDefaultCameraOrLight(true, true, true);
+                        const camera = scene.activeCamera;
+                        if (camera) {
+                            camera.attachControl(canvas, true);
                         }
+                    }
 
+                        console.log("Model loaded successfully");
                         sendMessageToFlutter({ type: 'status', message: 'loaded', fileName: fileName });
                     } catch (e) {
                         console.error("Load Error:", e);
-                        sendMessageToFlutter({ type: 'error', message: e.message });
+                        sendMessageToFlutter({ type: 'error', message: e.message || "Failed to load model" });
                     }
                 }
 

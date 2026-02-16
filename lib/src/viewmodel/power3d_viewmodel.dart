@@ -1,21 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:path/path.dart' as p;
 import '../models/power3d_model.dart';
 
-final power3DProvider =
-    StateNotifierProvider.family<Power3DNotifier, Power3DState, String>((
-      ref,
-      id,
-    ) {
-      return Power3DNotifier();
-    });
+part 'power3d_viewmodel.g.dart';
 
-class Power3DNotifier extends StateNotifier<Power3DState> {
-  Power3DNotifier() : super(Power3DState.initial());
+@riverpod
+class Power3DManager extends _$Power3DManager {
+  @override
+  Power3DState build(String viewerId) {
+    return Power3DState.initial();
+  }
 
   WebViewController? _controller;
 
@@ -23,8 +21,15 @@ class Power3DNotifier extends StateNotifier<Power3DState> {
     _controller = controller;
   }
 
+  void initialize() {
+    // Avoid double initialization and ensure state is updated
+    if (!state.isInitialized) {
+      state = state.copyWith(isInitialized: true);
+    }
+  }
+
   Future<void> loadModel(Power3DData data) async {
-    if (_controller == null) return;
+    if (!state.isInitialized || _controller == null) return;
 
     state = state.copyWith(
       status: Power3DStatus.loading,
