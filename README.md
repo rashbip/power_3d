@@ -1,43 +1,60 @@
-# power3d
-
 # Power3D
 
-A premium, localized 3D model viewer for Flutter powered by Babylon.js.
+A powerful, industry-level Flutter plugin for rendering 3D models using Babylon.js. Designed for ease of use, extensibility, and seamless integration into any architecture.
 
 ## Features
 
-- **Blazing Fast**: Uses Babylon.js for high-performance 3D rendering.
-- **Multiple Sources**: Load models from Assets, Network, or local Files.
-- **Lazy Loading**: Defer model download and rendering until explicitly triggered.
-- **Custom Placeholders**: Show beautiful UI while models are loading or before they start.
-- **State Management**: Built with Riverpod for robust and predictable state handling.
-- **Cross-Platform**: Seamlessly works on Android and iOS via WebView.
+- **🚀 Architecture Agnostic**: Uses a Controller pattern, compatible with Riverpod, Bloc, Provider, GetX, or plain `setState`.
+- **📦 Versatile Loading**: Load models from Assets, Network, or local Files.
+- **🎮 Advanced Controls**: 
+    - Auto-rotation with custom speed and direction.
+    - Automatic stop timer for rotation.
+    - Zoom limits (min/max) and toggles.
+    - Position locking (enable/disable panning).
+- **📸 Managed Screenshots**: Capture and automatically save screenshots to a specified path.
+- **🎨 Customizable UI**: Provide your own loading and error widgets.
 
 ## Quick Start
 
-```dart
-// Basic Asset Loading
-Power3D.fromAsset('assets/models/heart.glb')
-
-// Lazy Network Loading with Custom UI
-Power3D.fromNetwork(
-  'https://example.com/model.glb',
-  lazy: true,
-  placeholderBuilder: (context, notifier) {
-    return Center(
-      child: ElevatedButton(
-        onPressed: () => notifier.initialize(),
-        child: Text('Load 3D Model'),
-      ),
-    );
-  },
-)
+### 1. Add dependency
+```yaml
+dependencies:
+  power3d: ^1.0.0
 ```
 
-## Performance & Storage
+### 2. Basic Setup (Android)
+Ensure your app supports cleartext traffic if loading models from URLs. See [Setup Guide](docs/setup.md).
 
-Power3D uses **CDN-hosted Babylon.js** (~2MB from cache) instead of bundling large files locally. This keeps your app size small. See [Babylon.js Optimization Guide](docs/babylonjs_optimization.md) for details.
+### 3. Usage
+
+```dart
+import 'package:power3d/power3d.dart';
+
+// 1. Create a controller
+final controller = Power3DController();
+
+// 2. Add the widget
+Power3D.fromAsset(
+  'assets/my_model.glb',
+  controller: controller,
+);
+
+// 3. Control the view
+void rotate() {
+  controller.updateRotation(
+    enabled: true,
+    speed: 1.5,
+    stopAfter: Duration(seconds: 5),
+  );
+}
+```
 
 ## Documentation
 
-For detailed usage, check out the [Usage Guide](docs/usage.md).
+- [Setup & Permissions](docs/setup.md)
+- [Camera & Rotation Controls](docs/controls.md)
+- [API Reference](docs/api_reference.md)
+
+## Example
+
+Check the `example` folder for a complete demonstration of all features.
