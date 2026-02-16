@@ -11,6 +11,7 @@ class Power3D extends ConsumerStatefulWidget {
   final Power3DData? initialModel;
   final Function(String)? onMessage;
   final bool lazy;
+  final Widget? errorWidget;
   final Widget Function(BuildContext context, Power3DManager notifier)?
   placeholderBuilder;
 
@@ -19,6 +20,7 @@ class Power3D extends ConsumerStatefulWidget {
     this.initialModel,
     this.onMessage,
     this.lazy = false,
+    this.errorWidget,
     this.placeholderBuilder,
   });
 
@@ -26,6 +28,7 @@ class Power3D extends ConsumerStatefulWidget {
     String path, {
     Key? key,
     String? fileName,
+    Widget? errorWidget,
     Function(String)? onMessage,
     bool lazy = false,
     Widget Function(BuildContext context, Power3DManager notifier)?
@@ -40,6 +43,7 @@ class Power3D extends ConsumerStatefulWidget {
       ),
       onMessage: onMessage,
       lazy: lazy,
+      errorWidget: errorWidget,
       placeholderBuilder: placeholderBuilder,
     );
   }
@@ -48,6 +52,7 @@ class Power3D extends ConsumerStatefulWidget {
     String url, {
     Key? key,
     String? fileName,
+    Widget? errorWidget,
     Function(String)? onMessage,
     bool lazy = false,
     Widget Function(BuildContext context, Power3DManager notifier)?
@@ -62,6 +67,7 @@ class Power3D extends ConsumerStatefulWidget {
       ),
       onMessage: onMessage,
       lazy: lazy,
+      errorWidget: errorWidget,
       placeholderBuilder: placeholderBuilder,
     );
   }
@@ -70,6 +76,7 @@ class Power3D extends ConsumerStatefulWidget {
     dynamic file, {
     Key? key,
     String? fileName,
+    Widget? errorWidget,
     Function(String)? onMessage,
     bool lazy = false,
     Widget Function(BuildContext context, Power3DManager notifier)?
@@ -85,6 +92,7 @@ class Power3D extends ConsumerStatefulWidget {
       ),
       onMessage: onMessage,
       lazy: lazy,
+      errorWidget: errorWidget,
       placeholderBuilder: placeholderBuilder,
     );
   }
@@ -174,50 +182,17 @@ class _Power3DState extends ConsumerState<Power3D> {
       );
     }
 
-    return Stack(
-      children: [
-        if (_controller != null) WebViewWidget(controller: _controller!),
-        if (state.status == Power3DStatus.loading)
-          const Center(child: CircularProgressIndicator()),
-        if (state.status == Power3DStatus.error)
-          Container(
-            color: Colors.white.withOpacity(0.9),
-            padding: const EdgeInsets.all(20),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: Colors.redAccent,
-                    size: 40,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    (state.errorMessage != null &&
-                            state.errorMessage!.length > 500)
-                        ? '${state.errorMessage!.substring(0, 500)}...'
-                        : (state.errorMessage ?? 'An error occurred'),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.black87, fontSize: 13),
-                  ),
-                  const SizedBox(height: 16),
-                  TextButton.icon(
-                    onPressed: () {
-                      if (widget.initialModel != null) {
-                        ref
-                            .read(power3DManagerProvider(_viewerId).notifier)
-                            .loadModel(widget.initialModel!);
-                      }
-                    },
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
+    return SizedBox.expand(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (_controller != null) WebViewWidget(controller: _controller!),
+          if (state.status == Power3DStatus.loading)
+            const Center(child: CircularProgressIndicator()),
+          if (state.status == Power3DStatus.error)
+            widget.errorWidget ?? const Center(child: Text("Error")),
+        ],
+      ),
     );
   }
 }
