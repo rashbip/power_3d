@@ -3,6 +3,7 @@ import 'package:example/options/error_example.dart';
 import 'package:example/options/network_example.dart';
 import 'package:example/options/placeholder_example.dart';
 import 'package:example/options/environment_example.dart';
+import 'package:example/options/material_example.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -76,6 +77,14 @@ class HomePage extends StatelessWidget {
             subtitle: 'Sync Flutter background with 3D camera',
             icon: Icons.landscape,
             target: const EnvironmentExample(),
+          ),
+          const SizedBox(height: 16),
+          _buildExampleCard(
+            context,
+            title: 'Materials & Shading',
+            subtitle: 'Change colors, transparency, and shading modes',
+            icon: Icons.brush,
+            target: const MaterialExample(),
           ),
         ],
       ),

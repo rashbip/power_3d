@@ -89,6 +89,39 @@ class _EnvironmentExampleState extends State<EnvironmentExample> {
             flex: 3,
             child: Power3D.fromAsset(
               _assetPath,
+              environmentBuilder: (context, state) {
+                return Stack(
+                  children: [
+                    //image
+                    SizedBox(
+                      width: double.maxFinite,
+                      height: double.maxFinite,
+                      child: Opacity(
+                        opacity: 0.4,
+                        child: Image.asset(
+                          'assets/images/frieren_bg.jpeg',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    //gradient
+                    Container(
+                      width: double.maxFinite,
+                      height: double.maxFinite,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            const Color.fromARGB(255, 230, 255, 154),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
               controller: _controller,
               lights: _buildLights(),
               exposure: _exposure,

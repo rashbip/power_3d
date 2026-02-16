@@ -11,6 +11,54 @@ enum RotationDirection { clockwise, counterClockwise }
 
 enum LightType { hemispheric, directional, point }
 
+enum ShadingMode {
+  shaded,
+  wireframe,
+  pointCloud,
+  xray,
+  unlit,
+  normals,
+  uvChecker,
+  roughness,
+  metallic,
+}
+
+class MaterialConfig {
+  final Color? color;
+  final double? metallic;
+  final double? roughness;
+  final double? alpha;
+  final Color? emissiveColor;
+  final bool? doubleSided;
+
+  const MaterialConfig({
+    this.color,
+    this.metallic,
+    this.roughness,
+    this.alpha,
+    this.emissiveColor,
+    this.doubleSided,
+  });
+
+  MaterialConfig copyWith({
+    Color? color,
+    double? metallic,
+    double? roughness,
+    double? alpha,
+    Color? emissiveColor,
+    bool? doubleSided,
+  }) {
+    return MaterialConfig(
+      color: color ?? this.color,
+      metallic: metallic ?? this.metallic,
+      roughness: roughness ?? this.roughness,
+      alpha: alpha ?? this.alpha,
+      emissiveColor: emissiveColor ?? this.emissiveColor,
+      doubleSided: doubleSided ?? this.doubleSided,
+    );
+  }
+}
+
 class Power3DData {
   final String path;
   final Power3DSource source;
@@ -64,6 +112,10 @@ class Power3DState {
   final double exposure;
   final double contrast;
 
+  // Materials & Shading
+  final ShadingMode shadingMode;
+  final MaterialConfig? globalMaterial;
+
   const Power3DState({
     required this.status,
     this.errorMessage,
@@ -84,6 +136,8 @@ class Power3DState {
     this.lights = const [LightingConfig()],
     this.exposure = 1.0,
     this.contrast = 1.0,
+    this.shadingMode = ShadingMode.shaded,
+    this.globalMaterial,
   });
 
   factory Power3DState.initial() =>
@@ -109,6 +163,8 @@ class Power3DState {
     List<LightingConfig>? lights,
     double? exposure,
     double? contrast,
+    ShadingMode? shadingMode,
+    MaterialConfig? globalMaterial,
   }) {
     return Power3DState(
       status: status ?? this.status,
@@ -130,6 +186,8 @@ class Power3DState {
       lights: lights ?? this.lights,
       exposure: exposure ?? this.exposure,
       contrast: contrast ?? this.contrast,
+      shadingMode: shadingMode ?? this.shadingMode,
+      globalMaterial: globalMaterial ?? this.globalMaterial,
     );
   }
 }

@@ -25,6 +25,47 @@ class Power3DController extends ValueNotifier<Power3DState> {
     // Apply initial lighting
     setLights(value.lights);
     updateSceneProcessing(exposure: value.exposure, contrast: value.contrast);
+    
+    // Apply initial materials/shading
+    setShadingMode(value.shadingMode);
+    if (value.globalMaterial != null) {
+      setGlobalMaterial(value.globalMaterial!);
+    }
+  }
+
+  /// Updates the shading mode of the scene.
+  Future<void> setShadingMode(ShadingMode mode) async {
+    value = value.copyWith(shadingMode: mode);
+    if (_webViewController == null) return;
+    await _webViewController!.runJavaScript(
+      'updateShadingMode("${mode.name}")',
+    );
+  }
+
+  /// Updates the global material properties for all meshes in the scene.
+  Future<void> setGlobalMaterial(MaterialConfig config) async {
+    value = value.copyWith(globalMaterial: config);
+    if (_webViewController == null) return;
+
+    final String? colorHex = config.color != null
+        ? '#${config.color!.value.toRadixString(16).padLeft(8, '0').substring(2)}'
+        : null;
+    final String? emissiveHex = config.emissiveColor != null
+        ? '#${config.emissiveColor!.value.toRadixString(16).padLeft(8, '0').substring(2)}'
+        : null;
+
+    final Map<String, dynamic> jsConfig = {
+      if (colorHex != null) 'color': colorHex,
+      if (config.metallic != null) 'metallic': config.metallic,
+      if (config.roughness != null) 'roughness': config.roughness,
+      if (config.alpha != null) 'alpha': config.alpha,
+      if (emissiveHex != null) 'emissiveColor': emissiveHex,
+      if (config.doubleSided != null) 'doubleSided': config.doubleSided,
+    };
+
+    await _webViewController!.runJavaScript(
+      'updateGlobalMaterial(${jsonEncode(jsConfig)})',
+    );
   }
 
   /// Updates the list of lights in the scene.
@@ -197,6 +238,11 @@ class Power3DController extends ValueNotifier<Power3DState> {
       if (data['type'] == 'status') {
         if (data['message'] == 'loaded') {
           value = value.copyWith(status: Power3DStatus.loaded);
+          // Re-apply materials and shading after model load
+          setShadingMode(value.shadingMode);
+          if (value.globalMaterial != null) {
+            setGlobalMaterial(value.globalMaterial!);
+          }
         } else if (data['message'] == 'loading') {
           value = value.copyWith(status: Power3DStatus.loading);
         }

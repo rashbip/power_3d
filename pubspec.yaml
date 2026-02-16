@@ -1,6 +1,9 @@
 name: power3d
-description: "A new Flutter project."
+description: "Probably the most powerful 3D model viewer for Flutter, I bet."
 publish_to: "none"
+#homepage: https://github.com/rashbip/power_3d
+repository: https://github.com/rashbip/power_3d
+issue_tracker: https://github.com/rashbip/power_3d/issues
 version: 1.0.0+1
 environment:
   sdk: ^3.10.8
@@ -30,6 +33,7 @@ flutter:
     - assets/js/lighting.js
     - assets/js/model-loader.js
     - assets/js/scene.js
+    - assets/js/materials.js
 
   # To add assets to your application, add an assets section, like this:
   # assets:
