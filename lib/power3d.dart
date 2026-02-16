@@ -10,7 +10,6 @@ export 'src/viewmodel/power3d_viewmodel.dart';
 class Power3D extends ConsumerStatefulWidget {
   final Power3DData? initialModel;
   final Function(String)? onMessage;
-  final String viewerId;
   final bool lazy;
   final Widget Function(BuildContext context, Power3DManager notifier)?
   placeholderBuilder;
@@ -19,7 +18,6 @@ class Power3D extends ConsumerStatefulWidget {
     super.key,
     this.initialModel,
     this.onMessage,
-    this.viewerId = 'default',
     this.lazy = false,
     this.placeholderBuilder,
   });
@@ -28,7 +26,6 @@ class Power3D extends ConsumerStatefulWidget {
     String path, {
     Key? key,
     String? fileName,
-    String viewerId = 'default',
     Function(String)? onMessage,
     bool lazy = false,
     Widget Function(BuildContext context, Power3DManager notifier)?
@@ -41,7 +38,6 @@ class Power3D extends ConsumerStatefulWidget {
         source: Power3DSource.asset,
         fileName: fileName,
       ),
-      viewerId: viewerId,
       onMessage: onMessage,
       lazy: lazy,
       placeholderBuilder: placeholderBuilder,
@@ -52,7 +48,6 @@ class Power3D extends ConsumerStatefulWidget {
     String url, {
     Key? key,
     String? fileName,
-    String viewerId = 'default',
     Function(String)? onMessage,
     bool lazy = false,
     Widget Function(BuildContext context, Power3DManager notifier)?
@@ -65,7 +60,6 @@ class Power3D extends ConsumerStatefulWidget {
         source: Power3DSource.network,
         fileName: fileName,
       ),
-      viewerId: viewerId,
       onMessage: onMessage,
       lazy: lazy,
       placeholderBuilder: placeholderBuilder,
@@ -76,7 +70,6 @@ class Power3D extends ConsumerStatefulWidget {
     dynamic file, {
     Key? key,
     String? fileName,
-    String viewerId = 'default',
     Function(String)? onMessage,
     bool lazy = false,
     Widget Function(BuildContext context, Power3DManager notifier)?
@@ -90,7 +83,6 @@ class Power3D extends ConsumerStatefulWidget {
         source: Power3DSource.file,
         fileName: fileName,
       ),
-      viewerId: viewerId,
       onMessage: onMessage,
       lazy: lazy,
       placeholderBuilder: placeholderBuilder,
@@ -115,6 +107,8 @@ class _Power3DState extends ConsumerState<Power3D> {
     });
   }
 
+  String get _viewerId => widget.initialModel?.path ?? 'default';
+
   void _initController() {
     if (!mounted) return;
 
@@ -126,7 +120,7 @@ class _Power3DState extends ConsumerState<Power3D> {
           onPageFinished: (String url) {
             if (mounted && widget.initialModel != null) {
               ref
-                  .read(power3DManagerProvider(widget.viewerId).notifier)
+                  .read(power3DManagerProvider(_viewerId).notifier)
                   .loadModel(widget.initialModel!);
             }
           },
@@ -140,7 +134,7 @@ class _Power3DState extends ConsumerState<Power3D> {
         onMessageReceived: (JavaScriptMessage message) {
           if (mounted) {
             ref
-                .read(power3DManagerProvider(widget.viewerId).notifier)
+                .read(power3DManagerProvider(_viewerId).notifier)
                 .handleWebViewMessage(message.message);
             if (widget.onMessage != null) {
               widget.onMessage!(message.message);
@@ -154,15 +148,15 @@ class _Power3DState extends ConsumerState<Power3D> {
       _controller = controller;
     });
 
-    final notifier = ref.read(power3DManagerProvider(widget.viewerId).notifier);
+    final notifier = ref.read(power3DManagerProvider(_viewerId).notifier);
     notifier.setController(controller);
     notifier.initialize();
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(power3DManagerProvider(widget.viewerId));
-    final notifier = ref.read(power3DManagerProvider(widget.viewerId).notifier);
+    final state = ref.watch(power3DManagerProvider(_viewerId));
+    final notifier = ref.read(power3DManagerProvider(_viewerId).notifier);
 
     if (!state.isInitialized) {
       if (widget.placeholderBuilder != null) {
@@ -186,30 +180,41 @@ class _Power3DState extends ConsumerState<Power3D> {
         if (state.status == Power3DStatus.loading)
           const Center(child: CircularProgressIndicator()),
         if (state.status == Power3DStatus.error)
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.error, color: Colors.red, size: 48),
-                const SizedBox(height: 8),
-                Text(
-                  state.errorMessage ?? 'An error occurred',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.red),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (widget.initialModel != null) {
-                      ref
-                          .read(
-                            power3DManagerProvider(widget.viewerId).notifier,
-                          )
-                          .loadModel(widget.initialModel!);
-                    }
-                  },
-                  child: const Text('Retry'),
-                ),
-              ],
+          Container(
+            color: Colors.white.withOpacity(0.9),
+            padding: const EdgeInsets.all(20),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    color: Colors.redAccent,
+                    size: 40,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    (state.errorMessage != null &&
+                            state.errorMessage!.length > 500)
+                        ? '${state.errorMessage!.substring(0, 500)}...'
+                        : (state.errorMessage ?? 'An error occurred'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.black87, fontSize: 13),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton.icon(
+                    onPressed: () {
+                      if (widget.initialModel != null) {
+                        ref
+                            .read(power3DManagerProvider(_viewerId).notifier)
+                            .loadModel(widget.initialModel!);
+                      }
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                  ),
+                ],
+              ),
             ),
           ),
       ],

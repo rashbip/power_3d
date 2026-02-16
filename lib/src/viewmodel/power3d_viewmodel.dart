@@ -11,7 +11,7 @@ part 'power3d_viewmodel.g.dart';
 @riverpod
 class Power3DManager extends _$Power3DManager {
   @override
-  Power3DState build(String viewerId) {
+  Power3DState build(String id) {
     return Power3DState.initial();
   }
 
@@ -64,13 +64,9 @@ class Power3DManager extends _$Power3DManager {
           break;
       }
 
-      final message = jsonEncode({
-        'action': 'loadModel',
-        'data': encodedData,
-        'fileName': fileName,
-        'type': type,
-      });
-      await _controller!.runJavaScript('window.postMessage($message, "*")');
+      await _controller!.runJavaScript(
+        'loadModel("$encodedData", "$fileName", "$type")',
+      );
     } catch (e) {
       state = state.copyWith(
         status: Power3DStatus.error,

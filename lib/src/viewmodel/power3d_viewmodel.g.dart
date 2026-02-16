@@ -6,7 +6,7 @@ part of 'power3d_viewmodel.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$power3DManagerHash() => r'd7e64d3fed816afda2a2fdbfa8152e520ee3cda8';
+String _$power3DManagerHash() => r'dd11ee7717d4cc80e3b3919d243a7ed4f1666e42';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -31,9 +31,9 @@ class _SystemHash {
 
 abstract class _$Power3DManager
     extends BuildlessAutoDisposeNotifier<Power3DState> {
-  late final String viewerId;
+  late final String id;
 
-  Power3DState build(String viewerId);
+  Power3DState build(String id);
 }
 
 /// See also [Power3DManager].
@@ -46,15 +46,15 @@ class Power3DManagerFamily extends Family<Power3DState> {
   const Power3DManagerFamily();
 
   /// See also [Power3DManager].
-  Power3DManagerProvider call(String viewerId) {
-    return Power3DManagerProvider(viewerId);
+  Power3DManagerProvider call(String id) {
+    return Power3DManagerProvider(id);
   }
 
   @override
   Power3DManagerProvider getProviderOverride(
     covariant Power3DManagerProvider provider,
   ) {
-    return call(provider.viewerId);
+    return call(provider.id);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -76,9 +76,9 @@ class Power3DManagerFamily extends Family<Power3DState> {
 class Power3DManagerProvider
     extends AutoDisposeNotifierProviderImpl<Power3DManager, Power3DState> {
   /// See also [Power3DManager].
-  Power3DManagerProvider(String viewerId)
+  Power3DManagerProvider(String id)
     : this._internal(
-        () => Power3DManager()..viewerId = viewerId,
+        () => Power3DManager()..id = id,
         from: power3DManagerProvider,
         name: r'power3DManagerProvider',
         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -87,7 +87,7 @@ class Power3DManagerProvider
         dependencies: Power3DManagerFamily._dependencies,
         allTransitiveDependencies:
             Power3DManagerFamily._allTransitiveDependencies,
-        viewerId: viewerId,
+        id: id,
       );
 
   Power3DManagerProvider._internal(
@@ -97,14 +97,14 @@ class Power3DManagerProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.viewerId,
+    required this.id,
   }) : super.internal();
 
-  final String viewerId;
+  final String id;
 
   @override
   Power3DState runNotifierBuild(covariant Power3DManager notifier) {
-    return notifier.build(viewerId);
+    return notifier.build(id);
   }
 
   @override
@@ -112,13 +112,13 @@ class Power3DManagerProvider
     return ProviderOverride(
       origin: this,
       override: Power3DManagerProvider._internal(
-        () => create()..viewerId = viewerId,
+        () => create()..id = id,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        viewerId: viewerId,
+        id: id,
       ),
     );
   }
@@ -131,13 +131,13 @@ class Power3DManagerProvider
 
   @override
   bool operator ==(Object other) {
-    return other is Power3DManagerProvider && other.viewerId == viewerId;
+    return other is Power3DManagerProvider && other.id == id;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, viewerId.hashCode);
+    hash = _SystemHash.combine(hash, id.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -146,8 +146,8 @@ class Power3DManagerProvider
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin Power3DManagerRef on AutoDisposeNotifierProviderRef<Power3DState> {
-  /// The parameter `viewerId` of this provider.
-  String get viewerId;
+  /// The parameter `id` of this provider.
+  String get id;
 }
 
 class _Power3DManagerProviderElement
@@ -156,7 +156,7 @@ class _Power3DManagerProviderElement
   _Power3DManagerProviderElement(super.provider);
 
   @override
-  String get viewerId => (origin as Power3DManagerProvider).viewerId;
+  String get id => (origin as Power3DManagerProvider).id;
 }
 
 // ignore_for_file: type=lint
