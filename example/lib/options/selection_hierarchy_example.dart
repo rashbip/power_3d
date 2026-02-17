@@ -158,16 +158,40 @@ class _SelectionHierarchyExampleState extends State<SelectionHierarchyExample> {
     final String? uniqueId = node['uniqueId']?.toString();
     final String selectionId = uniqueId ?? name;
 
-    if (type == 'mesh') {
+    // Handle leaf nodes or selectable objects
+    if (children.isEmpty && type != 'section' && type != 'category') {
       final isSelected = state.selectedParts.contains(selectionId);
+
+      IconData iconData = Icons.adjust;
+      Color iconColor = Colors.grey;
+
+      switch (type) {
+        case 'mesh':
+          iconData = Icons.view_in_ar;
+          iconColor = isSelected ? Colors.blue : Colors.grey;
+          break;
+        case 'camera':
+          iconData = Icons.videocam;
+          iconColor = Colors.blueAccent;
+          break;
+        case 'light':
+          iconData = Icons.lightbulb_outline;
+          iconColor = Colors.orangeAccent;
+          break;
+        case 'material':
+          iconData = Icons.blur_on;
+          iconColor = Colors.purpleAccent;
+          break;
+        case 'transform':
+          iconData = Icons.open_with;
+          iconColor = Colors.cyan;
+          break;
+      }
+
       return Padding(
         padding: EdgeInsets.only(left: level * 16.0),
         child: ListTile(
-          leading: Icon(
-            Icons.view_in_ar,
-            size: 18,
-            color: isSelected ? Colors.blue : Colors.grey,
-          ),
+          leading: Icon(iconData, size: 18, color: iconColor),
           title: Text(
             displayName,
             style: TextStyle(
@@ -181,25 +205,49 @@ class _SelectionHierarchyExampleState extends State<SelectionHierarchyExample> {
               : null,
           dense: true,
           onTap: () {
-            if (isSelected) {
-              _controller.unselectPart(selectionId);
+            // Only meshes and materials (maybe) are selectable for styling/info
+            if (type == 'mesh' || type == 'material') {
+              if (isSelected) {
+                _controller.unselectPart(selectionId);
+              } else {
+                _controller.selectPart(selectionId);
+              }
             } else {
-              _controller.selectPart(selectionId);
+              // For others, just show metadata
+              _controller.getNodeExtras(selectionId).then((extras) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Node: $name (Type: $type)')),
+                  );
+                }
+              });
             }
           },
         ),
       );
     }
 
+    // Handle folders / expansion tiles
+    IconData folderIcon = Icons.folder_open;
+    Color? folderColor;
+
+    if (type == 'section') {
+      folderIcon = name == 'Materials' ? Icons.api : Icons.account_tree;
+      folderColor = Colors.indigoAccent;
+    } else if (type == 'category') {
+      folderIcon = Icons.folder;
+      folderColor = Colors.amber;
+    }
+
     return ExpansionTile(
-      leading: Icon(
-        type == 'category' ? Icons.folder : Icons.adjust,
-        size: 20,
-        color: type == 'node' ? Colors.orangeAccent : null,
-      ),
+      leading: Icon(folderIcon, size: 20, color: folderColor),
       title: Text(
         displayName,
-        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+        style: TextStyle(
+          fontWeight: type == 'section' ? FontWeight.bold : FontWeight.w500,
+          fontSize: 14,
+          color: type == 'section' ? Colors.indigoAccent : null,
+        ),
       ),
       dense: true,
       initiallyExpanded: level == 0,
