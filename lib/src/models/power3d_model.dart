@@ -1,36 +1,90 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
+/// Source of the 3D model.
 enum Power3DSource {
+  /// Loaded from Flutter assets.
   asset,
+
+  /// Loaded from a network URL.
   network,
+
+  /// Loaded from a local file path.
   file,
 }
 
-enum RotationDirection { clockwise, counterClockwise }
+/// Directions for automatic rotation of the model.
+enum RotationDirection {
+  /// Clockwise rotation.
+  clockwise,
 
-enum LightType { hemispheric, directional, point }
+  /// Counter-clockwise rotation.
+  counterClockwise,
+}
 
+/// Types of lights supported in the scene.
+enum LightType {
+  /// Ambient light that illuminates all objects equally from a specific direction.
+  hemispheric,
+
+  /// Parallel light rays (like sunlight).
+  directional,
+
+  /// Light that radiates from a single point in all directions.
+  point,
+}
+
+/// Shading and rendering modes for the 3D scene.
 enum ShadingMode {
+  /// Standard shaded rendering with lighting.
   shaded,
+
+  /// Show the underlying mesh wireframe.
   wireframe,
+
+  /// Render only the vertices of the mesh.
   pointCloud,
+
+  /// Semi-transparent X-ray style rendering.
   xray,
+
+  /// Render with flat colors, ignoring lighting.
   unlit,
+
+  /// Visualize surface normals.
   normals,
+
+  /// Show a UV checkerboard pattern for texture alignment.
   uvChecker,
+
+  /// Visualize the roughness property of materials.
   roughness,
+
+  /// Visualize the metallic property of materials.
   metallic,
 }
 
+/// Configuration for overriding material properties of the model.
 class MaterialConfig {
+  /// Base color of the material.
   final Color? color;
+
+  /// Metallic property (0.0 to 1.0).
   final double? metallic;
+
+  /// Roughness property (0.0 to 1.0).
   final double? roughness;
+
+  /// Transparency level (0.0 to 1.0).
   final double? alpha;
+
+  /// Emissive (glowing) color of the material.
   final Color? emissiveColor;
+
+  /// Whether to render both sides of the mesh polygons.
   final bool? doubleSided;
 
+  /// Creates a new material configuration.
   const MaterialConfig({
     this.color,
     this.metallic,
@@ -40,6 +94,7 @@ class MaterialConfig {
     this.doubleSided,
   });
 
+  /// Creates a copy of this configuration with the given fields replaced.
   MaterialConfig copyWith({
     Color? color,
     double? metallic,
@@ -59,17 +114,25 @@ class MaterialConfig {
   }
 }
 
+/// Visual style for selected or unselected parts of the model.
 class SelectionStyle {
+  /// Color used to highlight the selected part.
   final Color? highlightColor;
+
+  /// Color of the outline around the selected part.
   final Color? outlineColor;
+
+  /// Width of the outline.
   final double? outlineWidth;
 
+  /// Creates a new selection style.
   const SelectionStyle({
     this.highlightColor,
     this.outlineColor,
     this.outlineWidth,
   });
 
+  /// Creates a copy of this style with the given fields replaced.
   SelectionStyle copyWith({
     Color? highlightColor,
     Color? outlineColor,
@@ -83,26 +146,47 @@ class SelectionStyle {
   }
 }
 
+/// Positional offset for selected parts.
 class SelectionShift {
+  /// X-axis offset.
   final double x;
+
+  /// Y-axis offset.
   final double y;
+
+  /// Z-axis offset.
   final double z;
 
+  /// Creates a new selection shift.
   const SelectionShift({this.x = 0, this.y = 0, this.z = 0});
 
+  /// Creates a copy of this shift with the given fields replaced.
   SelectionShift copyWith({double? x, double? y, double? z}) {
     return SelectionShift(x: x ?? this.x, y: y ?? this.y, z: z ?? this.z);
   }
 }
 
+/// Configuration for the object parts selection system.
 class SelectionConfig {
+  /// Whether selection is enabled.
   final bool enabled;
+
+  /// Whether multiple parts can be selected simultaneously.
   final bool multipleSelection;
+
+  /// Style applied to selected parts.
   final SelectionStyle? selectionStyle;
+
+  /// Style applied to parts that are NOT selected.
   final SelectionStyle? unselectedStyle;
+
+  /// Scaling factor applied to selected parts.
   final double scaleSelection;
+
+  /// Positional shift applied to selected parts.
   final SelectionShift? selectionShift;
 
+  /// Creates a new selection configuration.
   const SelectionConfig({
     this.enabled = false,
     this.multipleSelection = false,
@@ -112,6 +196,7 @@ class SelectionConfig {
     this.selectionShift,
   });
 
+  /// Creates a copy of this configuration with the given fields replaced.
   SelectionConfig copyWith({
     bool? enabled,
     bool? multipleSelection,
@@ -131,68 +216,118 @@ class SelectionConfig {
   }
 }
 
+/// Data structure representing a 3D model source.
 class Power3DData {
+  /// Path or URL to the model file.
   final String path;
+
+  /// Source type (asset, network, or file).
   final Power3DSource source;
+
+  /// Custom name for the file (optional).
   final String? fileName;
 
+  /// Creates a new model data structure.
   const Power3DData({
     required this.path,
     required this.source,
     this.fileName,
   });
 
+  /// Returns the file extension of the model path.
   String get extension => path.split('.').last.toLowerCase();
 }
 
+/// Loading status of the 3D model.
 enum Power3DStatus {
+  /// Initial state, no model loading started.
   initial,
+
+  /// Model is currently being downloaded or loaded into the scene.
   loading,
+
+  /// Model has been successfully loaded.
   loaded,
+
+  /// An error occurred during loading.
   error,
 }
 
+/// State of the Power3D viewer.
 class Power3DState {
+  /// Current loading status.
   final Power3DStatus status;
+
+  /// Error message if status is [Power3DStatus.error].
   final String? errorMessage;
+
+  /// Name of the currently loaded model.
   final String? currentModelName;
+
+  /// Whether the Babylon.js engine is initialized.
   final bool isInitialized;
 
-  // Rotation Controls
+  /// Whether the camera is currently auto-rotating.
   final bool autoRotate;
+
+  /// Speed of camera rotation.
   final double rotationSpeed;
+
+  /// Direction of camera rotation.
   final RotationDirection rotationDirection;
+
+  /// Time after which auto-rotation should automatically stop.
   final Duration? rotationStopAfter;
 
-  // Zoom Controls
+  /// Whether camera zooming is enabled.
   final bool enableZoom;
+
+  /// Maximum allowed zoom level.
   final double maxZoom;
+
+  /// Minimum allowed zoom level.
   final double minZoom;
 
-  // Position Controls
+  /// Whether the camera position (panning) is locked.
   final bool isPositionLocked;
 
-  // Camera Telemetry
+  /// Horizontal angle (Alpha) of the camera in radians.
   final double cameraAlpha;
+
+  /// Vertical angle (Beta) of the camera in radians.
   final double cameraBeta;
+
+  /// Distance (Radius) of the camera from the target.
   final double cameraRadius;
 
+  /// Base64 encoded string of the last captured screenshot.
   final String? lastScreenshot;
 
-  // Lighting & Scene
+  /// List of lights currently active in the scene.
   final List<LightingConfig> lights;
+
+  /// Scene exposure level.
   final double exposure;
+
+  /// Scene contrast level.
   final double contrast;
 
-  // Materials & Shading
+  /// Current shading mode.
   final ShadingMode shadingMode;
+
+  /// Global material override applied to the entire model.
   final MaterialConfig? globalMaterial;
 
-  // Selection & Object Parts
+  /// Configuration for the selection system.
   final SelectionConfig selectionConfig;
+
+  /// List of names of currently selected parts.
   final List<String> selectedParts;
+
+  /// List of names of all selectable parts in the model.
   final List<String> availableParts;
 
+  /// Creates a new state object.
   const Power3DState({
     required this.status,
     this.errorMessage,
@@ -220,9 +355,11 @@ class Power3DState {
     this.availableParts = const [],
   });
 
+  /// Initial state helper.
   factory Power3DState.initial() =>
       const Power3DState(status: Power3DStatus.initial);
 
+  /// Creates a copy of this state with the given fields replaced.
   Power3DState copyWith({
     Power3DStatus? status,
     String? errorMessage,
@@ -278,14 +415,27 @@ class Power3DState {
   }
 }
 
+/// Configuration for a light source in the scene.
 class LightingConfig {
+  /// Type of light.
   final LightType type;
+
+  /// Intensity of the light (usually 0.0 to 1.0+).
   final double intensity;
+
+  /// Color of the light.
   final Color color;
+
+  /// Direction of the light (for [LightType.directional]).
   final math.Point<double>? direction;
+
+  /// Whether this light casts shadows.
   final bool castShadows;
+
+  /// Blur level for the shadows.
   final double shadowBlur;
 
+  /// Creates a new lighting configuration.
   const LightingConfig({
     this.type = LightType.hemispheric,
     this.intensity = 0.7,
@@ -295,6 +445,7 @@ class LightingConfig {
     this.shadowBlur = 10.0,
   });
 
+  /// Creates a copy of this lighting configuration with the given fields replaced.
   LightingConfig copyWith({
     LightType? type,
     double? intensity,

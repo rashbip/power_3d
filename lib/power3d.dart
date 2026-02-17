@@ -6,20 +6,44 @@ import 'src/controller/power3d_controller.dart';
 export 'src/models/power3d_model.dart';
 export 'src/controller/power3d_controller.dart';
 
+/// A powerful 3D model viewer widget using Babylon.js.
+///
+/// Supports loading models from assets, network, or local files.
+/// Provides advanced controls for camera, lighting, and object selection.
 class Power3D extends StatefulWidget {
+  /// Optional controller to programmatically interact with the 3D scene.
   final Power3DController? controller;
+
+  /// Initial model data to load when the widget initializes.
   final Power3DData? initialModel;
+
+  /// Callback for receiving messages from the underlying JavaScript layer.
   final Function(String)? onMessage;
+
+  /// If true, the viewer will not initialize until manually triggered.
   final bool lazy;
+
+  /// Widget to display if an error occurs during model loading.
   final Widget? errorWidget;
+
+  /// Custom UI to display while the model is loading.
   final Widget Function(BuildContext context, Power3DController controller)?
   loadingUi;
+
+  /// Builder for providing a custom background or environment UI (e.g., gradients, images).
   final Widget Function(BuildContext context, Power3DState state)?
   environmentBuilder;
+
+  /// Initial set of lights for the scene.
   final List<LightingConfig>? lights;
+
+  /// Initial exposure level for the scene.
   final double? exposure;
+
+  /// Initial contrast level for the scene.
   final double? contrast;
 
+  /// Creates a new [Power3D] viewer.
   const Power3D({
     super.key,
     this.controller,
@@ -34,6 +58,7 @@ class Power3D extends StatefulWidget {
     this.contrast,
   });
 
+  /// Creates a [Power3D] viewer from a Flutter asset path.
   factory Power3D.fromAsset(
     String path, {
     Key? key,
@@ -69,6 +94,7 @@ class Power3D extends StatefulWidget {
     );
   }
 
+  /// Creates a [Power3D] viewer from a network URL.
   factory Power3D.fromNetwork(
     String url, {
     Key? key,
@@ -104,6 +130,7 @@ class Power3D extends StatefulWidget {
     );
   }
 
+  /// Creates a [Power3D] viewer from a local file.
   factory Power3D.fromFile(
     dynamic file, {
     Key? key,

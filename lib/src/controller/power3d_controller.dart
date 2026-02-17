@@ -2,12 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:meta/meta.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:path/path.dart' as p;
 import '../models/power3d_model.dart';
 
+/// Controller for programmatically managing the [Power3D] viewer.
+///
+/// Use this to load models, change materials, capture screenshots,
+/// manage lighting, and control the camera.
 class Power3DController extends ValueNotifier<Power3DState> {
+  /// Creates a new [Power3DController] with initial state.
   Power3DController() : super(Power3DState.initial());
 
   WebViewController? _webViewController;
@@ -19,6 +23,9 @@ class Power3DController extends ValueNotifier<Power3DState> {
     _webViewController = controller;
   }
 
+  /// Initializes the controller and applies initial state to the scene.
+  ///
+  /// This is called automatically by the [Power3D] widget.
   void initialize() {
     if (value.isInitialized) return;
     value = value.copyWith(isInitialized: true);
@@ -26,7 +33,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
     // Apply initial lighting
     setLights(value.lights);
     updateSceneProcessing(exposure: value.exposure, contrast: value.contrast);
-    
+
     // Apply initial materials/shading
     setShadingMode(value.shadingMode);
     if (value.globalMaterial != null) {
@@ -34,7 +41,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
     }
   }
 
-  /// Updates the shading mode of the scene.
+  /// Updates the shading and rendering mode of the 3D scene (e.g., [ShadingMode.wireframe]).
   Future<void> setShadingMode(ShadingMode mode) async {
     value = value.copyWith(shadingMode: mode);
     if (_webViewController == null) return;
@@ -43,7 +50,9 @@ class Power3DController extends ValueNotifier<Power3DState> {
     );
   }
 
-  /// Updates the global material properties for all meshes in the scene.
+  /// Updates the global material properties applied to the entire model.
+  ///
+  /// This can be used to override colors, metallic/roughness properties, and alpha.
   Future<void> setGlobalMaterial(MaterialConfig config) async {
     value = value.copyWith(globalMaterial: config);
     if (_webViewController == null) return;
@@ -69,7 +78,9 @@ class Power3DController extends ValueNotifier<Power3DState> {
     );
   }
 
-  /// Updates the list of lights in the scene.
+  /// Sets the lighting configuration for the scene.
+  ///
+  /// Replaces any existing lights with the provided list of [LightingConfig]s.
   Future<void> setLights(List<LightingConfig> lights) async {
     value = value.copyWith(lights: lights);
 
@@ -106,6 +117,9 @@ class Power3DController extends ValueNotifier<Power3DState> {
   }
 
   /// Updates the scene-level image processing (exposure and contrast).
+  ///
+  /// [exposure]: The level of light exposure in the scene.
+  /// [contrast]: The difference between light and dark areas.
   Future<void> updateSceneProcessing({
     double? exposure,
     double? contrast,
@@ -119,6 +133,9 @@ class Power3DController extends ValueNotifier<Power3DState> {
     );
   }
 
+  /// Loads a 3D model from the specified [data] source.
+  ///
+  /// Supports assets, network URLs, and local files.
   Future<void> loadModel(Power3DData data) async {
     if (!value.isInitialized || _webViewController == null) return;
 
@@ -167,15 +184,17 @@ class Power3DController extends ValueNotifier<Power3DState> {
   }
 
 
+  /// Resets the camera to its default position and orientation.
   Future<void> resetView() async {
     await _webViewController?.runJavaScript('resetView()');
   }
 
-  /// Updates the auto-rotation behavior.
+  /// Updates the auto-rotation behavior of the camera.
+  ///
   /// [enabled]: Whether auto-rotation is active.
-  /// [speed]: Rotation speed (default 1.0).
-  /// [direction]: Clockwise or Counter-Clockwise.
-  /// [stopAfter]: Optional duration after which to stop rotation.
+  /// [speed]: Rotation speed multiplier (default 1.0).
+  /// [direction]: Clockwise or Counter-Clockwise rotation.
+  /// [stopAfter]: Optional duration after which to automatically stop rotation.
   Future<void> updateRotation({
     bool? enabled,
     double? speed,
@@ -212,10 +231,11 @@ class Power3DController extends ValueNotifier<Power3DState> {
     await _webViewController?.runJavaScript('setLockPosition($locked)');
   }
 
-  /// Updates zoom limits and behavior.
-  /// [enabled]: Whether zooming is allowed.
-  /// [min]: Minimum zoom distance.
-  /// [max]: Maximum zoom distance.
+  /// Updates the camera zoom limits and behavior.
+  ///
+  /// [enabled]: Whether zooming interaction is allowed.
+  /// [min]: Minimum zoom distance allowed.
+  /// [max]: Maximum zoom distance allowed.
   Future<void> updateZoom({bool? enabled, double? min, double? max}) async {
     value = value.copyWith(enableZoom: enabled, minZoom: min, maxZoom: max);
     await _webViewController?.runJavaScript(
@@ -232,6 +252,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
     await _webViewController?.runJavaScript('takeScreenshot()');
   }
 
+  /// Internal message handler for communication from the JavaScript layer.
   @internal
   void handleWebViewMessage(String message) {
     try {
@@ -314,12 +335,14 @@ class Power3DController extends ValueNotifier<Power3DState> {
 
   Function(String partName, bool selected)? _onPartSelectedCallback;
 
-  /// Register a callback for part selection events
+  /// Registers a callback for part selection events.
+  ///
+  /// The callback is triggered whenever a part is selected or deselected.
   void onPartSelected(Function(String partName, bool selected) callback) {
     _onPartSelectedCallback = callback;
   }
 
-  /// Get list of available parts/meshes in the loaded model
+  /// Retrieves the list of available mesh part names from the currently loaded model.
   Future<List<String>> getPartsList() async {
     if (_webViewController == null) return [];
 
@@ -339,7 +362,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
     }
   }
 
-  /// Select a specific part by name
+  /// Focuses and selects a specific part by its mesh [partName].
   Future<void> selectPart(String partName) async {
     if (_webViewController == null) return;
 
@@ -355,7 +378,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
     }
   }
 
-  /// Unselect a specific part by name
+  /// Deselects a specific part by its mesh [partName].
   Future<void> unselectPart(String partName) async {
     if (_webViewController == null) return;
 
@@ -366,7 +389,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
     value = value.copyWith(selectedParts: newSelected);
   }
 
-  /// Clear all selections
+  /// Clears all currently selected model parts.
   Future<void> clearSelection() async {
     if (_webViewController == null) return;
 
@@ -374,7 +397,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
     value = value.copyWith(selectedParts: []);
   }
 
-  /// Update selection configuration
+  /// Updates the global selection configuration, including styles and behavior.
   Future<void> updateSelectionConfig(SelectionConfig config) async {
     value = value.copyWith(selectionConfig: config);
 
