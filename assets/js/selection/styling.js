@@ -16,7 +16,8 @@ function updateUnselectedParts() {
     // Apply unselected style to all non-selected meshes
     window.scene.meshes.forEach(mesh => {
         if (mesh.name && !mesh.name.startsWith('__')) {
-             if (!selectedMeshes.has(mesh.name)) {
+             const idKey = mesh.uniqueId.toString();
+             if (!selectedMeshes.has(idKey)) {
                 applySelectionStyle(mesh, selectionConfig.unselectedStyle);
              }
         }
@@ -24,9 +25,9 @@ function updateUnselectedParts() {
 }
 
 function storeMeshOriginalState(mesh) {
-    const partName = mesh.name;
-    if (!originalMeshStates.has(partName)) {
-        originalMeshStates.set(partName, {
+    const idKey = mesh.uniqueId.toString();
+    if (!originalMeshStates.has(idKey)) {
+        originalMeshStates.set(idKey, {
             position: mesh.position.clone(),
             scaling: mesh.scaling.clone(),
             material: mesh.material ? {
@@ -39,8 +40,8 @@ function storeMeshOriginalState(mesh) {
 }
 
 function restoreMeshOriginalState(mesh) {
-    const partName = mesh.name;
-    const originalState = originalMeshStates.get(partName);
+    const idKey = mesh.uniqueId.toString();
+    const originalState = originalMeshStates.get(idKey);
     if (originalState) {
         // Restore transforms
         mesh.position.copyFrom(originalState.position);
@@ -53,7 +54,7 @@ function restoreMeshOriginalState(mesh) {
             if (mesh.material.emissiveColor) mesh.material.emissiveColor = originalState.material.emissive?.clone();
         }
         
-        originalMeshStates.delete(partName);
+        originalMeshStates.delete(idKey);
     }
 
     // Remove highlight layer if exists
@@ -88,8 +89,8 @@ function applySelectionStyle(mesh, style) {
 }
 
 function applySelectionTransform(mesh, scale, shift) {
-    const meshName = mesh.name;
-    const originalState = originalMeshStates.get(meshName);
+    const idKey = mesh.uniqueId.toString();
+    const originalState = originalMeshStates.get(idKey);
     
     if (!originalState) return;
     

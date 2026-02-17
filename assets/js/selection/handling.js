@@ -1,39 +1,52 @@
 // Selection Handling Logic
 
 function handleMeshSelection(mesh) {
-    const meshName = mesh.name;
+    const identifier = mesh.uniqueId.toString(); // Use uniqueId as primary identifier
     
-    if (selectedMeshes.has(meshName)) {
+    if (selectedMeshes.has(identifier)) {
         // Deselect if already selected
-        unselectPart(meshName);
+        unselectPart(identifier);
     } else {
         // Clear previous selection if not in multiple mode
         if (!selectionConfig.multipleSelection) {
             clearSelection();
         }
-        selectPart(meshName);
+        selectPart(identifier);
     }
 
     // Notify Flutter
     sendMessageToFlutter({
         type: 'partSelected',
-        partName: meshName,
-        selected: selectedMeshes.has(meshName)
+        partName: identifier, // Now sending uniqueId for better reliability
+        meshName: mesh.name,   // Keep mesh name for convenience
+        selected: selectedMeshes.has(identifier)
     });
 }
 
-function selectPart(partName) {
+function selectPart(identifier) {
     if (!window.scene) return;
     
-    const mesh = window.scene.getMeshByName(partName);
+    // Try to find mesh by uniqueId first, then by name
+    let mesh = null;
+    const numericId = parseInt(identifier);
+    if (!isNaN(numericId)) {
+        mesh = window.scene.getMeshByUniqueId(numericId);
+    }
+    
+    if (!mesh) {
+        mesh = window.scene.getMeshByName(identifier);
+    }
+    
     if (!mesh) return;
 
+    const idKey = mesh.uniqueId.toString();
+
     // Clear previous selections if not in multiple mode and we're selecting a new part
-    if (!selectionConfig.multipleSelection && !selectedMeshes.has(partName)) {
+    if (!selectionConfig.multipleSelection && !selectedMeshes.has(idKey)) {
         clearSelection();
     }
 
-    selectedMeshes.add(partName);
+    selectedMeshes.add(idKey);
 
     // Apply selection style (this will also store original state)
     applySelectionStyle(mesh, selectionConfig.selectionStyle);
@@ -45,13 +58,23 @@ function selectPart(partName) {
     updateUnselectedParts();
 }
 
-function unselectPart(partName) {
+function unselectPart(identifier) {
     if (!window.scene) return;
     
-    const mesh = window.scene.getMeshByName(partName);
+    let mesh = null;
+    const numericId = parseInt(identifier);
+    if (!isNaN(numericId)) {
+        mesh = window.scene.getMeshByUniqueId(numericId);
+    }
+    
+    if (!mesh) {
+        mesh = window.scene.getMeshByName(identifier);
+    }
+    
     if (!mesh) return;
 
-    selectedMeshes.delete(partName);
+    const idKey = mesh.uniqueId.toString();
+    selectedMeshes.delete(idKey);
 
     // Restore original state using unified logic
     restoreMeshOriginalState(mesh);
@@ -61,11 +84,20 @@ function unselectPart(partName) {
 
 function clearSelection() {
     // We can't just clear the set because we need to restore each part
-    const partsToUnselect = Array.from(selectedMeshes);
+    const identifiers = Array.from(selectedMeshes);
     selectedMeshes.clear();
     
-    partsToUnselect.forEach(partName => {
-        const mesh = window.scene.getMeshByName(partName);
+    identifiers.forEach(identifier => {
+        let mesh = null;
+        const numericId = parseInt(identifier);
+        if (!isNaN(numericId)) {
+            mesh = window.scene.getMeshByUniqueId(numericId);
+        }
+        
+        if (!mesh) {
+            mesh = window.scene.getMeshByName(identifier);
+        }
+
         if (mesh) restoreMeshOriginalState(mesh);
     });
 

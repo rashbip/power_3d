@@ -1,25 +1,43 @@
 // Selection Visibility Controls
 
-function hideParts(partNames) {
-    if (!window.scene || !Array.isArray(partNames)) return;
+function hideParts(identifiers) {
+    if (!window.scene || !Array.isArray(identifiers)) return;
     
-    partNames.forEach(partName => {
-        const mesh = window.scene.getMeshByName(partName);
+    identifiers.forEach(identifier => {
+        let mesh = null;
+        const numericId = parseInt(identifier);
+        if (!isNaN(numericId)) {
+            mesh = window.scene.getMeshByUniqueId(numericId);
+        }
+        
+        if (!mesh) {
+            mesh = window.scene.getMeshByName(identifier);
+        }
+
         if (mesh) {
             mesh.isVisible = false;
-            visibilityState.set(partName, false);
+            visibilityState.set(mesh.uniqueId.toString(), false);
         }
     });
 }
 
-function showParts(partNames) {
-    if (!window.scene || !Array.isArray(partNames)) return;
+function showParts(identifiers) {
+    if (!window.scene || !Array.isArray(identifiers)) return;
     
-    partNames.forEach(partName => {
-        const mesh = window.scene.getMeshByName(partName);
+    identifiers.forEach(identifier => {
+        let mesh = null;
+        const numericId = parseInt(identifier);
+        if (!isNaN(numericId)) {
+            mesh = window.scene.getMeshByUniqueId(numericId);
+        }
+        
+        if (!mesh) {
+            mesh = window.scene.getMeshByName(identifier);
+        }
+
         if (mesh) {
             mesh.isVisible = true;
-            visibilityState.set(partName, true);
+            visibilityState.set(mesh.uniqueId.toString(), true);
         }
     });
 }
@@ -34,8 +52,11 @@ function hideUnselected() {
     
     const unselectedParts = [];
     window.scene.meshes.forEach(mesh => {
-        if (mesh.name && !mesh.name.startsWith('__') && !selectedMeshes.has(mesh.name)) {
-            unselectedParts.push(mesh.name);
+        if (mesh.name && !mesh.name.startsWith('__')) {
+            const idKey = mesh.uniqueId.toString();
+            if (!selectedMeshes.has(idKey)) {
+                unselectedParts.push(idKey);
+            }
         }
     });
     
@@ -48,7 +69,7 @@ function unhideAll() {
     const allParts = [];
     window.scene.meshes.forEach(mesh => {
         if (mesh.name && !mesh.name.startsWith('__')) {
-            allParts.push(mesh.name);
+            allParts.push(mesh.uniqueId.toString());
         }
     });
     

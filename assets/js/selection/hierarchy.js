@@ -16,9 +16,8 @@ function getPartsHierarchy(useCategorization = false) {
 function getPartsSceneGraph() {
     if (!window.scene) return [];
     
-    const rootNodes = window.scene.rootNodes.filter(node => 
-        node.name && !node.name.startsWith('__') || node.name === '__root__'
-    );
+    // To match Babylon.js Sandbox/Inspector, we show all root nodes
+    const rootNodes = window.scene.rootNodes;
     
     const processedNodes = new Set();
     const children = [];
@@ -32,26 +31,24 @@ function getPartsSceneGraph() {
 }
 
 function buildNodeHierarchy(node, processedNodes) {
-    if (processedNodes.has(node.uniqueId)) return null;
+    if (!node || processedNodes.has(node.uniqueId)) return null;
     processedNodes.add(node.uniqueId);
     
     const type = node instanceof BABYLON.Mesh || node instanceof BABYLON.InstancedMesh ? 'mesh' : 'node';
     
     const hierarchyNode = {
-        name: node.name,
-        uniqueId: node.uniqueId,
+        name: node.name || `Node ${node.uniqueId}`,
+        uniqueId: node.uniqueId.toString(),
         type: type,
         children: []
     };
     
     // Get all children (TransformNodes, Meshes, etc.)
-    const childrenNodes = node.getChildren();
+    const childrenNodes = node.getChildren ? node.getChildren() : [];
     if (childrenNodes && childrenNodes.length > 0) {
         childrenNodes.forEach(child => {
-            if (child.name && !child.name.startsWith('__')) {
-                const childHierarchy = buildNodeHierarchy(child, processedNodes);
-                if (childHierarchy) hierarchyNode.children.push(childHierarchy);
-            }
+            const childHierarchy = buildNodeHierarchy(child, processedNodes);
+            if (childHierarchy) hierarchyNode.children.push(childHierarchy);
         });
     }
     
@@ -84,6 +81,7 @@ function getPartsByCategorization() {
             
             categories[category].children.push({
                 name: mesh.name,
+                uniqueId: mesh.uniqueId.toString(),
                 displayName: partName,
                 type: 'mesh',
                 children: []
@@ -92,6 +90,7 @@ function getPartsByCategorization() {
             // No category detected
             unCategorizedNodes.push({
                 name: mesh.name,
+                uniqueId: mesh.uniqueId.toString(),
                 type: 'mesh',
                 children: []
             });
@@ -127,8 +126,8 @@ function getNodeExtras(nodeIdentifier) {
     const extras = {
         name: node.name,
         id: node.id,
-        uniqueId: node.uniqueId,
-        type: node instanceof BABYLON.Mesh ? 'mesh' : 'node'
+        uniqueId: node.uniqueId.toString(),
+        type: node instanceof BABYLON.Mesh || node instanceof BABYLON.InstancedMesh ? 'mesh' : 'node'
     };
     
     // Check for metadata

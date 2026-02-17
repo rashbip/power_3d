@@ -37,8 +37,17 @@ function enableSelectionMode(config) {
     
     // Reapply styles and transforms to all selected parts (for realtime updates)
     if (window.scene) {
-        selectedMeshes.forEach(partName => {
-            const mesh = window.scene.getMeshByName(partName);
+        selectedMeshes.forEach(identifier => {
+            let mesh = null;
+            const numericId = parseInt(identifier);
+            if (!isNaN(numericId)) {
+                mesh = window.scene.getMeshByUniqueId(numericId);
+            }
+            
+            if (!mesh) {
+                mesh = window.scene.getMeshByName(identifier);
+            }
+
             if (mesh) {
                 // Reapply style
                 applySelectionStyle(mesh, selectionConfig.selectionStyle);

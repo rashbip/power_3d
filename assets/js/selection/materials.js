@@ -9,14 +9,16 @@ function applyMaterialModeToSelection(mode, applyToSelected = true) {
     if (!window.scene) return;
     
     window.scene.meshes.forEach(mesh => {
-        if (!mesh.name || mesh.name.startsWith('__') || !mesh.material) return;
+        if (mesh.name && mesh.name.startsWith('__')) return;
+        if (!mesh.material) return;
         
-        const isSelected = selectedMeshes.has(mesh.name);
+        const idKey = mesh.uniqueId.toString();
+        const isSelected = selectedMeshes.has(idKey);
         const shouldApply = applyToSelected ? isSelected : !isSelected;
         
         if (shouldApply) {
             applyMaterialModeToMesh(mesh, mode);
-            partMaterialModes.set(mesh.name, mode);
+            partMaterialModes.set(idKey, mode);
         }
     });
 }

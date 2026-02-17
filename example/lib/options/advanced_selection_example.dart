@@ -295,19 +295,20 @@ class _AdvancedSelectionExampleState extends State<AdvancedSelectionExample> {
     final String displayName = node['displayName'] ?? name;
     final List children = node['children'] ?? [];
     final String type = node['type'] ?? 'unknown';
-    final int? uniqueId = node['uniqueId'];
+    final String? uniqueId = node['uniqueId']?.toString();
+    final String selectionId = uniqueId ?? name;
 
     if (type == 'mesh') {
-      final isSelected = state.selectedParts.contains(name);
+      final isSelected = state.selectedParts.contains(selectionId);
       return Padding(
         padding: EdgeInsets.only(left: 16.0 + (level * 16.0)),
         child: InkWell(
           onTap: _selectionEnabled
               ? () {
                   if (isSelected) {
-                    _controller.unselectPart(name);
+                    _controller.unselectPart(selectionId);
                   } else {
-                    _controller.selectPart(name);
+                    _controller.selectPart(selectionId);
                   }
                 }
               : null,
@@ -367,11 +368,11 @@ class _AdvancedSelectionExampleState extends State<AdvancedSelectionExample> {
       onExpansionChanged: (expanded) {
         if (expanded && type == 'node') {
           // You could optionally select a group or load extras here
-          _loadNodeExtras(uniqueId?.toString() ?? name);
+          _loadNodeExtras(selectionId);
         }
       },
     );
-  }
+}
 
   Widget _buildVisibilityTab(Power3DState state) {
     return ListView(

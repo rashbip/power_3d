@@ -5,7 +5,10 @@ import 'package:example/options/placeholder_example.dart';
 import 'package:example/options/environment_example.dart';
 import 'package:example/options/material_example.dart';
 import 'package:example/options/selection_example.dart';
-import 'package:example/options/advanced_selection_example.dart';
+import 'package:example/options/selection_hierarchy_example.dart';
+import 'package:example/options/selection_visibility_example.dart';
+import 'package:example/options/selection_metadata_example.dart';
+import 'package:example/options/selection_visual_styles_example.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -96,13 +99,48 @@ class HomePage extends StatelessWidget {
             icon: Icons.select_all,
             target: const SelectionExample(),
           ),
-          const SizedBox(height: 16),
+          const Divider(height: 32),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              'Advanced Selection Features',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.indigoAccent,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
           _buildExampleCard(
             context,
-            title: 'Advanced Selection',
-            subtitle: 'Hierarchy, visibility, bounding boxes & more',
-            icon: Icons.layers,
-            target: const AdvancedSelectionExample(),
+            title: 'Hierarchy & Structure',
+            subtitle: 'Full scene graph and categorized views',
+            icon: Icons.account_tree,
+            target: const SelectionHierarchyExample(),
+          ),
+          const SizedBox(height: 12),
+          _buildExampleCard(
+            context,
+            title: 'Visibility Controls',
+            subtitle: 'Hide/Show selected and unselected parts',
+            icon: Icons.visibility_outlined,
+            target: const SelectionVisibilityExample(),
+          ),
+          const SizedBox(height: 12),
+          _buildExampleCard(
+            context,
+            title: 'Metadata & Extras',
+            subtitle: 'Extract GLTF extras and node data',
+            icon: Icons.info_outline,
+            target: const SelectionMetadataExample(),
+          ),
+          const SizedBox(height: 12),
+          _buildExampleCard(
+            context,
+            title: 'Visual Styles & Boxes',
+            subtitle: 'Material modes and bounding box helpers',
+            icon: Icons.auto_fix_high,
+            target: const SelectionVisualStylesExample(),
           ),
         ],
       ),
