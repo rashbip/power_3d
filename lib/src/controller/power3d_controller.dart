@@ -607,6 +607,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
     final Map<String, dynamic> jsConfig = {
       'color': colorHex,
       'lineWidth': config.lineWidth,
+      'style': config.style.name,
     };
 
     await _webViewController!.runJavaScript(

@@ -21,6 +21,8 @@ class _SelectionVisualStylesExampleState
   ShadingMode _selectedMaterialMode = ShadingMode.shaded;
   bool _showBoundingBox = false;
   bool _applyToSelected = true;
+  BoundingBoxStyle _selectedBBStyle = BoundingBoxStyle.cube;
+  double _bbLineWidth = 1.0;
 
   @override
   void initState() {
@@ -42,7 +44,13 @@ class _SelectionVisualStylesExampleState
     _controller.onPartSelected((partIdentifier, selected) {
       if (_showBoundingBox) {
         if (selected) {
-          _controller.showBoundingBox([partIdentifier]);
+          _controller.showBoundingBox(
+            [partIdentifier],
+            config: BoundingBoxConfig(
+              style: _selectedBBStyle,
+              lineWidth: _bbLineWidth,
+            ),
+          );
         } else {
           _controller.hideBoundingBox([partIdentifier]);
         }
@@ -61,6 +69,20 @@ class _SelectionVisualStylesExampleState
     );
   }
 
+  void _updateBoundingBoxes() {
+    if (!_showBoundingBox) return;
+    final state = _controller.value;
+    if (state.selectedParts.isNotEmpty) {
+      _controller.showBoundingBox(
+        state.selectedParts,
+        config: BoundingBoxConfig(
+          style: _selectedBBStyle,
+          lineWidth: _bbLineWidth,
+        ),
+      );
+    }
+  }
+
   void _toggleBoundingBox(bool value) {
     setState(() {
       _showBoundingBox = value;
@@ -68,7 +90,7 @@ class _SelectionVisualStylesExampleState
 
     final state = _controller.value;
     if (value) {
-      _controller.showBoundingBox(state.selectedParts.toList());
+      _updateBoundingBoxes();
     } else {
       _controller.hideBoundingBox(state.selectedParts.toList());
     }
@@ -166,20 +188,57 @@ class _SelectionVisualStylesExampleState
                 })
                 .toList(),
           ),
-          const Divider(height: 32),
-          const Text(
-            'Visual Helpers',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          const Divider(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Bounding Boxes',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              Switch(value: _showBoundingBox, onChanged: _toggleBoundingBox),
+            ],
           ),
-          SwitchListTile(
-            title: const Text('Render Bounding Boxes'),
-            subtitle: const Text('Show wireframe box around selection'),
-            value: _showBoundingBox,
-            onChanged: _toggleBoundingBox,
-          ),
-          const Divider(),
+          if (_showBoundingBox) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Text('Style: '),
+                Expanded(
+                  child: SegmentedButton<BoundingBoxStyle>(
+                    segments: BoundingBoxStyle.values.map((s) {
+                      return ButtonSegment(value: s, label: Text(s.name));
+                    }).toList(),
+                    selected: {_selectedBBStyle},
+                    onSelectionChanged: (v) {
+                      setState(() => _selectedBBStyle = v.first);
+                      _updateBoundingBoxes();
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                const Text('Thickness: '),
+                Expanded(
+                  child: Slider(
+                    value: _bbLineWidth,
+                    min: 0.5,
+                    max: 5.0,
+                    onChanged: (v) {
+                      setState(() => _bbLineWidth = v);
+                      _updateBoundingBoxes();
+                    },
+                  ),
+                ),
+                Text(_bbLineWidth.toStringAsFixed(1)),
+              ],
+            ),
+          ],
+          const Divider(height: 24),
           const Text(
-            'Quick Select (for testing)',
+            'Quick Select',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           ),
           const SizedBox(height: 8),

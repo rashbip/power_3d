@@ -216,6 +216,18 @@ class SelectionConfig {
   }
 }
 
+/// Styles for the bounding box visualization.
+enum BoundingBoxStyle {
+  /// Standard wireframe cube with scale handles.
+  cube,
+
+  /// Wireframe sphere encompassing the bounds.
+  sphere,
+
+  /// Simple wireframe box without handles.
+  simple,
+}
+
 /// Configuration for bounding box visualization.
 class BoundingBoxConfig {
   /// Color of the bounding box lines.
@@ -224,13 +236,17 @@ class BoundingBoxConfig {
   /// Width of the bounding box lines.
   final double lineWidth;
 
+  /// Visual style of the bounding box.
+  final BoundingBoxStyle style;
+
   /// Whether to show dimensions/measurements.
   final bool showDimensions;
 
   /// Creates a new bounding box configuration.
   const BoundingBoxConfig({
     this.color = Colors.green,
-    this.lineWidth = 2.0,
+    this.lineWidth = 1.0,
+    this.style = BoundingBoxStyle.cube,
     this.showDimensions = false,
   });
 
@@ -238,11 +254,13 @@ class BoundingBoxConfig {
   BoundingBoxConfig copyWith({
     Color? color,
     double? lineWidth,
+    BoundingBoxStyle? style,
     bool? showDimensions,
   }) {
     return BoundingBoxConfig(
       color: color ?? this.color,
       lineWidth: lineWidth ?? this.lineWidth,
+      style: style ?? this.style,
       showDimensions: showDimensions ?? this.showDimensions,
     );
   }
