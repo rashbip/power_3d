@@ -14,7 +14,7 @@ class SelectionHierarchyExample extends StatefulWidget {
 }
 
 class _SelectionHierarchyExampleState extends State<SelectionHierarchyExample> {
-  final String _assetPath = 'assets/shoulder.glb';
+  final String _assetPath = 'assets/heart.glb';
   late final Power3DController _controller;
 
   bool _useCategorization = false;
