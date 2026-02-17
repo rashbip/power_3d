@@ -141,7 +141,16 @@ function getNodeExtras(nodeIdentifier) {
     if (!node) {
         const id = parseInt(nodeIdentifier);
         if (!isNaN(id)) {
-            node = window.scene.getNodeByUniqueId(id);
+            // Babylon.js Scene does not have a generic getNodeByUniqueId
+            node = window.scene.getMeshByUniqueId(id) || 
+                   window.scene.getTransformNodeByUniqueId(id) || 
+                   (window.scene.getLightByUniqueId && window.scene.getLightByUniqueId(id)) || 
+                   (window.scene.getCameraByUniqueId && window.scene.getCameraByUniqueId(id));
+            
+            if (!node) {
+                // Final fallback: search all nodes
+                node = window.scene.getNodes().find(n => n.uniqueId === id);
+            }
         }
     }
     

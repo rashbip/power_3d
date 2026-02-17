@@ -39,6 +39,9 @@ class Power3DController extends ValueNotifier<Power3DState> {
     if (value.globalMaterial != null) {
       setGlobalMaterial(value.globalMaterial!);
     }
+
+    // Apply selection configuration
+    updateSelectionConfig(value.selectionConfig);
   }
 
   /// Updates the shading and rendering mode of the 3D scene (e.g., [ShadingMode.wireframe]).
@@ -265,6 +268,8 @@ class Power3DController extends ValueNotifier<Power3DState> {
           if (value.globalMaterial != null) {
             setGlobalMaterial(value.globalMaterial!);
           }
+          // Re-apply selection configuration
+          updateSelectionConfig(value.selectionConfig);
         } else if (data['message'] == 'loading') {
           value = value.copyWith(status: Power3DStatus.loading);
         }

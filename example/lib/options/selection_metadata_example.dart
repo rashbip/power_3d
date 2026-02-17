@@ -134,7 +134,7 @@ class _SelectionMetadataExampleState extends State<SelectionMetadataExample> {
             Icon(Icons.touch_app, size: 48, color: Colors.grey),
             SizedBox(height: 16),
             Text(
-              'Select a part of the shoulder model\nto inspect its data',
+              'Select a part of the model\nto inspect its data',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey),
             ),
