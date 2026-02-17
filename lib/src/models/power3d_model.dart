@@ -216,6 +216,38 @@ class SelectionConfig {
   }
 }
 
+/// Configuration for bounding box visualization.
+class BoundingBoxConfig {
+  /// Color of the bounding box lines.
+  final Color color;
+
+  /// Width of the bounding box lines.
+  final double lineWidth;
+
+  /// Whether to show dimensions/measurements.
+  final bool showDimensions;
+
+  /// Creates a new bounding box configuration.
+  const BoundingBoxConfig({
+    this.color = Colors.green,
+    this.lineWidth = 2.0,
+    this.showDimensions = false,
+  });
+
+  /// Creates a copy of this configuration with the given fields replaced.
+  BoundingBoxConfig copyWith({
+    Color? color,
+    double? lineWidth,
+    bool? showDimensions,
+  }) {
+    return BoundingBoxConfig(
+      color: color ?? this.color,
+      lineWidth: lineWidth ?? this.lineWidth,
+      showDimensions: showDimensions ?? this.showDimensions,
+    );
+  }
+}
+
 /// Data structure representing a 3D model source.
 class Power3DData {
   /// Path or URL to the model file.
@@ -327,6 +359,15 @@ class Power3DState {
   /// List of names of all selectable parts in the model.
   final List<String> availableParts;
 
+  /// List of names of hidden parts.
+  final List<String> hiddenParts;
+
+  /// List of names of parts with visible bounding boxes.
+  final List<String> boundingBoxParts;
+
+  /// Hierarchical structure of parts (JSON list of nodes).
+  final List<dynamic>? partsHierarchy;
+
   /// Creates a new state object.
   const Power3DState({
     required this.status,
@@ -353,6 +394,9 @@ class Power3DState {
     this.selectionConfig = const SelectionConfig(),
     this.selectedParts = const [],
     this.availableParts = const [],
+    this.hiddenParts = const [],
+    this.boundingBoxParts = const [],
+    this.partsHierarchy,
   });
 
   /// Initial state helper.
@@ -385,6 +429,9 @@ class Power3DState {
     SelectionConfig? selectionConfig,
     List<String>? selectedParts,
     List<String>? availableParts,
+    List<String>? hiddenParts,
+    List<String>? boundingBoxParts,
+    List<dynamic>? partsHierarchy,
   }) {
     return Power3DState(
       status: status ?? this.status,
@@ -411,6 +458,9 @@ class Power3DState {
       selectionConfig: selectionConfig ?? this.selectionConfig,
       selectedParts: selectedParts ?? this.selectedParts,
       availableParts: availableParts ?? this.availableParts,
+      hiddenParts: hiddenParts ?? this.hiddenParts,
+      boundingBoxParts: boundingBoxParts ?? this.boundingBoxParts,
+      partsHierarchy: partsHierarchy ?? this.partsHierarchy,
     );
   }
 }

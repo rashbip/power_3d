@@ -240,8 +240,11 @@ class _Power3DState extends State<Power3D> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageFinished: (String url) {
-            if (mounted && widget.initialModel != null) {
-              _controller.loadModel(widget.initialModel!);
+            if (mounted) {
+              _controller.initialize();
+              if (widget.initialModel != null) {
+                _controller.loadModel(widget.initialModel!);
+              }
             }
           },
           onWebResourceError: (WebResourceError error) {
@@ -267,7 +270,6 @@ class _Power3DState extends State<Power3D> {
     });
 
     _controller.setWebViewController(controller);
-    _controller.initialize();
   }
 
   @override

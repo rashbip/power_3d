@@ -445,6 +445,206 @@ class Power3DController extends ValueNotifier<Power3DState> {
     );
   }
 
+  // ===== Hierarchy \u0026 Node Extras =====
+
+  /// Retrieves the hierarchical structure of parts in the model.
+  ///
+  /// [useCategorization]: If true, uses naming conventions like "Category.PartName".
+  /// If false (default), uses the GLTF scene graph parent-child relationships.
+  Future<List<dynamic>> getPartsHierarchy({
+    bool useCategorization = false,
+  }) async {
+    if (_webViewController == null) return [];
+
+    try {
+      final result = await _webViewController!.runJavaScriptReturningResult(
+        'JSON.stringify(getPartsHierarchy($useCategorization))',
+      );
+
+      String resultString = result.toString();
+      // WebView results are often wrapped in extra quotes and escaped
+      if (resultString.startsWith('"') && resultString.endsWith('"')) {
+        try {
+          // Decode the outer string wrapper
+          final decoded = jsonDecode(resultString);
+          resultString = decoded.toString();
+        } catch (e) {
+          // If decoding fails, fallback to removing leading/trailing quotes if they exist
+          resultString = resultString
+              .substring(1, resultString.length - 1)
+              .replaceAll('\\"', '"');
+        }
+      }
+
+      if (resultString == 'null' || resultString.isEmpty) return [];
+
+      final hierarchy = jsonDecode(resultString) as List<dynamic>;
+      value = value.copyWith(partsHierarchy: hierarchy);
+      return hierarchy;
+    } catch (e) {
+      debugPrint('Failed to get parts hierarchy: $e');
+      return [];
+    }
+  }
+
+  /// Gets extras data from a specific node/part (label, description, category, etc.).
+  ///
+  /// Returns a map containing metadata and GLTF extras if available.
+  Future<Map<String, dynamic>> getNodeExtras(String partName) async {
+    if (_webViewController == null) return {};
+
+    try {
+      final result = await _webViewController!.runJavaScriptReturningResult(
+        'JSON.stringify(getNodeExtras("$partName"))',
+      );
+
+      String resultString = result.toString();
+      if (resultString.startsWith('"') && resultString.endsWith('"')) {
+        try {
+          final decoded = jsonDecode(resultString);
+          resultString = decoded.toString();
+        } catch (e) {
+          resultString = resultString
+              .substring(1, resultString.length - 1)
+              .replaceAll('\\"', '"');
+        }
+      }
+
+      if (resultString == 'null' || resultString.isEmpty) return {};
+
+      return jsonDecode(resultString) as Map<String, dynamic>;
+    } catch (e) {
+      debugPrint('Failed to get node extras: $e');
+      return {};
+    }
+  }
+
+  // ===== Visibility Controls =====
+
+  /// Hides the specified parts from view.
+  Future<void> hideParts(List<String> partNames) async {
+    if (_webViewController == null) return;
+
+    await _webViewController!.runJavaScript(
+      'hideParts(${jsonEncode(partNames)})',
+    );
+
+    final newHidden = List<String>.from(value.hiddenParts);
+    for (final name in partNames) {
+      if (!newHidden.contains(name)) newHidden.add(name);
+    }
+    value = value.copyWith(hiddenParts: newHidden);
+  }
+
+  /// Shows the specified parts (makes them visible).
+  Future<void> showParts(List<String> partNames) async {
+    if (_webViewController == null) return;
+
+    await _webViewController!.runJavaScript(
+      'showParts(${jsonEncode(partNames)})',
+    );
+
+    final newHidden = List<String>.from(value.hiddenParts);
+    newHidden.removeWhere((name) => partNames.contains(name));
+    value = value.copyWith(hiddenParts: newHidden);
+  }
+
+  /// Hides all currently selected parts.
+  Future<void> hideSelected() async {
+    if (_webViewController == null) return;
+
+    await _webViewController!.runJavaScript('hideSelected()');
+
+    final newHidden = List<String>.from(value.hiddenParts);
+    for (final name in value.selectedParts) {
+      if (!newHidden.contains(name)) newHidden.add(name);
+    }
+    value = value.copyWith(hiddenParts: newHidden);
+  }
+
+  /// Hides all parts except the currently selected ones.
+  Future<void> hideUnselected() async {
+    if (_webViewController == null) return;
+
+    await _webViewController!.runJavaScript('hideUnselected()');
+
+    final unselected = value.availableParts
+        .where((name) => !value.selectedParts.contains(name))
+        .toList();
+    value = value.copyWith(hiddenParts: unselected);
+  }
+
+  /// Shows all parts (unhides everything).
+  Future<void> unhideAll() async {
+    if (_webViewController == null) return;
+
+    await _webViewController!.runJavaScript('unhideAll()');
+    value = value.copyWith(hiddenParts: []);
+  }
+
+  // ===== Bounding Box Visualization =====
+
+  /// Shows bounding boxes around the specified parts.
+  ///
+  /// [partNames]: List of part names to show bounding boxes for.
+  /// [config]: Optional configuration for appearance (color, line width, etc.).
+  Future<void> showBoundingBox(
+    List<String> partNames, {
+    BoundingBoxConfig? config,
+  }) async {
+    if (_webViewController == null) return;
+
+    config ??= const BoundingBoxConfig();
+
+    final String colorHex =
+        '#${config.color.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+
+    final Map<String, dynamic> jsConfig = {
+      'color': colorHex,
+      'lineWidth': config.lineWidth,
+    };
+
+    await _webViewController!.runJavaScript(
+      'showBoundingBox(${jsonEncode(partNames)}, ${jsonEncode(jsConfig)})',
+    );
+
+    final newBoxes = List<String>.from(value.boundingBoxParts);
+    for (final name in partNames) {
+      if (!newBoxes.contains(name)) newBoxes.add(name);
+    }
+    value = value.copyWith(boundingBoxParts: newBoxes);
+  }
+
+  /// Hides bounding boxes for the specified parts.
+  Future<void> hideBoundingBox(List<String> partNames) async {
+    if (_webViewController == null) return;
+
+    await _webViewController!.runJavaScript(
+      'hideBoundingBox(${jsonEncode(partNames)})',
+    );
+
+    final newBoxes = List<String>.from(value.boundingBoxParts);
+    newBoxes.removeWhere((name) => partNames.contains(name));
+    value = value.copyWith(boundingBoxParts: newBoxes);
+  }
+
+  // ===== Material Modes for Selection =====
+
+  /// Applies a material/shading mode to selected or unselected parts.
+  ///
+  /// [mode]: The shading mode to apply (wireframe, xray, etc.).
+  /// [applyToSelected]: If true, applies to selected parts; if false, to unselected.
+  Future<void> applyMaterialModeToSelection(
+    ShadingMode mode, {
+    bool applyToSelected = true,
+  }) async {
+    if (_webViewController == null) return;
+
+    await _webViewController!.runJavaScript(
+      'applyMaterialModeToSelection("${mode.name}", $applyToSelected)',
+    );
+  }
+
   @override
   void dispose() {
     _webViewController = null;
