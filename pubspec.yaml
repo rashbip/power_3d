@@ -31,9 +31,10 @@ flutter:
     - assets/js/messaging.js
     - assets/js/camera.js
     - assets/js/lighting.js
+    - assets/js/materials.js
+    - assets/js/selection.js
     - assets/js/model-loader.js
     - assets/js/scene.js
-    - assets/js/materials.js
 
   # To add assets to your application, add an assets section, like this:
   # assets:

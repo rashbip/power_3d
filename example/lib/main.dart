@@ -4,6 +4,7 @@ import 'package:example/options/network_example.dart';
 import 'package:example/options/placeholder_example.dart';
 import 'package:example/options/environment_example.dart';
 import 'package:example/options/material_example.dart';
+import 'package:example/options/selection_example.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -85,6 +86,14 @@ class HomePage extends StatelessWidget {
             subtitle: 'Change colors, transparency, and shading modes',
             icon: Icons.brush,
             target: const MaterialExample(),
+          ),
+          const SizedBox(height: 16),
+          _buildExampleCard(
+            context,
+            title: 'Object Parts & Selection',
+            subtitle: 'Click to select parts, transform selections',
+            icon: Icons.select_all,
+            target: const SelectionExample(),
           ),
         ],
       ),

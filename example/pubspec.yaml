@@ -23,6 +23,7 @@ flutter:
   assets:
     - assets/
     - assets/images/
+    - assets/shoulder.glb
 
   # fonts:
   #   - family: Schyler

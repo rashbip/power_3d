@@ -43,6 +43,10 @@ async function loadModel(data, fileName, type) {
         }
 
         sendMessageToFlutter({ type: 'status', message: 'loaded', fileName: fileName });
+        
+        // Initialize selection and send parts list
+        initializeSelection();
+        sendPartsListToFlutter();
     } catch (e) {
         console.error("Load Error:", e);
         sendMessageToFlutter({ type: 'error', message: e.message || "Failed to load 3D model" });

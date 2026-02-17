@@ -272,6 +272,22 @@ class Power3DController extends ValueNotifier<Power3DState> {
           _saveScreenshotToFile(base64Data, _pendingScreenshotPath!);
           _pendingScreenshotPath = null;
         }
+      } else if (data['type'] == 'partSelected') {
+        final String partName = data['partName'];
+        final bool selected = data['selected'];
+
+        _onPartSelectedCallback?.call(partName, selected);
+
+        final newSelected = List<String>.from(value.selectedParts);
+        if (selected) {
+          if (!newSelected.contains(partName)) newSelected.add(partName);
+        } else {
+          newSelected.remove(partName);
+        }
+        value = value.copyWith(selectedParts: newSelected);
+      } else if (data['type'] == 'partsList') {
+        final List<String> parts = (data['parts'] as List).cast<String>();
+        value = value.copyWith(availableParts: parts);
       }
     } catch (e) {
       // Ignore parse errors from JS
@@ -291,6 +307,118 @@ class Power3DController extends ValueNotifier<Power3DState> {
     } catch (e) {
       debugPrint('Failed to save screenshot: $e');
     }
+  }
+
+  // ===== Selection & Object Parts =====
+
+  Function(String partName, bool selected)? _onPartSelectedCallback;
+
+  /// Register a callback for part selection events
+  void onPartSelected(Function(String partName, bool selected) callback) {
+    _onPartSelectedCallback = callback;
+  }
+
+  /// Get list of available parts/meshes in the loaded model
+  Future<List<String>> getPartsList() async {
+    if (_webViewController == null) return [];
+
+    try {
+      final result = await _webViewController!.runJavaScriptReturningResult(
+        'JSON.stringify(getPartsList())',
+      );
+      final partsJson = result.toString().replaceAll('"', '');
+      if (partsJson == 'null' || partsJson.isEmpty) return [];
+
+      final parts = (jsonDecode(partsJson) as List).cast<String>();
+      value = value.copyWith(availableParts: parts);
+      return parts;
+    } catch (e) {
+      debugPrint('Failed to get parts list: $e');
+      return [];
+    }
+  }
+
+  /// Select a specific part by name
+  Future<void> selectPart(String partName) async {
+    if (_webViewController == null) return;
+
+    await _webViewController!.runJavaScript('selectPart("$partName")');
+
+    final newSelected = List<String>.from(value.selectedParts);
+    if (!newSelected.contains(partName)) {
+      if (!value.selectionConfig.multipleSelection) {
+        newSelected.clear();
+      }
+      newSelected.add(partName);
+      value = value.copyWith(selectedParts: newSelected);
+    }
+  }
+
+  /// Unselect a specific part by name
+  Future<void> unselectPart(String partName) async {
+    if (_webViewController == null) return;
+
+    await _webViewController!.runJavaScript('unselectPart("$partName")');
+
+    final newSelected = List<String>.from(value.selectedParts);
+    newSelected.remove(partName);
+    value = value.copyWith(selectedParts: newSelected);
+  }
+
+  /// Clear all selections
+  Future<void> clearSelection() async {
+    if (_webViewController == null) return;
+
+    await _webViewController!.runJavaScript('clearSelection()');
+    value = value.copyWith(selectedParts: []);
+  }
+
+  /// Update selection configuration
+  Future<void> updateSelectionConfig(SelectionConfig config) async {
+    value = value.copyWith(selectionConfig: config);
+
+    if (_webViewController == null) return;
+
+    final Map<String, dynamic> jsConfig = {
+      'enabled': config.enabled,
+      'multipleSelection': config.multipleSelection,
+      'scaleSelection': config.scaleSelection,
+      'selectionShift': {
+        'x': config.selectionShift?.x ?? 0,
+        'y': config.selectionShift?.y ?? 0,
+        'z': config.selectionShift?.z ?? 0,
+      },
+    };
+
+    if (config.selectionStyle != null) {
+      jsConfig['selectionStyle'] = {
+        if (config.selectionStyle!.highlightColor != null)
+          'highlightColor':
+              '#${config.selectionStyle!.highlightColor!.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+        if (config.selectionStyle!.outlineColor != null)
+          'outlineColor':
+              '#${config.selectionStyle!.outlineColor!.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+        if (config.selectionStyle!.outlineWidth != null)
+          'outlineWidth': config.selectionStyle!.outlineWidth,
+      };
+    }
+
+    if (config.unselectedStyle != null) {
+      jsConfig['unselectedStyle'] = {
+        if (config.unselectedStyle!.highlightColor != null)
+          'highlightColor':
+              '#${config.unselectedStyle!.highlightColor!.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+        if (config.unselectedStyle!.outlineColor != null)
+          'outlineColor':
+              '#${config.unselectedStyle!.outlineColor!.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+        if (config.unselectedStyle!.outlineWidth != null)
+          'outlineWidth': config.unselectedStyle!.outlineWidth,
+      };
+    }
+
+    await _webViewController!.runJavaScript(
+      'enableSelectionMode(${jsonEncode(jsConfig)})',
+    );
   }
 
   @override
