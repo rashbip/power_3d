@@ -21,7 +21,7 @@ class _EnvironmentExampleState extends State<EnvironmentExample> {
   // Fill Light Controls
   bool _enableFillLight = false;
   double _fillIntensity = 0.3;
-  Color _fillColor = Colors.blueAccent;
+  late final Color _fillColor = Colors.blueAccent;
 
   // Scene Processing
   double _exposure = 1.0;
@@ -139,7 +139,7 @@ class _EnvironmentExampleState extends State<EnvironmentExample> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, -2),
                   ),

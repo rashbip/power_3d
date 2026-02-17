@@ -1,10 +1,15 @@
 name: power3d
-description: "Probably the most powerful 3D model viewer for Flutter, I bet."
-publish_to: "none"
-#homepage: https://github.com/rashbip/power_3d
+description: "A powerful, industry-level 3D model viewer for Flutter using Babylon.js. Supports advanced controls, lighting, and object selection."
+homepage: https://github.com/rashbip/power_3d
 repository: https://github.com/rashbip/power_3d
 issue_tracker: https://github.com/rashbip/power_3d/issues
-version: 1.0.0+1
+topics:
+  - three-d
+  - babylonjs
+  - model-viewer
+  - flutter
+  - graphics
+version: 1.0.0
 environment:
   sdk: ^3.10.8
 dependencies:

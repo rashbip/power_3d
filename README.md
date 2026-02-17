@@ -23,7 +23,7 @@ dependencies:
 ```
 
 ### 2. Basic Setup (Android)
-Ensure your app supports cleartext traffic if loading models from URLs. See [Setup Guide](docs/setup.md).
+Ensure your app supports cleartext traffic if loading models from URLs. See [Setup Guide](doc/setup.md).
 
 ### 3. Usage
 

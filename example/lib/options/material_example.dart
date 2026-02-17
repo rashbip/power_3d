@@ -19,7 +19,7 @@ class _MaterialExampleState extends State<MaterialExample> {
   double _metallic = 0.5;
   double _roughness = 0.5;
   double _alpha = 1.0;
-  Color _emissiveColor = Colors.black;
+  late final Color _emissiveColor = Colors.black;
   bool _doubleSided = false;
 
   @override
@@ -83,7 +83,7 @@ class _MaterialExampleState extends State<MaterialExample> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, -2),
                   ),

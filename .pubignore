@@ -1,0 +1,38 @@
+# Avoid publishing log files and temporary analysis files
+analysis.txt
+check.txt
+required_packages_till_now.md
+.gemini/
+brain/
+*.log
+
+# Build artifacts and caches
+build/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+
+# Android build artifacts
+android/app/build/
+android/.gradle/
+*.apk
+*.aab
+
+# iOS build artifacts
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/App.framework
+ios/Flutter/App.podspec
+
+# Example project artifacts
+example/build/
+example/.dart_tool/
+example/.packages
+
+# User requested specific ignores
+stripped_native_libs/
+local-state/
+outputs/
+tmp/
+*.dill

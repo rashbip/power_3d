@@ -12,7 +12,7 @@ class ErrorExample extends StatelessWidget {
         child: Power3D.fromNetwork(
           'https://invalid.url/model.glb',
           errorWidget: Container(
-            color: Colors.red.withOpacity(0.1),
+            color: Colors.red.withValues(alpha: 0.1),
             child: const Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,

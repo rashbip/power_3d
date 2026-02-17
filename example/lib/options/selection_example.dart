@@ -52,12 +52,12 @@ class _SelectionExampleState extends State<SelectionExample> {
       scaleSelection: _scale,
       selectionShift: _shift,
       selectionStyle: SelectionStyle(
-        highlightColor: Colors.greenAccent.withOpacity(0.6),
+          highlightColor: Colors.greenAccent.withValues(alpha: 0.6),
         outlineColor: Colors.green,
         outlineWidth: 2.0,
       ),
       unselectedStyle: SelectionStyle(
-        highlightColor: Colors.grey.withOpacity(0.3),
+          highlightColor: Colors.grey.withValues(alpha: 0.3),
       ),
     ));
   }
@@ -97,7 +97,7 @@ class _SelectionExampleState extends State<SelectionExample> {
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, -2),
                   ),

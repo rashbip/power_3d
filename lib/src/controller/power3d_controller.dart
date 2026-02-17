@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:meta/meta.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:path/path.dart' as p;
 import '../models/power3d_model.dart';
@@ -48,19 +49,19 @@ class Power3DController extends ValueNotifier<Power3DState> {
     if (_webViewController == null) return;
 
     final String? colorHex = config.color != null
-        ? '#${config.color!.value.toRadixString(16).padLeft(8, '0').substring(2)}'
+        ? '#${config.color!.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}'
         : null;
     final String? emissiveHex = config.emissiveColor != null
-        ? '#${config.emissiveColor!.value.toRadixString(16).padLeft(8, '0').substring(2)}'
+        ? '#${config.emissiveColor!.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}'
         : null;
 
     final Map<String, dynamic> jsConfig = {
-      if (colorHex != null) 'color': colorHex,
-      if (config.metallic != null) 'metallic': config.metallic,
-      if (config.roughness != null) 'roughness': config.roughness,
-      if (config.alpha != null) 'alpha': config.alpha,
-      if (emissiveHex != null) 'emissiveColor': emissiveHex,
-      if (config.doubleSided != null) 'doubleSided': config.doubleSided,
+      'color': ?colorHex,
+      'metallic': ?config.metallic,
+      'roughness': ?config.roughness,
+      'alpha': ?config.alpha,
+      'emissiveColor': ?emissiveHex,
+      'doubleSided': ?config.doubleSided,
     };
 
     await _webViewController!.runJavaScript(
@@ -76,7 +77,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
 
     final List<Map<String, dynamic>> jsConfigs = lights.map((config) {
       final colorHex =
-          '#${config.color.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+          '#${config.color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}';
       final Map<String, dynamic> jsConfig = {
         'type': config.type.name,
         'intensity': config.intensity,
@@ -394,10 +395,10 @@ class Power3DController extends ValueNotifier<Power3DState> {
       jsConfig['selectionStyle'] = {
         if (config.selectionStyle!.highlightColor != null)
           'highlightColor':
-              '#${config.selectionStyle!.highlightColor!.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+              '#${config.selectionStyle!.highlightColor!.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
         if (config.selectionStyle!.outlineColor != null)
           'outlineColor':
-              '#${config.selectionStyle!.outlineColor!.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+              '#${config.selectionStyle!.outlineColor!.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
         if (config.selectionStyle!.outlineWidth != null)
           'outlineWidth': config.selectionStyle!.outlineWidth,
       };
@@ -407,10 +408,10 @@ class Power3DController extends ValueNotifier<Power3DState> {
       jsConfig['unselectedStyle'] = {
         if (config.unselectedStyle!.highlightColor != null)
           'highlightColor':
-              '#${config.unselectedStyle!.highlightColor!.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+              '#${config.unselectedStyle!.highlightColor!.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
         if (config.unselectedStyle!.outlineColor != null)
           'outlineColor':
-              '#${config.unselectedStyle!.outlineColor!.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+              '#${config.unselectedStyle!.outlineColor!.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
         if (config.unselectedStyle!.outlineWidth != null)
           'outlineWidth': config.unselectedStyle!.outlineWidth,
       };
