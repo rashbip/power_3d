@@ -68,12 +68,12 @@ class Power3DController extends ValueNotifier<Power3DState> {
         : null;
 
     final Map<String, dynamic> jsConfig = {
-      'color': ?colorHex,
-      'metallic': ?config.metallic,
-      'roughness': ?config.roughness,
-      'alpha': ?config.alpha,
-      'emissiveColor': ?emissiveHex,
-      'doubleSided': ?config.doubleSided,
+      'color': colorHex,
+      'metallic': config.metallic,
+      'roughness': config.roughness,
+      'alpha': config.alpha,
+      'emissiveColor': emissiveHex,
+      'doubleSided': config.doubleSided,
     };
 
     await _webViewController!.runJavaScript(
@@ -602,7 +602,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
     config ??= const BoundingBoxConfig();
 
     final String colorHex =
-        '#${config.color.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+        '#${config.color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}';
 
     final Map<String, dynamic> jsConfig = {
       'color': colorHex,

@@ -140,8 +140,15 @@ await controller.hideBoundingBox(['part1', 'part2']);
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `color` | `Color` | `Colors.green` | Color of the bounding box lines |
-| `lineWidth` | `double` | `2.0` | Width of the bounding box lines |
+| `lineWidth` | `double` | `1.0` | Width of the bounding box lines |
+| `style` | `BoundingBoxStyle` | `cube` | Visual style: `cube`, `sphere`, or `simple` |
 | `showDimensions` | `bool` | `false` | Whether to show dimension measurements |
+
+### BoundingBoxStyle
+
+- **`cube`**: Standard box with small adjustment handles.
+- **`simple`**: A clean wireframe box without any handles.
+- **`sphere`**: A wireframe sphere encompassing the selection.
 
 ---
 
