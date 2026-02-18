@@ -56,9 +56,28 @@ void rotate() {
 
 ## Documentation
 
-- [Setup & Permissions](docs/setup.md)
-- [Camera & Rotation Controls](docs/controls.md)
-- [API Reference](docs/api_reference.md)
+Find detailed guides and API references in the [doc](./doc) folder:
+
+### 🚀 Getting Started
+- **[Installation & Setup](./doc/setup.md)**: Android/iOS permissions and basic configuration.
+- **[First Model](./doc/get_started.md)**: A step-by-step guide to rendering your first 3D scene.
+- **[Loading Models](./doc/load_model.md)**: Details on loading from Assets, Network, and Local Files.
+
+### 🎮 Controls & Interaction
+- **[Camera & Rotation](./doc/controls.md)**: Auto-rotation, zoom limits, and position locking.
+- **[Light & Atmosphere](./doc/lighting.md)**: Configuring hemispheric, directional, and point lights.
+- **[Environment & Background](./doc/environment.md)**: Customizing the scene environment.
+
+### 🎨 Advanced Scene Manipulation
+- **[Object Selection](./doc/selection_and_parts.md)**: Basic part identification and selection.
+- **[Advanced Selection](./doc/advanced_selection.md)**: Hierarchy, visibility, and bounding boxes.
+- **[Materials & Shading](./doc/materials.md)**: Overriding materials and applying shading modes.
+- **[Object Parts](./doc/object_parts.md)**: Detailed guide on working with GLTF nodes.
+
+### 🛠 Technical Reference
+- **[API Reference](./doc/api_reference.md)**: Full controller and model documentation.
+- **[Optimization Guide](./doc/babylonjs_optimization.md)**: Tips for high-performance rendering.
+- **[Babylon.js Version Info](./doc/babylonjs_version_info.md)**: Understanding the underlying 3D engine.
 
 ## Example
 
