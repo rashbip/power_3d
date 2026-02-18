@@ -210,6 +210,10 @@ class _Power3DState extends State<Power3D> {
       }
     }
 
+    if (oldWidget.lazy && !widget.lazy && _webViewController == null) {
+      _initController();
+    }
+
     if (widget.lights != oldWidget.lights && widget.lights != null) {
       _controller.setLights(widget.lights!);
     }
