@@ -62,44 +62,43 @@ async function getTextureData(id) {
         const width = size.width;
         const height = size.height;
 
+        if (width <= 0 || height <= 0) {
+            console.warn(`Texture ${id} has invalid dimensions: ${width}x${height}`);
+            return null;
+        }
+
         const pixels = await texture.readPixels();
-        if (!pixels) return null;
+        if (!pixels) {
+            console.warn(`Texture ${id} readPixels returned null`);
+            return null;
+        }
 
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         const imageData = ctx.createImageData(width, height);
-
-        // Robust copy to avoid RangeError: offset is out of bounds
         const data = imageData.data;
         const expectedLength = width * height * 4;
         
+        // Paranoiac copy
         if (pixels instanceof Float32Array) {
-            // HDR Texture or WebGL 2 float output - convert to 0-255
             for (let i = 0; i < expectedLength; i++) {
                 if (i < pixels.length) {
                     data[i] = Math.min(255, Math.max(0, pixels[i] * 255));
                 }
             }
         } else {
-            // Uint8Array or similar
-            if (pixels.length === expectedLength) {
-                data.set(pixels);
-            } else {
-                const len = Math.min(pixels.length, expectedLength);
-                for (let i = 0; i < len; i++) {
-                    data[i] = pixels[i];
-                }
+            const len = Math.min(pixels.length, expectedLength);
+            for (let i = 0; i < len; i++) {
+                data[i] = pixels[i];
             }
         }
 
         ctx.putImageData(imageData, 0, 0);
-
-        const dataUrl = canvas.toDataURL("image/png");
-        return dataUrl;
+        return canvas.toDataURL("image/png");
     } catch (e) {
-        console.error("Failed to read texture pixels for " + id + ":", e);
+        console.error(`Failed to read texture pixels for ${id}:`, e);
         return null;
     }
 }

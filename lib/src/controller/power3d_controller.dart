@@ -22,6 +22,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
 
   WebViewController? _webViewController;
 
+  bool _isDisposed = false;
   final Map<String, Completer<String?>> _textureCompleters = {};
   String? _pendingScreenshotPath;
   Function(String partName, bool selected)? _onPartSelectedCallback;
@@ -177,9 +178,22 @@ class Power3DController extends ValueNotifier<Power3DState> {
     }
   }
 
+  /// Internal helper to update value safely checking disposal status.
+  @protected
+  @override
+  set value(Power3DState newValue) {
+    if (_isDisposed) return;
+    super.value = newValue;
+  }
+
   @override
   void dispose() {
+    _isDisposed = true;
     _webViewController = null;
+    for (var completer in _textureCompleters.values) {
+      if (!completer.isCompleted) completer.complete(null);
+    }
+    _textureCompleters.clear();
     super.dispose();
   }
 }

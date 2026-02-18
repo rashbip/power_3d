@@ -13,7 +13,7 @@ class SelectionTextureExample extends StatefulWidget {
 }
 
 class _SelectionTextureExampleState extends State<SelectionTextureExample> {
-  final String _assetPath = 'assets/heart.glb';
+  final String _assetPath = 'assets/shoulder.glb';
   late final Power3DController _controller;
   List<Power3DTexture> _textures = [];
   bool _isLoading = true;
@@ -44,39 +44,47 @@ class _SelectionTextureExampleState extends State<SelectionTextureExample> {
     if (!mounted) return;
     Navigator.pop(context); // Close loading
 
-    if (data == null) {
+    if (data == null || data == '{}' || data.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to load texture data')),
       );
       return;
     }
 
-    final bytes = base64Decode(data.split(',').last);
+    try {
+      final bytes = base64Decode(data.split(',').last);
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(texture.name),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              constraints: const BoxConstraints(maxHeight: 300),
-              child: Image.memory(bytes, fit: BoxFit.contain),
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(texture.name),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                constraints: const BoxConstraints(maxHeight: 300),
+                child: Image.memory(bytes, fit: BoxFit.contain),
+              ),
+              const SizedBox(height: 12),
+              Text('Type: ${texture.className}'),
+              Text('ID: ${texture.uniqueId}'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
             ),
-            const SizedBox(height: 12),
-            Text('Type: ${texture.className}'),
-            Text('ID: ${texture.uniqueId}'),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error decoding texture: $e')));
+    }
   }
 
   Future<void> _exportTexture(Power3DTexture texture) async {
