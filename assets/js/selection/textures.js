@@ -31,6 +31,21 @@ function getTexturesList() {
 }
 
 /**
+ * Requests texture data and sends it back via FlutterChannel
+ * @param {string} id - The uniqueId of the texture
+ */
+async function requestTextureData(id) {
+    const dataUrl = await getTextureData(id);
+    if (window.FlutterChannel) {
+        window.FlutterChannel.postMessage(JSON.stringify({
+            type: 'textureData',
+            uniqueId: id,
+            data: dataUrl
+        }));
+    }
+}
+
+/**
  * Gets the base64 data of a texture for preview or export
  * @param {string} id - The uniqueId of the texture
  */
@@ -43,12 +58,10 @@ async function getTextureData(id) {
     if (!texture) return null;
 
     try {
-        // Create a canvas to read the pixels
         const size = texture.getSize();
         const width = size.width;
         const height = size.height;
 
-        // Use InternalTexture to read pixels if possible
         const pixels = await texture.readPixels();
         if (!pixels) return null;
 
@@ -58,14 +71,35 @@ async function getTextureData(id) {
         const ctx = canvas.getContext('2d');
         const imageData = ctx.createImageData(width, height);
 
-        // Copy pixel data
-        // Babylon uses RGBA, canvas uses RGBA
-        imageData.data.set(new Uint8ClampedArray(pixels.buffer || pixels));
+        // Robust copy to avoid RangeError: offset is out of bounds
+        const data = imageData.data;
+        const expectedLength = width * height * 4;
+        
+        if (pixels instanceof Float32Array) {
+            // HDR Texture or WebGL 2 float output - convert to 0-255
+            for (let i = 0; i < expectedLength; i++) {
+                if (i < pixels.length) {
+                    data[i] = Math.min(255, Math.max(0, pixels[i] * 255));
+                }
+            }
+        } else {
+            // Uint8Array or similar
+            if (pixels.length === expectedLength) {
+                data.set(pixels);
+            } else {
+                const len = Math.min(pixels.length, expectedLength);
+                for (let i = 0; i < len; i++) {
+                    data[i] = pixels[i];
+                }
+            }
+        }
+
         ctx.putImageData(imageData, 0, 0);
 
-        return canvas.toDataURL("image/png");
+        const dataUrl = canvas.toDataURL("image/png");
+        return dataUrl;
     } catch (e) {
-        console.error("Failed to read texture pixels:", e);
+        console.error("Failed to read texture pixels for " + id + ":", e);
         return null;
     }
 }
