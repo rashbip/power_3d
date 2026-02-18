@@ -20,6 +20,9 @@ class Power3D extends StatefulWidget {
   /// Callback for receiving messages from the underlying JavaScript layer.
   final Function(String)? onMessage;
 
+  /// Callback triggered when a 3D model is successfully loaded.
+  final VoidCallback? onModelLoaded;
+
   /// If true, the viewer will not initialize until manually triggered.
   final bool lazy;
 
@@ -56,6 +59,7 @@ class Power3D extends StatefulWidget {
     this.lights,
     this.exposure,
     this.contrast,
+    this.onModelLoaded,
   });
 
   /// Creates a [Power3D] viewer from a Flutter asset path.
@@ -74,6 +78,7 @@ class Power3D extends StatefulWidget {
     List<LightingConfig>? lights,
     double? exposure,
     double? contrast,
+    VoidCallback? onModelLoaded,
   }) {
     return Power3D(
       key: key,
@@ -91,6 +96,7 @@ class Power3D extends StatefulWidget {
       lights: lights,
       exposure: exposure,
       contrast: contrast,
+      onModelLoaded: onModelLoaded,
     );
   }
 
@@ -110,6 +116,7 @@ class Power3D extends StatefulWidget {
     List<LightingConfig>? lights,
     double? exposure,
     double? contrast,
+    VoidCallback? onModelLoaded,
   }) {
     return Power3D(
       key: key,
@@ -127,6 +134,7 @@ class Power3D extends StatefulWidget {
       lights: lights,
       exposure: exposure,
       contrast: contrast,
+      onModelLoaded: onModelLoaded,
     );
   }
 
@@ -146,6 +154,7 @@ class Power3D extends StatefulWidget {
     List<LightingConfig>? lights,
     double? exposure,
     double? contrast,
+    VoidCallback? onModelLoaded,
   }) {
     final String path = file is String ? file : file.path;
     return Power3D(
@@ -164,6 +173,7 @@ class Power3D extends StatefulWidget {
       lights: lights,
       exposure: exposure,
       contrast: contrast,
+      onModelLoaded: onModelLoaded,
     );
   }
 
@@ -189,6 +199,8 @@ class _Power3DState extends State<Power3D> {
         contrast: widget.contrast,
       );
     }
+
+    _controller.addListener(_onStateChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!widget.lazy && mounted) {
@@ -231,8 +243,16 @@ class _Power3DState extends State<Power3D> {
   void dispose() {
     if (widget.controller == null) {
       _controller.dispose();
+    } else {
+      _controller.removeListener(_onStateChanged);
     }
     super.dispose();
+  }
+
+  void _onStateChanged() {
+    if (_controller.value.status == Power3DStatus.loaded) {
+      widget.onModelLoaded?.call();
+    }
   }
 
   void _initController() {

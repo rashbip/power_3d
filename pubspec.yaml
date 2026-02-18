@@ -45,5 +45,6 @@ flutter:
     - assets/js/selection/utils.js
     - assets/js/selection/styling.js
     - assets/js/selection/handling.js
+    - assets/js/selection/textures.js
     - assets/js/model-loader.js
     - assets/js/scene.js

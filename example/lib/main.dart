@@ -9,6 +9,7 @@ import 'package:example/options/selection_hierarchy_example.dart';
 import 'package:example/options/selection_visibility_example.dart';
 import 'package:example/options/selection_metadata_example.dart';
 import 'package:example/options/selection_visual_styles_example.dart';
+import 'package:example/options/selection_texture_example.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -141,6 +142,14 @@ class HomePage extends StatelessWidget {
             subtitle: 'Material modes and bounding box helpers',
             icon: Icons.auto_fix_high,
             target: const SelectionVisualStylesExample(),
+          ),
+          const SizedBox(height: 12),
+          _buildExampleCard(
+            context,
+            title: 'Texture Management',
+            subtitle: 'Preview, edit, and export scene textures',
+            icon: Icons.texture,
+            target: const SelectionTextureExample(),
           ),
         ],
       ),

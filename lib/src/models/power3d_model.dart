@@ -381,45 +381,49 @@ class Power3DState {
   final List<String> hiddenParts;
 
   /// List of names of parts with visible bounding boxes.
+  /// List of bounding boxes currently shown.
   final List<String> boundingBoxParts;
 
   /// Hierarchical structure of parts (JSON list of nodes).
   final List<dynamic>? partsHierarchy;
 
-  /// Creates a new state object.
+  /// List of available textures in the scene.
+  final List<Power3DTexture> textures;
+
+  /// Creates a new [Power3DState].
   const Power3DState({
-    required this.status,
+    this.isInitialized = false,
+    this.status = Power3DStatus.initial,
     this.errorMessage,
     this.currentModelName,
-    this.isInitialized = false,
-    this.autoRotate = false,
-    this.rotationSpeed = 1.0,
-    this.rotationDirection = RotationDirection.clockwise,
-    this.rotationStopAfter,
-    this.enableZoom = true,
-    this.maxZoom = 20.0,
-    this.minZoom = 1.0,
-    this.isPositionLocked = true,
-    this.cameraAlpha = -1.57, // Default Alpha
-    this.cameraBeta = 1.25, // Default Beta
-    this.cameraRadius = 3.0, // Default Radius
-    this.lastScreenshot,
-    this.lights = const [LightingConfig()],
-    this.exposure = 1.0,
-    this.contrast = 1.0,
     this.shadingMode = ShadingMode.shaded,
     this.globalMaterial,
+    this.lights = const [],
+    this.exposure = 1.0,
+    this.contrast = 1.0,
+    this.autoRotate = false,
+    this.rotationSpeed = 1.0,
+    this.rotationDirection = RotationDirection.counterClockwise,
+    this.rotationStopAfter,
+    this.isPositionLocked = false,
+    this.enableZoom = true,
+    this.minZoom = 0.5,
+    this.maxZoom = 20.0,
+    this.cameraAlpha = -1.57,
+    this.cameraBeta = 1.25,
+    this.cameraRadius = 3.0,
+    this.lastScreenshot,
     this.selectionConfig = const SelectionConfig(),
     this.selectedParts = const [],
     this.availableParts = const [],
+    this.partsHierarchy,
     this.hiddenParts = const [],
     this.boundingBoxParts = const [],
-    this.partsHierarchy,
+    this.textures = const [],
   });
 
-  /// Initial state helper.
-  factory Power3DState.initial() =>
-      const Power3DState(status: Power3DStatus.initial);
+  /// Initial state representation.
+  factory Power3DState.initial() => const Power3DState();
 
   /// Creates a copy of this state with the given fields replaced.
   Power3DState copyWith({
@@ -450,6 +454,7 @@ class Power3DState {
     List<String>? hiddenParts,
     List<String>? boundingBoxParts,
     List<dynamic>? partsHierarchy,
+    List<Power3DTexture>? textures,
   }) {
     return Power3DState(
       status: status ?? this.status,
@@ -479,7 +484,109 @@ class Power3DState {
       hiddenParts: hiddenParts ?? this.hiddenParts,
       boundingBoxParts: boundingBoxParts ?? this.boundingBoxParts,
       partsHierarchy: partsHierarchy ?? this.partsHierarchy,
+      textures: textures ?? this.textures,
     );
+  }
+}
+
+/// Metadata representing a texture in the 3D scene.
+class Power3DTexture {
+  /// Unique identifier for the texture.
+  final String uniqueId;
+
+  /// Name of the texture or filename.
+  final String name;
+
+  /// The class name of the texture in Babylon.js.
+  final String className;
+
+  /// Whether this is a render target texture.
+  final bool isRenderTarget;
+
+  /// The brightness/intensity level of the texture.
+  final double level;
+
+  /// URL of the texture if available.
+  final String? url;
+
+  /// Horizontal scale/tiling.
+  final double uScale;
+
+  /// Vertical scale/tiling.
+  final double vScale;
+
+  /// Horizontal offset.
+  final double uOffset;
+
+  /// Vertical offset.
+  final double vOffset;
+
+  /// Creates a new texture metadata object.
+  const Power3DTexture({
+    required this.uniqueId,
+    required this.name,
+    required this.className,
+    this.isRenderTarget = false,
+    this.level = 1.0,
+    this.url,
+    this.uScale = 1.0,
+    this.vScale = 1.0,
+    this.uOffset = 0.0,
+    this.vOffset = 0.0,
+  });
+
+  /// Creates a [Power3DTexture] from a JSON map.
+  factory Power3DTexture.fromJson(Map<String, dynamic> json) {
+    return Power3DTexture(
+      uniqueId: json['uniqueId'] ?? '',
+      name: json['name'] ?? '',
+      className: json['className'] ?? '',
+      isRenderTarget: json['isRenderTarget'] ?? false,
+      level: (json['level'] as num?)?.toDouble() ?? 1.0,
+      url: json['url'],
+      uScale: (json['uScale'] as num?)?.toDouble() ?? 1.0,
+      vScale: (json['vScale'] as num?)?.toDouble() ?? 1.0,
+      uOffset: (json['uOffset'] as num?)?.toDouble() ?? 0.0,
+      vOffset: (json['vOffset'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+}
+
+/// Request object to update texture properties.
+class TextureUpdate {
+  /// Optional brightness/intensity level.
+  final double? level;
+
+  /// Optional horizontal scale.
+  final double? uScale;
+
+  /// Optional vertical scale.
+  final double? vScale;
+
+  /// Optional horizontal offset.
+  final double? uOffset;
+
+  /// Optional vertical offset.
+  final double? vOffset;
+
+  /// Creates a texture update request.
+  const TextureUpdate({
+    this.level,
+    this.uScale,
+    this.vScale,
+    this.uOffset,
+    this.vOffset,
+  });
+
+  /// Converts the update to a JSON map.
+  Map<String, dynamic> toJson() {
+    return {
+      if (level != null) 'level': level,
+      if (uScale != null) 'uScale': uScale,
+      if (vScale != null) 'vScale': vScale,
+      if (uOffset != null) 'uOffset': uOffset,
+      if (vOffset != null) 'vOffset': vOffset,
+    };
   }
 }
 
