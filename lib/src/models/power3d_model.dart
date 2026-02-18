@@ -377,6 +377,12 @@ class Power3DState {
   /// List of names of all selectable parts in the model.
   final List<String> availableParts;
 
+  /// List of available animations in the model.
+  final List<Power3DAnimation> animations;
+
+  /// Whether multiple animations can be played simultaneously.
+  final bool playMultiple;
+
   /// List of names of hidden parts.
   final List<String> hiddenParts;
 
@@ -416,6 +422,8 @@ class Power3DState {
     this.selectionConfig = const SelectionConfig(),
     this.selectedParts = const [],
     this.availableParts = const [],
+    this.animations = const [],
+    this.playMultiple = false,
     this.partsHierarchy,
     this.hiddenParts = const [],
     this.boundingBoxParts = const [],
@@ -451,6 +459,8 @@ class Power3DState {
     SelectionConfig? selectionConfig,
     List<String>? selectedParts,
     List<String>? availableParts,
+    List<Power3DAnimation>? animations,
+    bool? playMultiple,
     List<String>? hiddenParts,
     List<String>? boundingBoxParts,
     List<dynamic>? partsHierarchy,
@@ -481,6 +491,8 @@ class Power3DState {
       selectionConfig: selectionConfig ?? this.selectionConfig,
       selectedParts: selectedParts ?? this.selectedParts,
       availableParts: availableParts ?? this.availableParts,
+      animations: animations ?? this.animations,
+      playMultiple: playMultiple ?? this.playMultiple,
       hiddenParts: hiddenParts ?? this.hiddenParts,
       boundingBoxParts: boundingBoxParts ?? this.boundingBoxParts,
       partsHierarchy: partsHierarchy ?? this.partsHierarchy,
@@ -636,6 +648,54 @@ class LightingConfig {
       direction: direction ?? this.direction,
       castShadows: castShadows ?? this.castShadows,
       shadowBlur: shadowBlur ?? this.shadowBlur,
+    );
+  }
+}
+
+/// Represents the state of an animation in the 3D model.
+class Power3DAnimation {
+  /// Name of the animation.
+  final String name;
+
+  /// Whether the animation is currently playing.
+  final bool isPlaying;
+
+  /// Current playback speed.
+  final double speed;
+
+  /// Whether the animation is set to loop.
+  final bool loop;
+
+  /// Creates a new animation state object.
+  const Power3DAnimation({
+    required this.name,
+    this.isPlaying = false,
+    this.speed = 1.0,
+    this.loop = true,
+  });
+
+  /// Creates a [Power3DAnimation] from a JSON map.
+  factory Power3DAnimation.fromJson(Map<String, dynamic> json) {
+    return Power3DAnimation(
+      name: json['name'] ?? '',
+      isPlaying: json['isPlaying'] ?? false,
+      speed: (json['speed'] as num?)?.toDouble() ?? 1.0,
+      loop: json['loop'] ?? true,
+    );
+  }
+
+  /// Creates a copy of this animation state with the given fields replaced.
+  Power3DAnimation copyWith({
+    String? name,
+    bool? isPlaying,
+    double? speed,
+    bool? loop,
+  }) {
+    return Power3DAnimation(
+      name: name ?? this.name,
+      isPlaying: isPlaying ?? this.isPlaying,
+      speed: speed ?? this.speed,
+      loop: loop ?? this.loop,
     );
   }
 }

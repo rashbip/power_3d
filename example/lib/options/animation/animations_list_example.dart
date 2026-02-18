@@ -46,7 +46,7 @@ class _AnimationsListExampleState extends State<AnimationsListExample> {
                 controller: controller,
                 initialModel: const Power3DData(
                   path:
-                      'assets/models/robot.glb', // Assuming a model with animations exists
+                      'assets/robot.glb', // Assuming a model with animations exists
                   source: Power3DSource.asset,
                 ),
               ),

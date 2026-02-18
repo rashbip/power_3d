@@ -11,6 +11,7 @@ part 'view_extension.dart';
 part 'selection_extension.dart';
 part 'material_extension.dart';
 part 'texture_extension.dart';
+part 'animation_extension.dart';
 
 /// Controller for programmatically managing the [Power3D] viewer.
 ///
@@ -172,6 +173,17 @@ class Power3DController extends ValueNotifier<Power3DState> {
       } else if (data['type'] == 'partsList') {
         final List<String> parts = (data['parts'] as List).cast<String>();
         value = value.copyWith(availableParts: parts);
+      } else if (data['type'] == 'animationsList') {
+        final List<Power3DAnimation> animations = (data['animations'] as List)
+            .map((e) => Power3DAnimation.fromJson(e))
+            .toList();
+        value = value.copyWith(animations: animations);
+      } else if (data['type'] == 'animationStatus') {
+        final updatedAnim = Power3DAnimation.fromJson(data['animation']);
+        final newAnimations = value.animations.map((a) {
+          return a.name == updatedAnim.name ? updatedAnim : a;
+        }).toList();
+        value = value.copyWith(animations: newAnimations);
       }
     } catch (e) {
       // Ignore parse errors from JS
