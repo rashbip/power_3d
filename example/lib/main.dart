@@ -1,15 +1,16 @@
-import 'package:example/options/asset_example.dart';
-import 'package:example/options/error_example.dart';
-import 'package:example/options/network_example.dart';
-import 'package:example/options/placeholder_example.dart';
-import 'package:example/options/environment_example.dart';
-import 'package:example/options/material_example.dart';
-import 'package:example/options/selection_example.dart';
-import 'package:example/options/selection_hierarchy_example.dart';
-import 'package:example/options/selection_visibility_example.dart';
-import 'package:example/options/selection_metadata_example.dart';
-import 'package:example/options/selection_visual_styles_example.dart';
-import 'package:example/options/selection_texture_example.dart';
+import 'package:example/options/basic/asset_example.dart';
+import 'package:example/options/basic/error_example.dart';
+import 'package:example/options/basic/network_example.dart';
+import 'package:example/options/basic/placeholder_example.dart';
+import 'package:example/options/basic/environment_example.dart';
+import 'package:example/options/basic/material_example.dart';
+import 'package:example/options/selection/selection_example.dart';
+import 'package:example/options/selection/selection_hierarchy_example.dart';
+import 'package:example/options/selection/selection_visibility_example.dart';
+import 'package:example/options/selection/selection_metadata_example.dart';
+import 'package:example/options/selection/selection_visual_styles_example.dart';
+import 'package:example/options/selection/selection_texture_example.dart';
+import 'package:example/options/animation/animations_list_example.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -150,6 +151,25 @@ class HomePage extends StatelessWidget {
             subtitle: 'Preview, edit, and export scene textures',
             icon: Icons.texture,
             target: const SelectionTextureExample(),
+          ),
+          const Divider(height: 32),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              'Animations & Sequences',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.green,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildExampleCard(
+            context,
+            title: 'Animations List',
+            subtitle: 'Manage playback, speed, and sequences',
+            icon: Icons.movie_outlined,
+            target: const AnimationsListExample(),
           ),
         ],
       ),
