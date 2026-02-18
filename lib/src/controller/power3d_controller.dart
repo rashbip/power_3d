@@ -121,6 +121,8 @@ class Power3DController extends ValueNotifier<Power3DState> {
           }
           // Re-apply selection configuration
           updateSelectionConfig(value.selectionConfig);
+          // Initialize animations
+          _webViewController?.runJavaScript('initAnimations()');
         } else if (data['message'] == 'loading') {
           value = value.copyWith(status: Power3DStatus.loading);
         }

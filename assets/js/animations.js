@@ -3,6 +3,7 @@ let animationConfigs = new Map();
 
 function initAnimations() {
     if (!window.scene) return;
+    setupAnimationListeners();
     getAnimationsList();
 }
 
