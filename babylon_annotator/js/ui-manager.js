@@ -9,6 +9,9 @@ function initUI() {
     const cancelBtn = document.getElementById("cancelBtn");
     const addBtn = document.getElementById("addBtn");
     const downloadBtn = document.getElementById("downloadBtn");
+    const randomBgBtn = document.getElementById("randomBgBtn");
+    const urlLoadBtn = document.getElementById("urlLoadBtn");
+    const urlInput = document.getElementById("urlInput");
 
     // Drag and Drop
     dropZone.onclick = () => fileInput.click();
@@ -23,19 +26,46 @@ function initUI() {
         if (e.target.files.length > 0) loadModelFromFile(e.target.files[0]);
     };
 
+    // URL Loading
+    urlLoadBtn.onclick = () => {
+        const url = urlInput.value.trim();
+        if (url) loadModelByUrl(url);
+    };
+
+    // Background Randomization
+    randomBgBtn.onclick = randomizeBackground;
+
+    // Animation UI
+    const animPlayBtn = document.getElementById("animPlayBtn");
+    const animPauseBtn = document.getElementById("animPauseBtn");
+    const animStopBtn = document.getElementById("animStopBtn");
+    const animSlider = document.getElementById("animSlider");
+    const animSelect = document.getElementById("animationSelect");
+    const animSpeedSelect = document.getElementById("animSpeedSelect");
+
+    animPlayBtn.onclick = () => playAnimation(animSelect.value);
+    animPauseBtn.onclick = () => pauseAnimation(animSelect.value);
+    animStopBtn.onclick = () => stopAnimation(animSelect.value);
+    
+    animSelect.onchange = () => updateSliderRange(animSelect.value);
+    
+    animSlider.oninput = () => scrubAnimation(animSelect.value, animSlider.value);
+    
+    animSpeedSelect.onchange = () => setAnimationSpeed(animSelect.value, parseFloat(animSpeedSelect.value));
+
     // Mode Toggle
     newAnnotBtn.onclick = () => {
         isAnnotating = true;
-        document.getElementById("annotationForm").style.display = "block";
-        document.getElementById("mainActions").style.display = "none";
+        document.getElementById("annotationForm").classList.remove("hidden");
+        document.getElementById("mainActions").classList.add("hidden");
         updateStatus("Annotation Mode: Click on model");
         resetForm();
     };
 
     cancelBtn.onclick = () => {
         isAnnotating = false;
-        document.getElementById("annotationForm").style.display = "none";
-        document.getElementById("mainActions").style.display = "block";
+        document.getElementById("annotationForm").classList.add("hidden");
+        document.getElementById("mainActions").classList.remove("hidden");
         updateStatus("Ready");
     };
 
@@ -57,7 +87,7 @@ function initUI() {
 
             document.getElementById("pickedMesh").innerText = mesh.name;
             document.getElementById("pickedFace").innerText = pickResult.faceId;
-            document.getElementById("pickData").style.display = "block";
+            document.getElementById("pickData").classList.remove("hidden");
             addBtn.disabled = false;
             updateStatus("Point captured at face " + pickResult.faceId);
         }
@@ -87,7 +117,7 @@ function resetForm() {
     document.getElementById("nodeDesc").value = "";
     document.getElementById("pickedMesh").innerText = "None";
     document.getElementById("pickedFace").innerText = "None";
-    document.getElementById("pickData").style.display = "none";
+    document.getElementById("pickData").classList.add("hidden");
     document.getElementById("addBtn").disabled = true;
     currentPick = null;
 }

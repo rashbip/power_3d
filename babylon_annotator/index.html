@@ -18,31 +18,65 @@
         <div class="sidebar">
             <h1>Babylon Annotator</h1>
             
-            <div id="dropZone" class="drop-zone">
+            <div id="dropZone" class="drop-zone" title="Drag and Drop model file here">
                 Drag & Drop .glb/.gltf<br>or click to browse
-                <input type="file" id="fileInput" accept=".glb,.gltf" style="display: none;">
+                <input type="file" id="fileInput" accept=".glb,.gltf" class="hidden" title="Select a 3D model file">
+                </div>
+                
+                <div class="form-group">
+                    <label for="urlInput">Load from URL</label>
+                    <div class="flex-row">
+                        <input type="text" id="urlInput" class="flex-grow" placeholder="https://.../model.glb" title="Model URL">
+                        <button id="urlLoadBtn" class="mt-0 btn-auto">Load</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <button id="randomBgBtn" class="secondary">Randomize Background</button>
+                </div>
+                
+                <div id="animationPanel" class="form-group hidden">
+                    <label for="animationSelect">Animations</label>
+                    <select id="animationSelect" class="mb-10" title="Select animation to play"></select>
+                    <div class="flex-row mb-10">
+                        <button id="animPlayBtn" class="btn-small mt-0">Play</button>
+                        <button id="animPauseBtn" class="btn-small mt-0 secondary">Pause</button>
+                        <button id="animStopBtn" class="btn-small mt-0 secondary">Stop</button>
+                    </div>
+                    <div class="flex-row">
+                        <input type="range" id="animSlider" class="flex-grow" min="0" max="100" value="0" title="Animation timeline">
+                    </div>
+                    <div class="flex-row mt-10">
+                        <label for="animSpeedSelect">Speed:</label>
+                        <select id="animSpeedSelect" class="btn-small mt-0 btn-auto" title="Animation playback speed">
+                            <option value="0.1">0.1x</option>
+                            <option value="0.5">0.5x</option>
+                            <option value="1" selected>1.0x</option>
+                            <option value="2">2.0x</option>
+                        </select>
+                    </div>
             </div>
-
-            <div id="annotationForm" style="display: none;">
+            
+            <div id="annotationForm" class="hidden">
                 <h2>New Annotation</h2>
                 <div class="form-group">
-                    <label>ID</label>
+                    <label for="nodeId">ID</label>
                     <input type="text" id="nodeId" placeholder="hotspot_1">
                 </div>
                 <div class="form-group">
-                    <label>Title</label>
+                    <label for="nodeTitle">Title</label>
                     <input type="text" id="nodeTitle" placeholder="Center point">
                 </div>
                 <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="nodeDesc" rows="3"></textarea>
+                    <label for="nodeDesc">Description</label>
+                    <textarea id="nodeDesc" rows="3" placeholder="Enter description here"></textarea>
                 </div>
                 
-                <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 10px;">
+                <div class="small-info">
                     Click on the model to select a face.
                 </div>
                 
-                <div id="pickData" style="display: none; font-size: 0.8rem; color: #38bdf8; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; margin-bottom: 10px;">
+                <div id="pickData" class="pick-data-box hidden">
                     Target: <span id="pickedMesh">None</span><br>
                     Tri Index: <span id="pickedFace">None</span>
                 </div>

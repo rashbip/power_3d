@@ -29,6 +29,7 @@ ios/Flutter/App.podspec
 example/build/
 example/.dart_tool/
 example/.packages
+example/assets/**/*.glb
 
 # User requested specific ignores
 stripped_native_libs/

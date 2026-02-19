@@ -21,6 +21,18 @@ function initScene() {
 
     guiTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
+    // Register update loop for slider
+    engine.onEndFrameObservable.add(() => {
+        if (activeAnimGroups && activeAnimGroups.length > 0) {
+            const select = document.getElementById("animationSelect");
+            const group = activeAnimGroups[select.value];
+            if (group && group.isPlaying && group.animatables && group.animatables.length > 0) {
+                const slider = document.getElementById("animSlider");
+                slider.value = group.animatables[0].masterFrame;
+            }
+        }
+    });
+
     engine.runRenderLoop(() => {
         scene.render();
     });
@@ -53,9 +65,110 @@ async function loadModelFromFile(file) {
                 camera = scene.activeCamera;
                 camera.attachControl(document.getElementById("renderCanvas"), true);
                 updateStatus("Model Loaded: " + file.name);
+                setupAnimations();
                 resolve(meshes);
             }, null, null, ".glb");
         };
         reader.readAsDataURL(file);
     });
+}
+
+async function loadModelByUrl(url) {
+    if (!scene || !url) return;
+    updateStatus("Loading model from URL...");
+    
+    scene.meshes.slice().forEach(m => {
+        if (m.name !== "hotspot_mesh") m.dispose();
+    });
+    
+    clearAllAnnotations();
+
+    try {
+        const meshes = await BABYLON.SceneLoader.ImportMeshAsync("", "", url, scene, null, ".glb");
+        scene.createDefaultCameraOrLight(true, true, true);
+        camera = scene.activeCamera;
+        camera.attachControl(document.getElementById("renderCanvas"), true);
+        updateStatus("Model Loaded from URL");
+        setupAnimations();
+        return meshes;
+    } catch (e) {
+        updateStatus("Error loading model: " + e.message);
+        console.error(e);
+    }
+}
+
+function randomizeBackground() {
+    if (!scene) return;
+    const r = Math.random();
+    const g = Math.random();
+    const b = Math.random();
+    scene.clearColor = new BABYLON.Color4(r, g, b, 1);
+    updateStatus(`Background changed to RGB(${Math.round(r*255)}, ${Math.round(g*255)}, ${Math.round(b*255)})`);
+}
+
+// Animation Controls
+let activeAnimGroups = [];
+
+function setupAnimations() {
+    if (!scene) return;
+    activeAnimGroups = scene.animationGroups;
+    
+    const panel = document.getElementById("animationPanel");
+    const select = document.getElementById("animationSelect");
+    
+    if (activeAnimGroups.length > 0) {
+        panel.classList.remove("hidden");
+        select.innerHTML = "";
+        activeAnimGroups.forEach((group, index) => {
+            const option = document.createElement("option");
+            option.value = index;
+            option.text = group.name || `Animation ${index + 1}`;
+            select.add(option);
+        });
+        
+        // Update slider range based on first animation
+        updateSliderRange(0);
+    } else {
+        panel.classList.add("hidden");
+    }
+}
+
+function updateSliderRange(index) {
+    const group = activeAnimGroups[index];
+    if (!group) return;
+    const slider = document.getElementById("animSlider");
+    slider.min = group.from;
+    slider.max = group.to;
+    slider.value = group.from;
+}
+
+function playAnimation(index, loop = true) {
+    const group = activeAnimGroups[index];
+    if (group) group.play(loop);
+}
+
+function pauseAnimation(index) {
+    const group = activeAnimGroups[index];
+    if (group) group.pause();
+}
+
+function stopAnimation(index) {
+    const group = activeAnimGroups[index];
+    if (group) {
+        group.stop();
+        document.getElementById("animSlider").value = group.from;
+    }
+}
+
+function scrubAnimation(index, frame) {
+    const group = activeAnimGroups[index];
+    if (group) {
+        group.pause();
+        group.goToFrame(frame);
+    }
+}
+
+function setAnimationSpeed(index, speed) {
+    const group = activeAnimGroups[index];
+    if (group) group.speedRatio = speed;
 }
