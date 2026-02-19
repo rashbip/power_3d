@@ -30,6 +30,7 @@ example/build/
 example/.dart_tool/
 example/.packages
 example/assets/**/*.glb
+docs/screenshots/
 
 # User requested specific ignores
 stripped_native_libs/

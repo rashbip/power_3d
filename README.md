@@ -28,7 +28,7 @@ A powerful, industry-level Flutter plugin for rendering 3D models using Babylon.
 ### 1. Add dependency
 ```yaml
 dependencies:
-  power3d: ^1.5.0
+  power3d: ^2.0.0
 ```
 
 ### 2. Basic Setup (Android)

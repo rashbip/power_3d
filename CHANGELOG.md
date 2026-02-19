@@ -1,4 +1,4 @@
-# 1.5.0
+# 2.0.0
 
 ## Features
 * **Full Texture Management**: A comprehensive system to inspect and modify engine textures.
