@@ -74,6 +74,23 @@ extension ViewExtension on Power3DController {
     await _webViewController?.runJavaScript('takeScreenshot()');
   }
 
+  /// Sets the camera position and orientation.
+  Future<void> setCameraPosition({
+    double? alpha,
+    double? beta,
+    double? radius,
+  }) async {
+    final newState = value.copyWith(
+      cameraAlpha: alpha,
+      cameraBeta: beta,
+      cameraRadius: radius,
+    );
+    value = newState;
+    await _webViewController?.runJavaScript(
+      'setCameraPosition(${newState.cameraAlpha}, ${newState.cameraBeta}, ${newState.cameraRadius})',
+    );
+  }
+
   Future<void> _saveScreenshotToFile(String base64Data, String path) async {
     try {
       final String data = base64Data.contains(',')

@@ -15,8 +15,8 @@ class _AnimationsListExampleState extends State<AnimationsListExample> {
   void initState() {
     super.initState();
     controller = Power3DController();
-    // Default camera alpha for front view in many models
-    controller.value = controller.value.copyWith(cameraAlpha: 0.0);
+    // Default camera alpha for front view in robot.glb
+    //controller.value = controller.value.copyWith(cameraAlpha: 1.57);
   }
 
   @override

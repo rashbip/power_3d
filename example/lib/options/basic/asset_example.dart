@@ -12,7 +12,7 @@ class AssetExample extends StatefulWidget {
 }
 
 class _AssetExampleState extends State<AssetExample> {
-  final String _assetPath = 'assets/heart.glb';
+  final String _assetPath = 'assets/phoenix_bird.glb';
   late final Power3DController _controller;
 
   @override

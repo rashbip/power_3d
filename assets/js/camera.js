@@ -77,6 +77,16 @@ function updateZoom(enabled, min = 1.0, max = 20.0) {
     }
 }
 
+function setCameraPosition(alpha, beta, radius) {
+    if (window.scene && window.scene.activeCamera) {
+        const camera = window.scene.activeCamera;
+        if (alpha !== null && alpha !== undefined) camera.alpha = alpha;
+        if (beta !== null && beta !== undefined) camera.beta = beta;
+        if (radius !== null && radius !== undefined) camera.radius = radius;
+        reportCameraTelemetry(true);
+    }
+}
+
 function applyInitialSettings(camera) {
     // Default settings matching Power3DState defaults
     camera.lowerRadiusLimit = 1.0;

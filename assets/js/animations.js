@@ -77,6 +77,8 @@ function setAnimationLoop(name, loop) {
     if (ag) {
         ag.loopAnimation = loop;
         sendAnimationStatus(ag);
+    } else {
+        console.warn(`[Animations] Could not find animation group with name: ${name}`);
     }
 }
 

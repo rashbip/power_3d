@@ -27,6 +27,7 @@ flutter:
     - assets/images/
     - assets/shoulder.glb
     - assets/robot.glb
+    - assets/phoenix_bird.glb
 
   # fonts:
   #   - family: Schyler

@@ -54,6 +54,11 @@ class Power3DController extends ValueNotifier<Power3DState> {
 
     // Apply selection configuration
     updateSelectionConfig(value.selectionConfig);
+
+    // Sync camera position
+    _webViewController?.runJavaScript(
+      'setCameraPosition(${value.cameraAlpha}, ${value.cameraBeta}, ${value.cameraRadius})',
+    );
   }
 
   /// Loads a 3D model from the specified [data] source.
@@ -121,6 +126,10 @@ class Power3DController extends ValueNotifier<Power3DState> {
           }
           // Re-apply selection configuration
           updateSelectionConfig(value.selectionConfig);
+          // Sync camera position
+          _webViewController?.runJavaScript(
+            'setCameraPosition(${value.cameraAlpha}, ${value.cameraBeta}, ${value.cameraRadius})',
+          );
           // Initialize animations
           _webViewController?.runJavaScript('initAnimations()');
         } else if (data['message'] == 'reset') {
