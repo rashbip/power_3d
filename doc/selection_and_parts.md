@@ -2,6 +2,8 @@
 
 Power3D allows you to detect individual parts (meshes) in a 3D model and implement interactive selection with visual feedback and transformations.
 
+![Object Selection](screenshots/select_part.png)
+
 ---
 
 ## Features

@@ -31,9 +31,6 @@ example/.dart_tool/
 example/.packages
 example/assets/**/*.glb
 
-# Screenshots and other heavy documentation assets
-docs/screenshots/
-
 # User-requested specific ignores
 stripped_native_libs/
 local-state/
@@ -43,3 +40,6 @@ tmp/
 
 # Annotation tool (not part of the Dart package)
 babylon_annotator/
+
+# Screenshots
+doc/screenshots/

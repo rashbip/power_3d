@@ -2,6 +2,8 @@
 
 Power3D provides a professional-grade lighting system with support for multiple light sources, dynamic shadows, and scene-level image processing.
 
+![Lighting System](screenshots/lighting.png)
+
 ## LightingConfig
 
 The `LightingConfig` class defines individual light sources in your scene.

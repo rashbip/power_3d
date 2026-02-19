@@ -2,6 +2,16 @@
 
 A powerful, industry-level Flutter plugin for rendering 3D models using Babylon.js. Designed for ease of use, extensibility, and seamless integration into any architecture.
 
+## 📸 Showcase
+
+| Main View | Scene Hierarchy | Texture Management |
+| :---: | :---: | :---: |
+| ![Main View](doc/screenshots/home1.png) | ![Hierarchy](doc/screenshots/get_hiererchy.png) | ![Textures](doc/screenshots/texures.png) |
+
+| Lighting Controls | Bounding Boxes | Visibility & Mesh List |
+| :---: | :---: | :---: |
+| ![Lighting](doc/screenshots/lighting.png) | ![Bounding Box](doc/screenshots/bounding_box.png) | ![Visibility](doc/screenshots/visibality.png) |
+
 ## Features
 
 - **🚀 Architecture Agnostic**: Uses a Controller pattern, compatible with Riverpod, Bloc, Provider, GetX, or plain `setState`.

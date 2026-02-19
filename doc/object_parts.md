@@ -3,6 +3,10 @@
 ## Overview
 The objectParts feature enables fine-grained control over individual components of a 3D model, allowing developers to easily manage and manipulate different parts of a model independently.
 
+![Node Metadata](screenshots/metadat.png)
+
+![Mesh List](screenshots/get_all_meshes.png)
+
 ## Key Components
 
 ### Power3DPart

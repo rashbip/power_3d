@@ -2,6 +2,8 @@
 
 Power3D provides comprehensive control over how 3D models are rendered, including debug views, unlit modes, and global material property overrides.
 
+![Materials and Shading](screenshots/materials_and_shaiding.png)
+
 ## Shading Modes
 
 Shading modes allow you to switch the entire scene's rendering style.

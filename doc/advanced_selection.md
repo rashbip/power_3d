@@ -2,6 +2,12 @@
 
 Power3D now provides comprehensive selection capabilities including hierarchical part trees, visibility controls, bounding box visualization, and per-selection material modes.
 
+![Hierarchy and Selection](screenshots/get_hiererchy.png)
+
+![Visibility and Mesh List](screenshots/visibality.png)
+
+![Bounding Boxes](screenshots/bounding_box.png)
+
 ---
 
 ## Overview

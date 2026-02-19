@@ -2,6 +2,8 @@
 
 Power3D allows you to interact directly with the texture engine of Babylon.js. You can list all textures in a scene, preview their raw data, and edit properties like brightness and tiling in real-time.
 
+![Texture Management](screenshots/texures.png)
+
 ## Fetching Textures
 
 Use `getTexturesList()` to get a list of all active textures in the current scene. This includes image-based textures, procedural textures, and render targets.
