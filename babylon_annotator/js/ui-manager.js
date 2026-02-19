@@ -8,10 +8,13 @@ function initUI() {
     const newAnnotBtn = document.getElementById("newAnnotBtn");
     const cancelBtn = document.getElementById("cancelBtn");
     const addBtn = document.getElementById("addBtn");
-    const downloadBtn = document.getElementById("downloadBtn");
     const randomBgBtn = document.getElementById("randomBgBtn");
     const urlLoadBtn = document.getElementById("urlLoadBtn");
     const urlInput = document.getElementById("urlInput");
+    const resetCamBtn = document.getElementById("resetCamBtn");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+    const copyJsonBtn = document.getElementById("copyJsonBtn");
+    const copyCsvBtn = document.getElementById("copyCsvBtn");
 
     // Drag and Drop
     dropZone.onclick = () => fileInput.click();
@@ -32,8 +35,21 @@ function initUI() {
         if (url) loadModelByUrl(url);
     };
 
-    // Background Randomization
+    // Background & Lighting
     randomBgBtn.onclick = randomizeBackground;
+    
+    const bgColorPicker = document.getElementById("bgColorPicker");
+    bgColorPicker.oninput = () => setBackgroundColor(bgColorPicker.value);
+
+    const brightnessSlider = document.getElementById("brightnessSlider");
+    brightnessSlider.oninput = () => setBrightness(parseFloat(brightnessSlider.value));
+
+    resetCamBtn.onclick = resetCamera;
+    clearAllBtn.onclick = () => {
+        if(confirm("Are you sure you want to delete ALL annotations?")) {
+            clearAllAnnotations();
+        }
+    };
 
     // Animation UI
     const animPlayBtn = document.getElementById("animPlayBtn");
@@ -95,16 +111,45 @@ function initUI() {
 
     addBtn.onclick = () => {
         const annotation = {
-            id: document.getElementById("nodeId").value,
-            title: document.getElementById("nodeTitle").value || "Untitled",
-            description: document.getElementById("nodeDesc").value,
-            ...currentPick
+            id: annotations.length + 1,
+            surface: {
+                meshName: currentPick.meshName,
+                triangleIndex: currentPick.triangleIndex,
+                barycentric: currentPick.barycentric
+            },
+            placement: {
+                normal: currentPick.normal,
+                offset: parseFloat(document.getElementById("nodeOffset").value),
+                billboard: document.getElementById("nodeBillboard").checked
+            },
+            visibility: {
+                minDistance: parseFloat(document.getElementById("nodeMinDist").value),
+                maxDistance: parseFloat(document.getElementById("nodeMaxDist").value),
+                hideWhenOccluded: document.getElementById("nodeHideOccluded").checked
+            },
+            ui: {
+                title: document.getElementById("nodeTitle").value || "Untitled",
+                description: document.getElementById("nodeDesc").value,
+                more: document.getElementById("nodeMore").value
+            },
+            camera: {
+                orbit: currentPick.cameraOrbit,
+                target: currentPick.cameraTarget,
+                transitionDuration: parseFloat(document.getElementById("nodeTransition").value)
+            },
+            meta: {
+                version: 1,
+                createdAt: new Date().toISOString()
+            },
+            // Internal helper for rendering markers in the tool
+            internal_worldPosition: currentPick.worldPosition
         };
         addAnnotation(annotation);
         cancelBtn.click();
     };
 
-    downloadBtn.onclick = exportAnnotations;
+    copyJsonBtn.onclick = copyAnnotationsAsJson;
+    copyCsvBtn.onclick = copyAnnotationsAsCsv;
 }
 
 function updateStatus(text) {
@@ -112,9 +157,16 @@ function updateStatus(text) {
 }
 
 function resetForm() {
-    document.getElementById("nodeId").value = "hotspot_" + (annotations.length + 1);
     document.getElementById("nodeTitle").value = "";
     document.getElementById("nodeDesc").value = "";
+    document.getElementById("nodeMore").value = "";
+    document.getElementById("nodeOffset").value = "0.01";
+    document.getElementById("nodeBillboard").checked = true;
+    document.getElementById("nodeMinDist").value = "0.2";
+    document.getElementById("nodeMaxDist").value = "20.0";
+    document.getElementById("nodeHideOccluded").checked = true;
+    document.getElementById("nodeTransition").value = "0.5";
+    
     document.getElementById("pickedMesh").innerText = "None";
     document.getElementById("pickedFace").innerText = "None";
     document.getElementById("pickData").classList.add("hidden");
@@ -125,15 +177,22 @@ function resetForm() {
 function updateAnnotationListUI() {
     const listItems = document.getElementById("listItems");
     const countSpan = document.getElementById("count");
+    const copyJsonBtn = document.getElementById("copyJsonBtn");
+    const copyCsvBtn = document.getElementById("copyCsvBtn");
+
     listItems.innerHTML = "";
     countSpan.innerText = annotations.length;
+
+    const hasAnns = annotations.length > 0;
+    copyJsonBtn.disabled = !hasAnns;
+    copyCsvBtn.disabled = !hasAnns;
 
     annotations.forEach((ann, index) => {
         const div = document.createElement("div");
         div.className = "annotation-item";
         div.innerHTML = `
-            <strong>${ann.title}</strong> (${ann.id})<br>
-            <small>${ann.meshName} - Tri: ${ann.triangleIndex}</small>
+            <strong>${ann.ui.title}</strong> (ID: ${ann.id})<br>
+            <small>${ann.surface.meshName} - Tri: ${ann.surface.triangleIndex}</small>
             <div class="actions">
                 <button class="btn-small secondary" onclick="deleteAnnotation(${index})">Del</button>
             </div>

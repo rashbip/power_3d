@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Babylon Annotator</title>
+    <title>Babylon Annotator | Material 3</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
     <!-- Babylon.js Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/babylonjs@8.51.2/babylon.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/babylonjs-loaders@8.51.2/babylonjs.loaders.min.js"></script>
@@ -14,87 +20,137 @@
 </head>
 <body>
     <div class="container">
-        <canvas id="renderCanvas"></canvas>
-        <div class="sidebar">
-            <h1>Babylon Annotator</h1>
+        <aside class="sidebar" id="sidebar">
+            <header>
+                <h1>Babylon Annotator</h1>
+                <div class="header-info">Material 3 Edition</div>
+                </header>
             
-            <div id="dropZone" class="drop-zone" title="Drag and Drop model file here">
-                Drag & Drop .glb/.gltf<br>or click to browse
+            <section id="dropZone" class="drop-zone fullscreen" title="Drag and Drop model file here">
+                <div class="drop-zone-icon">📦</div>
+                <div>Drag & Drop .glb/.gltf</div>
+                <div class="header-info">or click to browse</div>
                 <input type="file" id="fileInput" accept=".glb,.gltf" class="hidden" title="Select a 3D model file">
-                </div>
-                
-                <div class="form-group">
-                    <label for="urlInput">Load from URL</label>
-                    <div class="flex-row">
-                        <input type="text" id="urlInput" class="flex-grow" placeholder="https://.../model.glb" title="Model URL">
-                        <button id="urlLoadBtn" class="mt-0 btn-auto">Load</button>
+            </section>
+
+            <section class="form-group url-input-container">
+                <label for="urlInput">Load from URL</label>
+                <div class="flex-row">
+                    <input type="text" id="urlInput" class="flex-grow" placeholder="https://.../model.glb" title="Model URL">
+                    <button id="urlLoadBtn" class="secondary">Go</button>
                     </div>
+            </section>
+            <section class="form-group">
+                <label for="brightnessSlider">Model Brightness</label>
+                <input type="range" id="brightnessSlider" min="0" max="3" step="0.1" value="1.0" title="Adjust brightness">
+            </section>
+            <section class="form-group">
+                <label for="bgColorPicker">Background Color</label>
+                <div class="flex-row">
+                    <input type="color" id="bgColorPicker" class="color-picker-input" value="#1a1c1e"
+                        title="Select background color manually">
+                    <button id="randomBgBtn" class="secondary flex-grow">Randomize</button>
                 </div>
-                
-                <div class="form-group">
-                    <button id="randomBgBtn" class="secondary">Randomize Background</button>
-                </div>
-                
-                <div id="animationPanel" class="form-group hidden">
-                    <label for="animationSelect">Animations</label>
-                    <select id="animationSelect" class="mb-10" title="Select animation to play"></select>
-                    <div class="flex-row mb-10">
-                        <button id="animPlayBtn" class="btn-small mt-0">Play</button>
-                        <button id="animPauseBtn" class="btn-small mt-0 secondary">Pause</button>
-                        <button id="animStopBtn" class="btn-small mt-0 secondary">Stop</button>
+            </section>
+
+            <!-- Animation Controls -->
+            <div id="animationPanel" class="m3-card animation-panel hidden">
+                <label for="animationSelect">Animations</label>
+                <select id="animationSelect" class="mb-10" title="Select animation"></select>
+                <div class="flex-row mb-10">
+                    <button id="animPlayBtn" class="flex-grow">Play</button>
+                    <button id="animPauseBtn" class="secondary">Pause</button>
+                    <button id="animStopBtn" class="secondary">Stop</button>
                     </div>
                     <div class="flex-row">
-                        <input type="range" id="animSlider" class="flex-grow" min="0" max="100" value="0" title="Animation timeline">
+                    <input type="range" id="animSlider" class="flex-grow" min="0" max="100" value="0" title="Animation position">
                     </div>
                     <div class="flex-row mt-10">
                         <label for="animSpeedSelect">Speed:</label>
-                        <select id="animSpeedSelect" class="btn-small mt-0 btn-auto" title="Animation playback speed">
-                            <option value="0.1">0.1x</option>
-                            <option value="0.5">0.5x</option>
-                            <option value="1" selected>1.0x</option>
-                            <option value="2">2.0x</option>
-                        </select>
+                    <select id="animSpeedSelect" class="flex-grow" title="Playback speed">
+                        <option value="0.1">0.1x</option>
+                        <option value="0.5">0.5x</option>
+                        <option value="1" selected>1.0x</option>
+                        <option value="2">2.0x</option>
+                    </select>
                     </div>
             </div>
-            
-            <div id="annotationForm" class="hidden">
-                <h2>New Annotation</h2>
-                <div class="form-group">
-                    <label for="nodeId">ID</label>
-                    <input type="text" id="nodeId" placeholder="hotspot_1">
-                </div>
+
+            <!-- Annotation Form -->
+            <div id="annotationForm" class="m3-card hidden">
+                <h2 class="annotation-form-title">New Annotation</h2>
                 <div class="form-group">
                     <label for="nodeTitle">Title</label>
-                    <input type="text" id="nodeTitle" placeholder="Center point">
+                    <input type="text" id="nodeTitle" placeholder="Hotspot title">
                 </div>
                 <div class="form-group">
                     <label for="nodeDesc">Description</label>
-                    <textarea id="nodeDesc" rows="3" placeholder="Enter description here"></textarea>
-                </div>
-                
-                <div class="small-info">
-                    Click on the model to select a face.
-                </div>
-                
-                <div id="pickData" class="pick-data-box hidden">
-                    Target: <span id="pickedMesh">None</span><br>
-                    Tri Index: <span id="pickedFace">None</span>
+                    <textarea id="nodeDesc" rows="2" placeholder="Tell more..."></textarea>
                 </div>
 
-                <button id="addBtn" disabled>Add Annotation</button>
-                <button id="cancelBtn" class="secondary">Cancel</button>
+                <details class="mb-10">
+                    <summary>Advanced Settings</summary>
+                    <div class="details-panel">
+                        <div class="form-group">
+                            <label for="nodeMore">More Info Link</label>
+                            <input type="text" id="nodeMore" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label for="nodeOffset">Surface Offset</label>
+                            <input type="number" id="nodeOffset" value="0.01" step="0.001">
+                        </div>
+                        <div class="form-group">
+                            <label>Distance Constraints</label>
+                            <div class="flex-row">
+                                <input type="number" id="nodeMinDist" value="0.2" class="flex-grow" title="Min distance">
+                                <input type="number" id="nodeMaxDist" value="20.0" class="flex-grow" title="Max distance">
+                            </div>
+                        </div>
+                        <div class="form-group flex-row">
+                            <input type="checkbox" id="nodeBillboard" checked>
+                            <label for="nodeBillboard">Billboard</label>
+                        </div>
+                        <div class="form-group flex-row">
+                            <input type="checkbox" id="nodeHideOccluded" checked>
+                            <label for="nodeHideOccluded">Hide when Occluded</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="nodeTransition">Transition (s)</label>
+                            <input type="number" id="nodeTransition" value="0.5" step="0.1">
+                        </div>
+                        </div>
+                        </details>
+
+                <div class="flex-row mt-10">
+                    <button id="addBtn" class="flex-grow" disabled>Add</button>
+                    <button id="cancelBtn" class="secondary">Cancel</button>
+                </div>
             </div>
 
             <div id="mainActions">
-                <button id="newAnnotBtn">Create New Annotation</button>
-                <button id="downloadBtn" class="secondary" disabled>Download JSON</button>
+                <button id="newAnnotBtn" class="main-action-btn">Create New Annotation</button>
+                <div class="flex-row mt-10">
+                    <button id="copyJsonBtn" class="secondary flex-grow" disabled>JSON</button>
+                    <button id="copyCsvBtn" class="secondary flex-grow" disabled>CSV</button>
+                </div>
             </div>
 
-            <div class="annotation-list">
-                <h2>Annotations (<span id="count">0</span>)</h2>
+            <section class="annotation-list">
+                <div class="flex-row mb-10">
+                    <button id="resetCamBtn" class="secondary flex-grow reset-view-btn">Reset View</button>
+                    <button id="clearAllBtn" class="danger danger-icon-btn" title="Delete all annotations">🗑</button>
+                </div>
+                <h2 class="annotation-list-title">Annotations (<span id="count">0</span>)</h2>
                 <div id="listItems"></div>
+            </section>
+            </aside>
+            
+            <main class="main-viewport">
+                <canvas id="renderCanvas"></canvas>
+                <div id="pickData" class="pick-data-box pick-data-panel hidden">
+                    Mesh: <span id="pickedMesh">None</span> | Face: <span id="pickedFace">None</span>
             </div>
-        </div>
+        </main>
     </div>
 
     <div class="status-bar" id="statusBar">Ready</div>
@@ -105,7 +161,6 @@
     <script src="js/ui-manager.js"></script>
     
     <script>
-        // Start application
         window.addEventListener("DOMContentLoaded", () => {
             initScene();
             initUI();
