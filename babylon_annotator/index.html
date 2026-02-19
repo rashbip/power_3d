@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babylon Annotator</title>
+    <!-- Babylon.js Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs@8.51.2/babylon.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs-loaders@8.51.2/babylonjs.loaders.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs-gui@8.51.2/babylon.gui.min.js"></script>
+    
+    <!-- Modular Content -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <canvas id="renderCanvas"></canvas>
+        <div class="sidebar">
+            <h1>Babylon Annotator</h1>
+            
+            <div id="dropZone" class="drop-zone">
+                Drag & Drop .glb/.gltf<br>or click to browse
+                <input type="file" id="fileInput" accept=".glb,.gltf" style="display: none;">
+            </div>
+
+            <div id="annotationForm" style="display: none;">
+                <h2>New Annotation</h2>
+                <div class="form-group">
+                    <label>ID</label>
+                    <input type="text" id="nodeId" placeholder="hotspot_1">
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="nodeTitle" placeholder="Center point">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="nodeDesc" rows="3"></textarea>
+                </div>
+                
+                <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 10px;">
+                    Click on the model to select a face.
+                </div>
+                
+                <div id="pickData" style="display: none; font-size: 0.8rem; color: #38bdf8; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; margin-bottom: 10px;">
+                    Target: <span id="pickedMesh">None</span><br>
+                    Tri Index: <span id="pickedFace">None</span>
+                </div>
+
+                <button id="addBtn" disabled>Add Annotation</button>
+                <button id="cancelBtn" class="secondary">Cancel</button>
+            </div>
+
+            <div id="mainActions">
+                <button id="newAnnotBtn">Create New Annotation</button>
+                <button id="downloadBtn" class="secondary" disabled>Download JSON</button>
+            </div>
+
+            <div class="annotation-list">
+                <h2>Annotations (<span id="count">0</span>)</h2>
+                <div id="listItems"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar" id="statusBar">Ready</div>
+
+    <!-- Application Modules -->
+    <script src="js/scene-manager.js"></script>
+    <script src="js/annotation-manager.js"></script>
+    <script src="js/ui-manager.js"></script>
+    
+    <script>
+        // Start application
+        window.addEventListener("DOMContentLoaded", () => {
+            initScene();
+            initUI();
+        });
+    </script>
+</body>
+</html>

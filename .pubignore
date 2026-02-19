@@ -36,3 +36,6 @@ local-state/
 outputs/
 tmp/
 *.dill
+
+# Annotation tool (not a Dart package)
+babylon_annotator/
