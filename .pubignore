@@ -6,7 +6,7 @@ required_packages_till_now.md
 brain/
 *.log
 
-# Build artifacts and caches
+# Build artifacts and caches (root-level)
 build/
 .dart_tool/
 .packages
@@ -30,14 +30,16 @@ example/build/
 example/.dart_tool/
 example/.packages
 example/assets/**/*.glb
+
+# Screenshots and other heavy documentation assets
 docs/screenshots/
 
-# User requested specific ignores
+# User-requested specific ignores
 stripped_native_libs/
 local-state/
 outputs/
 tmp/
 *.dill
 
-# Annotation tool (not a Dart package)
+# Annotation tool (not part of the Dart package)
 babylon_annotator/
