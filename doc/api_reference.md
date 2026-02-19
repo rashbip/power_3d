@@ -36,6 +36,28 @@ A `ValueNotifier<Power3DState>` that provides methods to control the 3D viewer.
 #### `loadModel(Power3DData data)`
 Loads a new model into the viewer.
 
+#### `exportTexture(String textureId, String path)`
+Saves a texture directly to the local file system.
+
+#### `getAnimationsList()`
+Fetches the list of all available animations in the model.
+
+#### `playAnimation(String name, {bool loop, double speed})`
+Starts playback of a specific animation.
+
+#### `pauseAnimation(String name)`
+Pauses a running animation.
+
+#### `stopAnimation(String name)`
+Stops an animation and resets it.
+
+#### `setAnimationSpeed(String name, double speed)`
+Sets the playback speed ratio for an animation.
+
+#### `stopAllAnimations()` / `startAllAnimations()`
+Batch controls for all model animations.
+
+---
 #### `resetView()`
 Resets the camera to its initial orientation and zoom.
 

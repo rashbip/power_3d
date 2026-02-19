@@ -11,6 +11,10 @@ A powerful, industry-level Flutter plugin for rendering 3D models using Babylon.
     - Automatic stop timer for rotation.
     - Zoom limits (min/max) and toggles.
     - Position locking (enable/disable panning).
+- **🎬 Animation Control**: 
+    - Play, pause, stop, and resume skeletal animations.
+    - Real-time speed and loop configuration.
+    - Support for multiple simultaneous animations.
 - **Managed Screenshots**: Capture and automatically save screenshots to a specified path.
 - **🎨 Scene Inspection**:
     - **Inspector Hierarchy**: Full scene graph (Meshes, Cameras, Lights) and Materials view.
@@ -24,7 +28,7 @@ A powerful, industry-level Flutter plugin for rendering 3D models using Babylon.
 ### 1. Add dependency
 ```yaml
 dependencies:
-  power3d: ^1.1.0
+  power3d: ^1.5.0
 ```
 
 ### 2. Basic Setup (Android)
@@ -65,6 +69,7 @@ Find detailed guides and API references in the [doc](./doc) folder:
 
 ### 🎮 Controls & Interaction
 - **[Camera & Rotation](./doc/controls.md)**: Auto-rotation, zoom limits, and position locking.
+- **[Animations](./doc/animations.md)**: Playing, pausing, and controlling skeletal animations.
 - **[Light & Atmosphere](./doc/lighting.md)**: Configuring hemispheric, directional, and point lights.
 - **[Environment & Background](./doc/environment.md)**: Customizing the scene environment.
 

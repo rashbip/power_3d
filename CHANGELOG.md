@@ -1,3 +1,30 @@
+# 1.5.0
+
+## Features
+* **Full Texture Management**: A comprehensive system to inspect and modify engine textures.
+  * **`getTexturesList()`**: Retrieve metadata for all image and procedural textures.
+  * **Asynchronous Extraction**: High-performance, message-based fetching of raw Base64 texture data.
+  * **Real-time Editing**: Modify `level` (brightness), `uScale`, `vScale`, and offsets on the fly.
+  * **Direct Export**: `exportTexture()` saves engine textures directly to the local file system.
+* **Animation System**: Complete framework for controlling 3D model animations.
+  * **Playback Control**: Play, pause, stop, and resume animations by name.
+  * **Advanced Tuning**: Global and per-animation speed control and looping toggles.
+  * **Batch Actions**: Start or stop all animations simultaneously.
+  * **Timed Events**: Automatically pause animations after a specified duration.
+* **Modular Controller Architecture**: Refactored `Power3DController` into specialized extensions (`View`, `Selection`, `Material`, `Texture`, `Animation`) using the `part`/`part of` pattern for better maintainability and reduced file size.
+* **Enhanced Widget Lifecycle**: Added `onModelLoaded` callback to `Power3D` widget for reliable post-load scene configuration.
+
+## Stability & Improvements
+* **Texture Extraction Robustness**: Implemented a safer pixel-copying loop in JavaScript to handle HDR (Float32) textures and dimension mismatches (fixes `RangeError`).
+* **Memory & Lifecycle Safety**: Added disposal guards to `Power3DController` to prevent "used after being disposed" errors during rapid screen transitions.
+* **Performance**: Optimized the bridge communication for large data transfers between WebView and Dart.
+
+## Documentation
+* New **[Texture Management Guide](./doc/textures.md)**.
+* Updated API reference with new controller methods and widget callbacks.
+
+---
+
 # 1.1.0
 
 ## Features
