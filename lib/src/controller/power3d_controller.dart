@@ -123,6 +123,14 @@ class Power3DController extends ValueNotifier<Power3DState> {
           updateSelectionConfig(value.selectionConfig);
           // Initialize animations
           _webViewController?.runJavaScript('initAnimations()');
+        } else if (data['message'] == 'reset') {
+          value = value.copyWith(
+            selectedParts: [],
+            hiddenParts: [],
+            boundingBoxParts: [],
+          );
+          // Refresh animations list to sync isPlaying status
+          unawaited(getAnimationsList());
         } else if (data['message'] == 'loading') {
           value = value.copyWith(status: Power3DStatus.loading);
         }
@@ -193,7 +201,6 @@ class Power3DController extends ValueNotifier<Power3DState> {
   }
 
   /// Internal helper to update value safely checking disposal status.
-  @protected
   @override
   set value(Power3DState newValue) {
     if (_isDisposed) return;

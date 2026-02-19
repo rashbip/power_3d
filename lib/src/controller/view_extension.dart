@@ -7,6 +7,12 @@ extension ViewExtension on Power3DController {
     await _webViewController?.runJavaScript('resetView()');
   }
 
+  /// Resets the entire scene to its initial state.
+  /// Stops animations, clears selections, unhides parts, and resets camera.
+  Future<void> resetScene() async {
+    await _webViewController?.runJavaScript('resetScene()');
+  }
+
   /// Updates the auto-rotation behavior of the camera.
   ///
   /// [enabled]: Whether auto-rotation is active.

@@ -44,6 +44,12 @@ extension Power3DAnimationExtension on Power3DController {
     );
   }
 
+  /// Sets whether a specific animation should loop.
+  Future<void> setAnimationLoop(String name, bool loop) async {
+    if (!value.isInitialized || _webViewController == null) return;
+    await _webViewController!.runJavaScript('setAnimationLoop("$name", $loop)');
+  }
+
   /// Pauses an animation after a specified [duration].
   void pauseAfter(String name, Duration duration) {
     Timer(duration, () {

@@ -34,3 +34,32 @@ function initializeScene(canvas) {
     
     return { engine, scene };
 }
+
+window.resetScene = resetScene;
+
+function resetScene() {
+    if (!window.scene) return;
+
+    // 1. Stop all animations if module loaded
+    if (typeof stopAllAnimations === 'function') {
+        stopAllAnimations();
+    }
+
+    // 2. Clear selections and restore original states if module loaded
+    if (typeof clearSelection === 'function') {
+        clearSelection();
+    }
+
+    // 3. Unhide all parts if module loaded
+    if (typeof unhideAll === 'function') {
+        unhideAll();
+    }
+
+    // 4. Reset camera if module loaded
+    if (typeof resetView === 'function') {
+        resetView();
+    }
+    
+    // 5. Notify Flutter that scene was reset
+    sendMessageToFlutter({ type: 'status', message: 'reset' });
+}

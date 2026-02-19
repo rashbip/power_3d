@@ -71,6 +71,15 @@ function setAnimationSpeed(name, speed) {
     }
 }
 
+function setAnimationLoop(name, loop) {
+    if (!window.scene) return;
+    const ag = window.scene.getAnimationGroupByName(name);
+    if (ag) {
+        ag.loopAnimation = loop;
+        sendAnimationStatus(ag);
+    }
+}
+
 function stopAllAnimations() {
     if (!window.scene) return;
     window.scene.animationGroups.forEach(ag => {

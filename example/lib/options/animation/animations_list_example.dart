@@ -15,6 +15,8 @@ class _AnimationsListExampleState extends State<AnimationsListExample> {
   void initState() {
     super.initState();
     controller = Power3DController();
+    // Default camera alpha for front view in many models
+    controller.value = controller.value.copyWith(cameraAlpha: 0.0);
   }
 
   @override
@@ -34,6 +36,11 @@ class _AnimationsListExampleState extends State<AnimationsListExample> {
             onPressed: () => controller.getAnimationsList(),
             tooltip: 'Fetch Animations',
           ),
+          IconButton(
+            icon: const Icon(Icons.restore),
+            onPressed: () => controller.resetScene(),
+            tooltip: 'Reset Scene',
+          ),
         ],
       ),
       body: Column(
@@ -45,8 +52,7 @@ class _AnimationsListExampleState extends State<AnimationsListExample> {
               child: Power3D(
                 controller: controller,
                 initialModel: const Power3DData(
-                  path:
-                      'assets/robot.glb', // Assuming a model with animations exists
+                  path: 'assets/robot.glb',
                   source: Power3DSource.asset,
                 ),
               ),
@@ -210,7 +216,12 @@ class _AnimationsListExampleState extends State<AnimationsListExample> {
                                         Checkbox(
                                           value: anim.loop,
                                           onChanged: (val) {
-                                            // Handle loop toggle if needed, would require re-playing currently
+                                            if (val != null) {
+                                              controller.setAnimationLoop(
+                                                anim.name,
+                                                val,
+                                              );
+                                            }
                                           },
                                         ),
                                       ],
