@@ -1,6 +1,6 @@
 :root {
     /* Material 3 Color Palette (Indigo/Blue theme) */
-        --m3-primary: #d0e4ff;
+    --m3-primary: #d0e4ff;
         --m3-on-primary: #003355;
         --m3-primary-container: #004a77;
         --m3-on-primary-container: #d1e4ff;
@@ -42,7 +42,7 @@ body, html {
     height: 100%;
     overflow: hidden;
     background-color: var(--m3-bg);
-        color: var(--m3-on-surface);
+    color: var(--m3-on-surface);
         font-family: 'Outfit', 'Inter', system-ui, sans-serif;
         -webkit-font-smoothing: antialiased;
 }
@@ -50,17 +50,16 @@ body, html {
 .container {
     display: flex;
     width: 100vw;
-        height: 100vh;
+    height: 100vh;
         flex-direction: row;
-        /* Sidebar on left */
-    }
-    
-    /* Sidebar Styling - Permanent Left Drawer */
-    .sidebar {
-        width: 360px;
+}
+
+/* Sidebar Styling - Permanent Left Drawer */
+.sidebar {
+    width: 360px;
     height: 100%;
     background-color: var(--m3-surface);
-        border-right: 1px solid var(--m3-surface-variant);
+    border-right: 1px solid var(--m3-surface-variant);
         padding: 24px;
         overflow-y: auto;
         scrollbar-width: thin;
@@ -77,7 +76,6 @@ main.main-viewport {
     position: relative;
     background-color: #000;
     display: flex;
-    /* Enable flex for canvas growth */
     overflow: hidden;
 }
 
@@ -199,7 +197,8 @@ button:disabled {
     right: 0;
     bottom: 0;
     background-color: rgba(17, 19, 21, 0.9);
-    z-index: 1000;
+    z-index: 5;
+        /* Below sidebar (10) */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -234,17 +233,17 @@ button:disabled {
     animation: slideIn 0.3s ease-out;
 }
 
+/* FIX: Correctly structured @keyframes — from and to were previously nested wrongly */
 @keyframes slideIn {
     from {
         opacity: 0;
         transform: translateX(-10px);
     }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                to {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    opacity: 1;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    transform: translateX(0);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
 
 .status-bar {
     position: fixed;
@@ -267,35 +266,36 @@ button:disabled {
     color: var(--m3-on-surface-variant);
     font-size: 0.9rem;
     margin-top: 4px;
-    }
+}
     
-    .annotation-form-title {
-        font-size: 1.2rem;
-        margin-top: 0;
-        color: var(--m3-primary);
-    }
+.annotation-form-title {
+    font-size: 1.2rem;
+    margin-top: 0;
+    color: var(--m3-primary);
+}
     
-    .url-input-container button {
-        padding: 12px;
-    }
+.url-input-container button {
+    padding: 12px;
+}
     
-    .color-picker-input {
-        height: 48px;
-        width: 60px;
-        border-radius: var(--m3-radius-small);
-        border: 1px solid var(--m3-outline);
-        background: none;
-        cursor: pointer;
-        padding: 0;
-        overflow: hidden;
-    }
+.color-picker-input {
+    height: 48px;
+    width: 60px;
+    border-radius: var(--m3-radius-small);
+    border: 1px solid var(--m3-outline);
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    overflow: hidden;
+}
     
-    .animation-panel select {
-        width: 100%;
-    }
-                .danger-icon-btn {
-                    padding: 12px;
-                    min-width: 48px;
+.animation-panel select {
+    width: 100%;
+}
+
+.danger-icon-btn {
+    padding: 12px;
+    min-width: 48px;
 }
 
 .main-action-btn {
@@ -383,4 +383,68 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 50%;
     cursor: pointer;
     box-shadow: var(--shadow-1);
+}
+/* ---- Annotation list item layout ---- */
+.ann-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.ann-info strong {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--m3-on-secondary-container);
+}
+
+.ann-info small {
+    font-size: 0.75rem;
+    color: var(--m3-outline);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ann-desc {
+    font-style: italic;
+}
+
+/* ---- Small icon buttons in list ---- */
+.btn-sm {
+    padding: 6px 8px !important;
+    font-size: 0.8rem;
+    border-radius: var(--m3-radius-small) !important;
+    min-width: 32px;
+}
+
+/* ---- Sidebar box-sizing fix ---- */
+.sidebar {
+    box-sizing: border-box;
+}
+
+/* ---- Drop zone dragover highlight ---- */
+.drop-zone.dragover {
+    background-color: rgba(208, 228, 255, 0.1);
+    border-color: var(--m3-primary);
+    color: var(--m3-primary);
+}
+
+/* ---- Selected state for annotation list items ---- */
+.annotation-item.selected {
+    background-color: var(--m3-primary-container);
+    border: 1px solid var(--m3-primary);
+    box-shadow: var(--shadow-2);
+}
+
+.annotation-item.selected .ann-info strong {
+    color: var(--m3-on-primary-container);
+}
+
+.annotation-item.selected .ann-info small {
+    color: var(--m3-on-primary-container);
+    opacity: 0.8;
 }

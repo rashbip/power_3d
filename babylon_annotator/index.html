@@ -26,7 +26,7 @@
                 <div class="header-info">Material 3 Edition</div>
                 </header>
             
-            <section id="dropZone" class="drop-zone fullscreen" title="Drag and Drop model file here">
+            <section id="dropZone" class="drop-zone" title="Drag and Drop model file here">
                 <div class="drop-zone-icon">📦</div>
                 <div>Drag & Drop .glb/.gltf</div>
                 <div class="header-info">or click to browse</div>
@@ -44,6 +44,7 @@
                 <label for="brightnessSlider">Model Brightness</label>
                 <input type="range" id="brightnessSlider" min="0" max="3" step="0.1" value="1.0" title="Adjust brightness">
             </section>
+            <!-- Model Transform moved below background -->
             <section class="form-group">
                 <label for="bgColorPicker">Background Color</label>
                 <div class="flex-row">
@@ -51,6 +52,28 @@
                         title="Select background color manually">
                     <button id="randomBgBtn" class="secondary flex-grow">Randomize</button>
                 </div>
+            </section>
+
+            <section class="m3-card transformation-card">
+                <h3 style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--m3-primary);">Model Transformation</h3>
+                <div class="form-group">
+                    <label for="modelScaleSlider">Scale</label>
+                    <input type="range" id="modelScaleSlider" min="0.01" max="10" step="0.01" value="1.0"
+                        title="Adjust model scale">
+                </div>
+                <div class="form-group">
+                    <label for="modelPosX">Position X</label>
+                    <input type="range" id="modelPosX" min="-10" max="10" step="0.1" value="0" title="Adjust X position">
+                </div>
+                <div class="form-group">
+                    <label for="modelPosY">Position Y</label>
+                    <input type="range" id="modelPosY" min="-10" max="10" step="0.1" value="0" title="Adjust Y position">
+                </div>
+                <div class="form-group">
+                    <label for="modelPosZ">Position Z</label>
+                    <input type="range" id="modelPosZ" min="-10" max="10" step="0.1" value="0" title="Adjust Z position">
+                </div>
+                <button id="resetTransformBtn" class="secondary" style="margin-top: 12px; width: 100%;">Reset Transform</button>
             </section>
 
             <!-- Animation Controls -->
