@@ -49,6 +49,11 @@ function initUI() {
     const brightnessSlider = document.getElementById('brightnessSlider');
     brightnessSlider.addEventListener('input', () => setBrightness(parseFloat(brightnessSlider.value)));
 
+    const mouseSensSlider = document.getElementById('mouseSensitivitySlider');
+    mouseSensSlider.addEventListener('input', () => setCameraSensitivity(parseFloat(mouseSensSlider.value)));
+    // Initial sync
+    setCameraSensitivity(parseFloat(mouseSensSlider.value));
+
     // ---------- Annotation & Model Transform ----------
     const markerSizeSlider = document.getElementById('markerSizeSlider');
     const scaleSlider      = document.getElementById('modelScaleSlider');

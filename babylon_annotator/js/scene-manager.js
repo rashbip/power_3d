@@ -27,7 +27,7 @@ function initScene() {
 
     // ONE ArcRotateCamera — we NEVER replace it after model load.
     camera = new BABYLON.ArcRotateCamera('camera', -Math.PI / 2, Math.PI / 3, 5, BABYLON.Vector3.Zero(), scene);
-    _applyBaseCameraSettings(camera);
+    configureCamera(camera);
     camera.attachControl(canvas, true);
 
     // Three-point lighting rig (named so setBrightness can find them)
@@ -198,14 +198,28 @@ function _frameCameraOnMeshes(meshes) {
     camera.lowerRadiusLimit = radius * 0.01;
 }
 
-function _applyBaseCameraSettings(cam) {
-    cam.wheelPrecision = 50;
-    cam.panningMouseButton = 1;
-    cam.panningSensibility = 1000;
-    cam.minZ = 0.001;
-    cam.maxZ = 100000;
-    cam.lowerRadiusLimit = 0.001;
-    cam.useLogarithmicDepth = true;
+function configureCamera(cam) {
+    cam.wheelPrecision          = 50;
+    cam.angularSensibilityX     = 1000;
+    cam.angularSensibilityY     = 1000;
+    cam.panningSensibility      = 1000;
+    cam.panningMouseButton      = 1;
+    cam.minZ                    = 0.001;
+    cam.maxZ                    = 100000;
+    cam.lowerRadiusLimit        = 0.001;
+    cam.useLogarithmicDepth     = true;
+}
+
+/**
+ * Adjust camera speeds (zoom, rotate, pan).
+ * value: 0.1 (slow) to 2.0 (fast).
+ */
+function setCameraSensitivity(value) {
+    if (!camera) return;
+    camera.wheelPrecision      = 50 / value;
+    camera.angularSensibilityX = 1000 / value;
+    camera.angularSensibilityY = 1000 / value;
+    camera.panningSensibility  = 1000 / value;
 }
 
 // ------------------------------------------------------------------
