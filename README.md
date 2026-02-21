@@ -10,7 +10,7 @@ A powerful, industry-level Flutter plugin for rendering 3D models using Babylon.
 
 | Lighting Controls | Bounding Boxes | Visibility & Mesh List |
 | :---: | :---: | :---: |
-| ![Lighting](doc/screenshots/lighting.png) | ![Bounding Box](doc/screenshots/bounding_box.png) | ![Visibility](doc/screenshots/visibality.png) |
+| ![Lighting](doc/screenshots/lighting.png) | ![Bounding Box](https://github.com/rashbip/power_3d/blob/main/doc/screenshots/bounding_box.png) | ![Visibility](doc/screenshots/visibality.png) |
 
 ## Features
 
