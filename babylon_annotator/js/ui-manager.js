@@ -6,6 +6,7 @@
 
 let isAnnotating = false;
 let currentPick = null;
+let _editingIndex = -1; // index of the annotation being edited, -1 if none
 
 function initUI() {
     // ---------- File / URL loading ----------
@@ -76,6 +77,17 @@ function initUI() {
         if (confirm('Delete ALL annotations?')) clearAllAnnotations();
     });
 
+    const importBtn = document.getElementById('importAnnBtn');
+    const annInput  = document.getElementById('annFileInput');
+    if (importBtn && annInput) {
+        importBtn.addEventListener('click', () => annInput.click());
+        annInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (file) importAnnotationsFromFile(file);
+            annInput.value = ''; // allow re-importing the same file
+        });
+    }
+
     // ---------- Animation Controls ----------
     const animSelect     = document.getElementById('animationSelect');
     const animSlider     = document.getElementById('animSlider');
@@ -99,18 +111,19 @@ function initUI() {
 
     document.getElementById('cancelBtn').addEventListener('click', _exitAnnotationMode);
 
-    // ---------- Add Button ----------
-    document.getElementById('addBtn').addEventListener('click', () => {
-        if (!currentPick) return;
-        const ann = {
-            id: Date.now(), // stable unique id regardless of deletions
-            surface: {
+    // ---------- Add/Update Button ----------
+    const addBtn = document.getElementById('addBtn');
+    addBtn.addEventListener('click', () => {
+        if (_editingIndex === -1 && !currentPick) return;
+
+        const annData = {
+            surface: _editingIndex !== -1 ? annotations[_editingIndex].surface : {
                 meshName: currentPick.meshName,
                 triangleIndex: currentPick.triangleIndex,
                 barycentric: currentPick.barycentric
             },
             placement: {
-                normal: currentPick.normal,
+                normal: _editingIndex !== -1 ? annotations[_editingIndex].placement.normal : currentPick.normal,
                 offset: parseFloat(document.getElementById('nodeOffset').value),
                 billboard: document.getElementById('nodeBillboard').checked
             },
@@ -125,17 +138,29 @@ function initUI() {
                 more: document.getElementById('nodeMore').value.trim()
             },
             camera: {
-                orbit: currentPick.cameraOrbit,
-                target: currentPick.cameraTarget,
+                orbit: _editingIndex !== -1 ? annotations[_editingIndex].camera.orbit : currentPick.cameraOrbit,
+                target: _editingIndex !== -1 ? annotations[_editingIndex].camera.target : currentPick.cameraTarget,
                 transitionDuration: parseFloat(document.getElementById('nodeTransition').value)
             },
             meta: {
                 version: 1,
-                createdAt: new Date().toISOString()
+                createdAt: _editingIndex !== -1 ? annotations[_editingIndex].meta.createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
             },
-            internal_worldPosition: currentPick.worldPosition
+            internal_worldPosition: _editingIndex !== -1 ? annotations[_editingIndex].internal_worldPosition : currentPick.worldPosition
         };
-        addAnnotation(ann);
+
+        if (_editingIndex !== -1) {
+            // Update existing
+            const oldId = annotations[_editingIndex].id;
+            annotations[_editingIndex] = { ...annData, id: oldId };
+            updateAnnotationListUI();
+        } else {
+            // Add new
+            const ann = { ...annData, id: Date.now() };
+            addAnnotation(ann);
+        }
+
         clearPreviewPoint();
         _exitAnnotationMode();
     });
@@ -205,7 +230,9 @@ function _initPickHandler() {
 
 function _exitAnnotationMode() {
     isAnnotating = false;
+    _editingIndex = -1;
     clearPreviewPoint();
+    document.getElementById('addBtn').innerText = 'Add';
     document.getElementById('annotationForm').classList.add('hidden');
     document.getElementById('mainActions').classList.remove('hidden');
     updateStatus('Ready');
@@ -264,12 +291,48 @@ function updateAnnotationListUI() {
                 ${ann.ui.description ? `<small class="ann-desc">${_esc(ann.ui.description)}</small>` : ''}
             </div>
             <div style="display:flex;gap:4px;flex-shrink:0">
+                <button class="secondary btn-sm" onclick="editAnnotation(${index})" title="Edit info">✏️</button>
                 <button class="secondary btn-sm" onclick="focusAnnotation(${index})" title="Focus camera">🎯</button>
                 <button class="danger btn-sm"    onclick="deleteAnnotation(${index})" title="Delete">🗑</button>
             </div>
         `;
         listItems.appendChild(div);
     });
+}
+
+/** 
+ * Open the annotation form in edit mode for an existing annotation.
+ */
+function editAnnotation(idx) {
+    const ann = annotations[idx];
+    if (!ann) return;
+
+    _editingIndex = idx;
+    isAnnotating = true;
+
+    // Fill form with current data
+    document.getElementById('nodeTitle').value = ann.ui.title;
+    document.getElementById('nodeDesc').value  = ann.ui.description;
+    document.getElementById('nodeMore').value  = ann.ui.more;
+    document.getElementById('nodeOffset').value = ann.placement.offset;
+    document.getElementById('nodeMinDist').value = ann.visibility.minDistance;
+    document.getElementById('nodeMaxDist').value = ann.visibility.maxDistance;
+    document.getElementById('nodeTransition').value = ann.camera.transitionDuration;
+    document.getElementById('nodeBillboard').checked = ann.placement.billboard;
+    document.getElementById('nodeHideOccluded').checked = ann.visibility.hideWhenOccluded;
+
+    // Visual picked info (not editable but helpful)
+    document.getElementById('pickedMesh').innerText = ann.surface.meshName;
+    document.getElementById('pickedFace').innerText = ann.surface.triangleIndex;
+    document.getElementById('pickData').classList.remove('hidden');
+
+    document.getElementById('addBtn').innerText = 'Update';
+    document.getElementById('addBtn').disabled = false;
+    document.getElementById('annotationForm').classList.remove('hidden');
+    document.getElementById('mainActions').classList.add('hidden');
+
+    updateStatus('Editing: ' + ann.ui.title);
+    selectAnnotationById(ann.id);
 }
 
 /** 

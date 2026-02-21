@@ -253,3 +253,131 @@ function copyAnnotationsAsCsv() {
     const csv = [headers.join(','), ...rows].join('\n');
     navigator.clipboard.writeText(csv).then(() => updateStatus('CSV copied!'));
 }
+// ------------------------------------------------------------------
+// IMPORT
+// ------------------------------------------------------------------
+
+async function importAnnotationsFromFile(file) {
+    const text = await file.text();
+    let imported = [];
+
+    try {
+        if (file.name.toLowerCase().endsWith('.json')) {
+            imported = JSON.parse(text);
+        } else if (file.name.toLowerCase().endsWith('.csv')) {
+            imported = _parseCsv(text);
+        }
+
+        if (!Array.isArray(imported)) {
+            imported = [imported]; // handle single object JSON
+        }
+
+        clearAllAnnotations();
+
+        imported.forEach(ann => {
+            // Reconstruct the internal world position from surface data
+            ann.internal_worldPosition = _reconstructWorldPosition(ann);
+            addAnnotation(ann);
+        });
+
+        updateStatus(`Imported ${imported.length} annotations`);
+    } catch (e) {
+        console.error('Import error:', e);
+        updateStatus('Error importing file: ' + e.message);
+    }
+}
+
+/** Simple CSV parser for our specific format */
+function _parseCsv(text) {
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) return [];
+    
+    // Skip header
+    const dataRows = lines.slice(1);
+    
+    return dataRows.map(row => {
+        // Very basic CSV splitting (doesn't handle commas inside quotes perfectly, 
+        // but enough for our known safe format)
+        const parts = [];
+        let current = '';
+        let inQuotes = false;
+        for (let char of row) {
+            if (char === '"') inQuotes = !inQuotes;
+            else if (char === ',' && !inQuotes) {
+                parts.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        parts.push(current.trim());
+
+        const parseVec = s => s.split(',').map(Number);
+
+        return {
+            id: parseInt(parts[0]) || Date.now(),
+            surface: {
+                meshName: parts[1],
+                triangleIndex: parseInt(parts[2]),
+                barycentric: parseVec(parts[3])
+            },
+            placement: {
+                normal: parseVec(parts[4]),
+                offset: parseFloat(parts[5]),
+                billboard: parts[6] === 'true'
+            },
+            visibility: {
+                minDistance: parseFloat(parts[7]),
+                maxDistance: parseFloat(parts[8]),
+                hideWhenOccluded: parts[9] === 'true'
+            },
+            ui: {
+                title: parts[10],
+                description: parts[11],
+                more: parts[12]
+            },
+            camera: {
+                orbit: parseVec(parts[13]),
+                target: parseVec(parts[14]),
+                transitionDuration: parseFloat(parts[15])
+            },
+            meta: {
+                version: parseInt(parts[16]),
+                createdAt: parts[17] || new Date().toISOString()
+            }
+        };
+    });
+}
+
+/** 
+ * Find the world position of an annotation by mesh name, face index, and barycentric coords.
+ */
+function _reconstructWorldPosition(ann) {
+    if (!scene) return [0,0,0];
+    const mesh = scene.getMeshByName(ann.surface.meshName);
+    if (!mesh) return [0,0,0];
+
+    const indices = mesh.getIndices();
+    const positions = mesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+    if (!indices || !positions) return [0,0,0];
+
+    const fid = ann.surface.triangleIndex;
+    const b = ann.surface.barycentric;
+
+    const i1 = indices[fid * 3];
+    const i2 = indices[fid * 3 + 1];
+    const i3 = indices[fid * 3 + 2];
+
+    const v1 = BABYLON.Vector3.FromArray(positions, i1 * 3);
+    const v2 = BABYLON.Vector3.FromArray(positions, i2 * 3);
+    const v3 = BABYLON.Vector3.FromArray(positions, i3 * 3);
+
+    const wm = mesh.getWorldMatrix();
+    const p1 = BABYLON.Vector3.TransformCoordinates(v1, wm);
+    const p2 = BABYLON.Vector3.TransformCoordinates(v2, wm);
+    const p3 = BABYLON.Vector3.TransformCoordinates(v3, wm);
+
+    // P = w1*P1 + w2*P2 + w3*P3
+    const worldP = p1.scale(b[0]).add(p2.scale(b[1])).add(p3.scale(b[2]));
+    return [worldP.x, worldP.y, worldP.z];
+}
