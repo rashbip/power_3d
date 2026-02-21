@@ -6,11 +6,11 @@ A powerful, industry-level Flutter plugin for rendering 3D models using Babylon.
 
 | Main View | Scene Hierarchy | Texture Management |
 | :---: | :---: | :---: |
-| ![Main View](doc/screenshots/home1.png) | ![Hierarchy](doc/screenshots/get_hiererchy.png) | ![Textures](doc/screenshots/texures.png) |
+| ![Main View](https://github.com/rashbip/power_3d/blob/main/doc/screenshots/home1.png) | ![Hierarchy](https://github.com/rashbip/power_3d/blob/main/doc/screenshots/get_hiererchy.png) | ![Textures](https://github.com/rashbip/power_3d/blob/main/doc/screenshots/texures.png) |
 
 | Lighting Controls | Bounding Boxes | Visibility & Mesh List |
 | :---: | :---: | :---: |
-| ![Lighting](doc/screenshots/lighting.png) | ![Bounding Box](https://github.com/rashbip/power_3d/blob/main/doc/screenshots/bounding_box.png) | ![Visibility](doc/screenshots/visibality.png) |
+| ![Lighting](https://github.com/rashbip/power_3d/blob/main/doc/screenshots/lighting.png) | ![Bounding Box](https://github.com/rashbip/power_3d/blob/main/doc/screenshots/bounding_box.png) | ![Visibility](https://github.com/rashbip/power_3d/blob/main/doc/screenshots/visibality.png) |
 
 ## Features
 
