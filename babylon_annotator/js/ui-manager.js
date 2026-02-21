@@ -48,11 +48,16 @@ function initUI() {
     const brightnessSlider = document.getElementById('brightnessSlider');
     brightnessSlider.addEventListener('input', () => setBrightness(parseFloat(brightnessSlider.value)));
 
-    // ---------- Model Transform ----------
-    const scaleSlider = document.getElementById('modelScaleSlider');
-    const posX = document.getElementById('modelPosX');
-    const posY = document.getElementById('modelPosY');
-    const posZ = document.getElementById('modelPosZ');
+    // ---------- Annotation & Model Transform ----------
+    const markerSizeSlider = document.getElementById('markerSizeSlider');
+    const scaleSlider      = document.getElementById('modelScaleSlider');
+    const posX             = document.getElementById('modelPosX');
+    const posY             = document.getElementById('modelPosY');
+    const posZ             = document.getElementById('modelPosZ');
+
+    markerSizeSlider.addEventListener('input', () => setMarkerSize(parseFloat(markerSizeSlider.value)));
+    // Initial sync
+    setMarkerSize(parseFloat(markerSizeSlider.value));
 
     scaleSlider.addEventListener('input', () => setModelScale(parseFloat(scaleSlider.value)));
 

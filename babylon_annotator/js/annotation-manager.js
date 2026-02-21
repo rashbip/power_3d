@@ -7,6 +7,7 @@
 let annotations = [];
 let hotspotMarkers = new Map(); // id → { sphere, label }
 let previewMarker = null;       // temporary { sphere, label } for a point not yet added
+let _currentMarkerSize = 0.02;  // global diameter control
 
 // ------------------------------------------------------------------
 // CRUD
@@ -54,7 +55,8 @@ function setPreviewPoint(posArray) {
 
     if (!previewMarker) {
         // Create new preview marker components
-        const sphere = BABYLON.MeshBuilder.CreateSphere('preview_dot', { diameter: 0.045, segments: 8 }, scene);
+        const sphere = BABYLON.MeshBuilder.CreateSphere('preview_dot', { diameter: 1, segments: 8 }, scene);
+        sphere.scaling.setAll(_currentMarkerSize);
         sphere.isPickable = false;
         sphere.renderingGroupId = 1;
 
@@ -72,7 +74,7 @@ function setPreviewPoint(posArray) {
         label.background = '#94a3b8'; // greyish/slate
         guiTexture.addControl(label);
         label.linkWithMesh(sphere);
-        label.linkOffsetYInPixels = -22;
+        label.linkOffsetYInPixels = -(_currentMarkerSize * 500) - 10;
 
         const text = new BABYLON.GUI.TextBlock('ptext');
         text.text = '?';
@@ -113,7 +115,8 @@ function _createHotspotMarker(ann) {
     );
 
     // --- 3D sphere (placed exactly at the picked surface point) ---
-    const sphere = BABYLON.MeshBuilder.CreateSphere('hotspot_mesh', { diameter: 0.04, segments: 8 }, scene);
+    const sphere = BABYLON.MeshBuilder.CreateSphere('hotspot_mesh', { diameter: 1, segments: 8 }, scene);
+    sphere.scaling.setAll(_currentMarkerSize);
     sphere.position = pos;
     sphere.isPickable = false;
     sphere.renderingGroupId = 1; // always on top of model
@@ -122,20 +125,6 @@ function _createHotspotMarker(ann) {
     mat.emissiveColor = new BABYLON.Color3(0.22, 0.75, 1.0);
     mat.disableLighting = true;
     sphere.material = mat;
-
-    // Gentle pulse animation
-    const pulseAnim = new BABYLON.Animation(
-        'pulse_' + ann.id, 'scaling', 30,
-        BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
-        BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE
-    );
-    pulseAnim.setKeys([
-        { frame: 0,  value: new BABYLON.Vector3(1, 1, 1) },
-        { frame: 15, value: new BABYLON.Vector3(1.3, 1.3, 1.3) },
-        { frame: 30, value: new BABYLON.Vector3(1, 1, 1) }
-    ]);
-    sphere.animations = [pulseAnim];
-    scene.beginAnimation(sphere, 0, 30, true);
 
     // --- 2D GUI label linked to the sphere ---
     const label = new BABYLON.GUI.Rectangle('label_' + ann.id);
@@ -150,7 +139,7 @@ function _createHotspotMarker(ann) {
 
     // linkWithMesh positions the label in 3D space at the sphere location
     label.linkWithMesh(sphere);
-    label.linkOffsetYInPixels = -22; // float above the sphere
+    label.linkOffsetYInPixels = -(_currentMarkerSize * 500) - 10;
 
     const text = new BABYLON.GUI.TextBlock('ltext_' + ann.id);
     text.text = String(ann.id);
@@ -188,6 +177,26 @@ function updateMarkerSelection(id, isSelected) {
         if (m.sphere.material) {
             m.sphere.material.emissiveColor = new BABYLON.Color3(0.22, 0.75, 1.0);
         }
+    }
+}
+
+/**
+ * Update the size of all existing markers and the preview marker.
+ */
+function setMarkerSize(size) {
+    _currentMarkerSize = size;
+    const offset = -(size * 500) - 10;
+    
+    // Update existing markers
+    hotspotMarkers.forEach(m => {
+        if (m.sphere) m.sphere.scaling.setAll(size);
+        if (m.label) m.label.linkOffsetYInPixels = offset;
+    });
+
+    // Update preview if active
+    if (previewMarker) {
+        if (previewMarker.sphere) previewMarker.sphere.scaling.setAll(size);
+        if (previewMarker.label) previewMarker.label.linkOffsetYInPixels = offset;
     }
 }
 
