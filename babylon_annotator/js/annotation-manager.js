@@ -6,6 +6,7 @@
 
 let annotations = [];
 let hotspotMarkers = new Map(); // id → { sphere, label }
+let previewMarker = null;       // temporary { sphere, label } for a point not yet added
 
 // ------------------------------------------------------------------
 // CRUD
@@ -28,6 +29,7 @@ function deleteAnnotation(idx) {
 function clearAllAnnotations() {
     hotspotMarkers.forEach((_, id) => _disposeMarker(id));
     annotations = [];
+    clearPreviewPoint();
     updateAnnotationListUI();
 }
 
@@ -40,6 +42,61 @@ function _disposeMarker(id) {
         m.sphere.dispose();
     }
     hotspotMarkers.delete(id);
+}
+
+// ------------------------------------------------------------------
+// PREVIEW MARKER
+// ------------------------------------------------------------------
+
+function setPreviewPoint(posArray) {
+    if (!guiTexture || !scene) return;
+    const pos = new BABYLON.Vector3(posArray[0], posArray[1], posArray[2]);
+
+    if (!previewMarker) {
+        // Create new preview marker components
+        const sphere = BABYLON.MeshBuilder.CreateSphere('preview_dot', { diameter: 0.045, segments: 8 }, scene);
+        sphere.isPickable = false;
+        sphere.renderingGroupId = 1;
+
+        const mat = new BABYLON.StandardMaterial('preview_mat', scene);
+        mat.emissiveColor = new BABYLON.Color3(1, 1, 1); // white preview
+        mat.disableLighting = true;
+        sphere.material = mat;
+
+        const label = new BABYLON.GUI.Rectangle('preview_label');
+        label.width = '24px';
+        label.height = '24px';
+        label.cornerRadius = 12;
+        label.color = 'white';
+        label.thickness = 2;
+        label.background = '#94a3b8'; // greyish/slate
+        guiTexture.addControl(label);
+        label.linkWithMesh(sphere);
+        label.linkOffsetYInPixels = -22;
+
+        const text = new BABYLON.GUI.TextBlock('ptext');
+        text.text = '?';
+        text.color = 'white';
+        text.fontSize = 11;
+        text.fontWeight = 'bold';
+        label.addControl(text);
+
+        previewMarker = { sphere, label };
+    }
+
+    // Move to the clicked position
+    if (previewMarker.sphere) previewMarker.sphere.position = pos;
+}
+
+function clearPreviewPoint() {
+    if (previewMarker) {
+        if (previewMarker.label) previewMarker.label.dispose();
+        if (previewMarker.sphere) {
+            if (previewMarker.sphere.material) previewMarker.sphere.material.dispose();
+            previewMarker.sphere.dispose();
+        }
+        previewMarker = null;
+    }
 }
 
 // ------------------------------------------------------------------

@@ -131,6 +131,7 @@ function initUI() {
             internal_worldPosition: currentPick.worldPosition
         };
         addAnnotation(ann);
+        clearPreviewPoint();
         _exitAnnotationMode();
     });
 
@@ -184,6 +185,10 @@ function _initPickHandler() {
             document.getElementById('pickedFace').innerText = pickResult.faceId;
             document.getElementById('pickData').classList.remove('hidden');
             document.getElementById('addBtn').disabled = false;
+            
+            // SHOW DOT INSTANTLY
+            setPreviewPoint([pt.x, pt.y, pt.z]);
+
             updateStatus('Captured face ' + pickResult.faceId + ' at [' + bary.x.toFixed(2) + ', ' + bary.y.toFixed(2) + ', ' + bary.z.toFixed(2) + ']');
         }
     };
@@ -195,6 +200,7 @@ function _initPickHandler() {
 
 function _exitAnnotationMode() {
     isAnnotating = false;
+    clearPreviewPoint();
     document.getElementById('annotationForm').classList.add('hidden');
     document.getElementById('mainActions').classList.remove('hidden');
     updateStatus('Ready');
