@@ -12,6 +12,7 @@ part 'selection_extension.dart';
 part 'material_extension.dart';
 part 'texture_extension.dart';
 part 'animation_extension.dart';
+part 'annotation_extension.dart';
 
 /// Controller for programmatically managing the [Power3D] viewer.
 ///
@@ -203,6 +204,9 @@ class Power3DController extends ValueNotifier<Power3DState> {
           return a.name == updatedAnim.name ? updatedAnim : a;
         }).toList();
         value = value.copyWith(animations: newAnimations);
+      } else if (data['type'] == 'annotationTapped') {
+        final annotation = AnnotationData.fromJson(data['data']);
+        value = value.copyWith(activeAnnotation: annotation);
       }
     } catch (e) {
       // Ignore parse errors from JS

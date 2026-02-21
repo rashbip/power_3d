@@ -11,6 +11,7 @@ import 'package:example/options/selection/selection_metadata_example.dart';
 import 'package:example/options/selection/selection_visual_styles_example.dart';
 import 'package:example/options/selection/selection_texture_example.dart';
 import 'package:example/options/animation/animations_list_example.dart';
+import 'package:example/options/annotation/annotation_example.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -170,6 +171,13 @@ class HomePage extends StatelessWidget {
             subtitle: 'Manage playback, speed, and sequences',
             icon: Icons.movie_outlined,
             target: const AnimationsListExample(),
+          ),
+          _buildExampleCard(
+            context,
+            title: 'Annotations & Hotspots',
+            subtitle: 'HTML/Dart dual-mode markers',
+            icon: Icons.push_pin_outlined,
+            target: const AnnotationExample(),
           ),
         ],
       ),

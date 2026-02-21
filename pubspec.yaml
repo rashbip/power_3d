@@ -38,6 +38,7 @@ flutter:
     - assets/js/lighting.js
     - assets/js/materials.js
     - assets/js/animations.js
+    - assets/js/annotations.js
     - assets/js/selection/core.js
     - assets/js/selection/hierarchy.js
     - assets/js/selection/visibility.js

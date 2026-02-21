@@ -7,6 +7,11 @@ async function loadModel(data, fileName, type) {
 
         window.scene.meshes.slice().forEach(m => m.dispose());
 
+        // Clear annotation markers whenever the scene is reset for a new model
+        if (typeof clearAnnotationsFromFlutter === 'function') {
+            clearAnnotationsFromFlutter();
+        }
+
         let sceneFilename = data;
 
         // For Base64 binary data, convert to Blob URL

@@ -22,10 +22,109 @@
                 height: 100%;
                 touch-action: none;
             }
+
+            /* Annotation Card Styles */
+            #annotation-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 10;
+                display: flex;
+                align-items: flex-end;
+                justify-content: center;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+
+            #annotation-overlay.visible {
+                pointer-events: auto;
+            }
+
+            .annotation-card-popup {
+                background: rgba(255, 255, 255, 0.85);
+                -webkit-backdrop-filter: blur(10px);
+                backdrop-filter: blur(10px);
+                border-radius: 16px;
+                padding: 16px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+                max-width: 400px;
+                width: 100%;
+                border: 1px solid rgba(255,255,255,0.3);
+                font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+                animation: slideUp 0.3s ease-out;
+            }
+
+            @keyframes slideUp {
+                from { transform: translateY(20px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+
+            .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+            }
+
+            .card-header h4 {
+                margin: 0;
+                color: #1a1c1e;
+                font-size: 1.1rem;
+            }
+
+            .close-btn {
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: #444;
+                padding: 0 4px;
+            }
+
+            .card-content p {
+                margin: 0 0 12px 0;
+                color: #444;
+                line-height: 1.4;
+                font-size: 0.95rem;
+            }
+
+            .m3-button-text {
+                color: #1f6ad1;
+                text-decoration: none;
+                font-weight: 500;
+                font-size: 0.9rem;
+            }
+
+            /* Dark-theme variant for custom HTML templates */
+            .annotation-card-dark {
+                background: rgba(26, 28, 30, 0.92) !important;
+                border: 1px solid #333;
+                color: #e0e0e0;
+            }
+
+            .annotation-card-dark .card-header h4 {
+                color: #abb2bf;
+            }
+
+            .annotation-card-dark .close-btn {
+                color: #61afef;
+            }
+
+            .annotation-card-dark .card-content p {
+                color: #d1d4d9;
+            }
+
+            .annotation-card-dark .m3-button-text {
+                color: #61afef;
+            }
         </style>
     </head>
     <body>
         <canvas id="renderCanvas"></canvas>
+        <div id="annotation-overlay"></div>
         
         <!-- Load modular JavaScript files -->
         <script src="js/messaging.js"></script>
@@ -41,6 +140,7 @@
         <script id="selection-bounding-box" src="js/selection/bounding-box.js"></script>
         <script id="selection-materials" src="js/selection/materials.js"></script>
         <script id="selection-textures" src="js/selection/textures.js"></script>
+        <script src="js/annotations.js"></script>
         <script src="js/animations.js"></script>
         <script src="js/model-loader.js"></script>
         <script src="js/scene.js"></script>

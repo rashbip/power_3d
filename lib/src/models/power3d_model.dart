@@ -396,6 +396,12 @@ class Power3DState {
   /// List of available textures in the scene.
   final List<Power3DTexture> textures;
 
+  /// List of current annotations.
+  final List<AnnotationData> annotations;
+
+  /// The currently active/selected annotation.
+  final AnnotationData? activeAnnotation;
+
   /// Creates a new [Power3DState].
   const Power3DState({
     this.isInitialized = false,
@@ -428,6 +434,8 @@ class Power3DState {
     this.hiddenParts = const [],
     this.boundingBoxParts = const [],
     this.textures = const [],
+    this.annotations = const [],
+    this.activeAnnotation,
   });
 
   /// Initial state representation.
@@ -465,6 +473,8 @@ class Power3DState {
     List<String>? boundingBoxParts,
     List<dynamic>? partsHierarchy,
     List<Power3DTexture>? textures,
+    List<AnnotationData>? annotations,
+    AnnotationData? activeAnnotation,
   }) {
     return Power3DState(
       status: status ?? this.status,
@@ -497,6 +507,8 @@ class Power3DState {
       boundingBoxParts: boundingBoxParts ?? this.boundingBoxParts,
       partsHierarchy: partsHierarchy ?? this.partsHierarchy,
       textures: textures ?? this.textures,
+      annotations: annotations ?? this.annotations,
+      activeAnnotation: activeAnnotation ?? this.activeAnnotation,
     );
   }
 }
@@ -698,4 +710,206 @@ class Power3DAnimation {
       loop: loop ?? this.loop,
     );
   }
+}
+
+// =============================================================================
+// ANNOTATION SYSTEM
+// =============================================================================
+
+/// How annotations are displayed in the Power3D viewer.
+enum AnnotationMode {
+  /// Default: renders a floating HTML/CSS card inside the WebView.
+  /// Fully customisable via [Power3D.htmlAnnotationStyle].
+  html,
+
+  /// Hybrid: sends a bridge event to Flutter on tap.
+  /// [Power3D.dartAnnotationBuilder] is called with the tapped [AnnotationData].
+  dart,
+}
+
+/// ============================================================================
+/// Power3D Runtime Annotation Model
+/// Minimal data required for BabylonJS surface-anchored annotations
+/// ============================================================================
+class AnnotationData {
+  final String id;
+  final AnnotationSurface surface;
+  final AnnotationPlacement placement;
+  final AnnotationVisibility visibility;
+  final AnnotationUI ui;
+  final AnnotationCamera camera;
+
+  const AnnotationData({
+    required this.id,
+    required this.surface,
+    required this.placement,
+    required this.visibility,
+    required this.ui,
+    required this.camera,
+  });
+
+  factory AnnotationData.fromJson(Map<String, dynamic> json) {
+    return AnnotationData(
+      id: json['id'].toString(),
+      surface: AnnotationSurface.fromJson(json['surface']),
+      placement: AnnotationPlacement.fromJson(json['placement']),
+      visibility: AnnotationVisibility.fromJson(json['visibility']),
+      ui: AnnotationUI.fromJson(json['ui']),
+      camera: AnnotationCamera.fromJson(json['camera']),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'surface': surface.toJson(),
+    'placement': placement.toJson(),
+    'visibility': visibility.toJson(),
+    'ui': ui.toJson(),
+    'camera': camera.toJson(),
+  };
+}
+
+/// ---------------------------------------------------------------------------
+/// Surface Anchor (Core Attachment Definition)
+/// ---------------------------------------------------------------------------
+class AnnotationSurface {
+  final String meshName;
+  final int triangleIndex;
+  final List<double> barycentric; // [u, v, w]
+
+  const AnnotationSurface({
+    required this.meshName,
+    required this.triangleIndex,
+    required this.barycentric,
+  });
+
+  factory AnnotationSurface.fromJson(Map<String, dynamic> json) {
+    return AnnotationSurface(
+      meshName: json['meshName'],
+      triangleIndex: json['triangleIndex'],
+      barycentric: List<double>.from(json['barycentric']),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'meshName': meshName,
+    'triangleIndex': triangleIndex,
+    'barycentric': barycentric,
+  };
+}
+
+/// ---------------------------------------------------------------------------
+/// Placement
+/// ---------------------------------------------------------------------------
+class AnnotationPlacement {
+  final List<double> normal; // surface normal
+  final double offset;
+  final bool billboard;
+
+  const AnnotationPlacement({
+    required this.normal,
+    required this.offset,
+    required this.billboard,
+  });
+
+  factory AnnotationPlacement.fromJson(Map<String, dynamic> json) {
+    return AnnotationPlacement(
+      normal: List<double>.from(json['normal']),
+      offset: (json['offset'] as num).toDouble(),
+      billboard: json['billboard'],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'normal': normal,
+    'offset': offset,
+    'billboard': billboard,
+  };
+}
+
+/// ---------------------------------------------------------------------------
+/// Visibility Rules
+/// ---------------------------------------------------------------------------
+class AnnotationVisibility {
+  final double minDistance;
+  final double maxDistance;
+  final bool hideWhenOccluded;
+
+  const AnnotationVisibility({
+    required this.minDistance,
+    required this.maxDistance,
+    required this.hideWhenOccluded,
+  });
+
+  factory AnnotationVisibility.fromJson(Map<String, dynamic> json) {
+    return AnnotationVisibility(
+      minDistance: (json['minDistance'] as num).toDouble(),
+      maxDistance: (json['maxDistance'] as num).toDouble(),
+      hideWhenOccluded: json['hideWhenOccluded'],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'minDistance': minDistance,
+    'maxDistance': maxDistance,
+    'hideWhenOccluded': hideWhenOccluded,
+  };
+}
+
+/// ---------------------------------------------------------------------------
+/// UI Payload
+/// ---------------------------------------------------------------------------
+class AnnotationUI {
+  final String title;
+  final String description;
+  final String more;
+
+  const AnnotationUI({
+    required this.title,
+    required this.description,
+    required this.more,
+  });
+
+  factory AnnotationUI.fromJson(Map<String, dynamic> json) {
+    return AnnotationUI(
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+      more: json['more'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'description': description,
+    'more': more,
+  };
+}
+
+/// ---------------------------------------------------------------------------
+/// Camera Preset
+/// ---------------------------------------------------------------------------
+class AnnotationCamera {
+  final List<double> orbit; // [alpha, beta, radius]
+  final List<double> target; // [x, y, z]
+  final double transitionDuration;
+
+  const AnnotationCamera({
+    required this.orbit,
+    required this.target,
+    required this.transitionDuration,
+  });
+
+  factory AnnotationCamera.fromJson(Map<String, dynamic> json) {
+    return AnnotationCamera(
+      orbit: List<double>.from(json['orbit']),
+      target: List<double>.from(json['target']),
+      transitionDuration: (json['transitionDuration'] as num).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'orbit': orbit,
+    'target': target,
+    'transitionDuration': transitionDuration,
+  };
 }
