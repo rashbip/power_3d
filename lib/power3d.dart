@@ -184,7 +184,6 @@ class Power3D extends StatefulWidget {
 class _Power3DState extends State<Power3D> {
   WebViewController? _webViewController;
   late Power3DController _controller;
-  Power3DState? _lastState;
 
   @override
   void initState() {
@@ -252,7 +251,6 @@ class _Power3DState extends State<Power3D> {
 
   void _onStateChanged() {
     final state = _controller.value;
-    _lastState = state;
 
     if (state.status == Power3DStatus.loaded) {
       final modelKey = state.currentModelName;
