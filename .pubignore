@@ -40,3 +40,6 @@ tmp/
 
 # Annotation tool (not part of the Dart package)
 babylon_annotator/
+
+#Screenshots
+doc/screenshots

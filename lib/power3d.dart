@@ -46,23 +46,6 @@ class Power3D extends StatefulWidget {
   /// Initial contrast level for the scene.
   final double? contrast;
 
-  /// Whether to display 3D annotations in the scene.
-  final bool showAnnotations;
-
-  /// List of annotations to display.
-  final List<AnnotationData>? annotations;
-
-  /// Display mode for the annotations (HTML or Dart).
-  final AnnotationMode annotationMode;
-
-  /// Optional custom HTML template for the annotation card (HTML mode).
-  /// Use {{title}}, {{description}}, {{more}} as placeholders.
-  final String? htmlAnnotationStyle;
-
-  /// Optional builder for a custom Flutter widget (Dart mode).
-  final Widget Function(BuildContext context, AnnotationData data)?
-  dartAnnotationBuilder;
-
   /// Creates a new [Power3D] viewer.
   const Power3D({
     super.key,
@@ -77,11 +60,6 @@ class Power3D extends StatefulWidget {
     this.exposure,
     this.contrast,
     this.onModelLoaded,
-    this.showAnnotations = false,
-    this.annotations,
-    this.annotationMode = AnnotationMode.html,
-    this.htmlAnnotationStyle,
-    this.dartAnnotationBuilder,
   });
 
   /// Creates a [Power3D] viewer from a Flutter asset path.
@@ -206,8 +184,7 @@ class Power3D extends StatefulWidget {
 class _Power3DState extends State<Power3D> {
   WebViewController? _webViewController;
   late Power3DController _controller;
-  // Track which model we last synced annotations for to avoid re-entrant loops
-  String? _lastAnnotationSyncModel;
+  Power3DState? _lastState;
 
   @override
   void initState() {
@@ -261,25 +238,6 @@ class _Power3DState extends State<Power3D> {
         contrast: widget.contrast,
       );
     }
-
-    if (widget.showAnnotations != oldWidget.showAnnotations ||
-        widget.annotations != oldWidget.annotations ||
-        widget.annotationMode != oldWidget.annotationMode ||
-        widget.htmlAnnotationStyle != oldWidget.htmlAnnotationStyle) {
-      _syncAnnotations();
-    }
-  }
-
-  void _syncAnnotations() {
-    if (!widget.showAnnotations || widget.annotations == null) {
-      _controller.clearAnnotations();
-    } else {
-      _controller.loadAnnotations(
-        widget.annotations!,
-        mode: widget.annotationMode,
-        htmlTemplate: widget.htmlAnnotationStyle,
-      );
-    }
   }
 
   @override
@@ -294,17 +252,13 @@ class _Power3DState extends State<Power3D> {
 
   void _onStateChanged() {
     final state = _controller.value;
-    // Only react to the transition INTO loaded, not every notification while loaded.
+    _lastState = state;
+
     if (state.status == Power3DStatus.loaded) {
       final modelKey = state.currentModelName;
-      if (_lastAnnotationSyncModel != modelKey) {
-        _lastAnnotationSyncModel = modelKey;
-        _syncAnnotations();
+      if (modelKey != null) {
         widget.onModelLoaded?.call();
       }
-    } else {
-      // Reset when model unloads / changes
-      _lastAnnotationSyncModel = null;
     }
   }
 
@@ -366,10 +320,6 @@ class _Power3DState extends State<Power3D> {
                   ),
                 if (_webViewController != null)
                   WebViewWidget(controller: _webViewController!),
-                if (widget.showAnnotations &&
-                    widget.annotationMode == AnnotationMode.dart &&
-                    state.activeAnnotation != null)
-                  _buildDartAnnotation(context, state.activeAnnotation!),
               ],
             ),
           );
@@ -390,68 +340,4 @@ class _Power3DState extends State<Power3D> {
       },
     );
   }
-
-  Widget _buildDartAnnotation(BuildContext context, AnnotationData data) {
-    if (widget.dartAnnotationBuilder != null) {
-      return widget.dartAnnotationBuilder!(context, data);
-    }
-
-    // Default Material 3 style sheet for Dart mode
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Card(
-          elevation: 8,
-          clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        data.ui.title,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => _controller.clearActiveAnnotation(),
-                    ),
-                  ],
-                ),
-                if (data.ui.description.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    data.ui.description,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-                if (data.ui.more.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: () {
-                      // Developer can handle this via dartAnnotationBuilder
-                      // if they want full control.
-                    },
-                    child: const Text('Learn More →'),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
-
