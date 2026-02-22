@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:path/path.dart' as p;
 import 'dart:async';
 import '../models/power3d_model.dart';
@@ -21,7 +21,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
   /// Creates a new [Power3DController] with initial state.
   Power3DController() : super(Power3DState.initial());
 
-  WebViewController? _webViewController;
+  InAppWebViewController? _webViewController;
 
   bool _isDisposed = false;
   final Map<String, Completer<String?>> _textureCompleters = {};
@@ -31,7 +31,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
   /// Internal method to set the WebView controller.
   /// This should only be used by the Power3D widget.
   @internal
-  void setWebViewController(WebViewController controller) {
+  void setWebViewController(InAppWebViewController controller) {
     _webViewController = controller;
   }
 
@@ -56,8 +56,11 @@ class Power3DController extends ValueNotifier<Power3DState> {
     updateSelectionConfig(value.selectionConfig);
 
     // Sync camera position
-    _webViewController?.runJavaScript(
-      'setCameraPosition(${value.cameraAlpha}, ${value.cameraBeta}, ${value.cameraRadius})',
+    unawaited(
+      _webViewController?.evaluateJavascript(
+        source:
+            'setCameraPosition(${value.cameraAlpha}, ${value.cameraBeta}, ${value.cameraRadius})',
+      ),
     );
   }
 
@@ -100,8 +103,8 @@ class Power3DController extends ValueNotifier<Power3DState> {
           break;
       }
 
-      await _webViewController!.runJavaScript(
-        'loadModel("$encodedData", "$fileName", "$type")',
+      await _webViewController!.evaluateJavascript(
+        source: 'loadModel("$encodedData", "$fileName", "$type")',
       );
     } catch (e) {
       value = value.copyWith(
@@ -127,11 +130,16 @@ class Power3DController extends ValueNotifier<Power3DState> {
           // Re-apply selection configuration
           updateSelectionConfig(value.selectionConfig);
           // Sync camera position
-          _webViewController?.runJavaScript(
-            'setCameraPosition(${value.cameraAlpha}, ${value.cameraBeta}, ${value.cameraRadius})',
+          unawaited(
+            _webViewController?.evaluateJavascript(
+              source:
+                  'setCameraPosition(${value.cameraAlpha}, ${value.cameraBeta}, ${value.cameraRadius})',
+            ),
           );
           // Initialize animations
-          _webViewController?.runJavaScript('initAnimations()');
+          unawaited(
+            _webViewController?.evaluateJavascript(source: 'initAnimations()'),
+          );
         } else if (data['message'] == 'reset') {
           value = value.copyWith(
             selectedParts: [],

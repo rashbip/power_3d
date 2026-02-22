@@ -1,4 +1,6 @@
-# 2.0.0
+# 2.1.0
+* **Improvements**: Migrated core viewer from `webview_flutter` to `flutter_inappwebview` for better performance and cross-platform consistency.
+* **Screenshots**: Added screenshots to documentation.
 
 ## Features
 * **Full Texture Management**: A comprehensive system to inspect and modify engine textures.

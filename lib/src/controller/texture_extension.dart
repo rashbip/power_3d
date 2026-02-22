@@ -7,8 +7,8 @@ extension TextureExtension on Power3DController {
     if (_webViewController == null) return [];
 
     try {
-      final result = await _webViewController!.runJavaScriptReturningResult(
-        'JSON.stringify(getTexturesList())',
+      final result = await _webViewController!.evaluateJavascript(
+        source: 'JSON.stringify(getTexturesList())',
       );
 
       String resultString = result.toString();
@@ -45,8 +45,8 @@ extension TextureExtension on Power3DController {
     _textureCompleters[textureId] = completer;
 
     try {
-      await _webViewController!.runJavaScript(
-        'requestTextureData("$textureId")',
+      await _webViewController!.evaluateJavascript(
+        source: 'requestTextureData("$textureId")',
       );
 
       // Wait up to 10 seconds for the texture data
@@ -68,8 +68,9 @@ extension TextureExtension on Power3DController {
   Future<void> updateTexture(String textureId, TextureUpdate config) async {
     if (_webViewController == null) return;
 
-    await _webViewController!.runJavaScript(
-      'updateTextureProperty("$textureId", ${jsonEncode(config.toJson())})',
+    await _webViewController!.evaluateJavascript(
+      source:
+          'updateTextureProperty("$textureId", ${jsonEncode(config.toJson())})',
     );
 
     // Update local state if the texture exists in the list

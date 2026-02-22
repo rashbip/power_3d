@@ -14,8 +14,8 @@ extension SelectionExtension on Power3DController {
     if (_webViewController == null) return [];
 
     try {
-      final result = await _webViewController!.runJavaScriptReturningResult(
-        'JSON.stringify(getPartsList())',
+      final result = await _webViewController!.evaluateJavascript(
+        source: 'JSON.stringify(getPartsList())',
       );
       final partsJson = result.toString().replaceAll('"', '');
       if (partsJson == 'null' || partsJson.isEmpty) return [];
@@ -33,7 +33,9 @@ extension SelectionExtension on Power3DController {
   Future<void> selectPart(String partName) async {
     if (_webViewController == null) return;
 
-    await _webViewController!.runJavaScript('selectPart("$partName")');
+    await _webViewController!.evaluateJavascript(
+      source: 'selectPart("$partName")',
+    );
 
     final newSelected = List<String>.from(value.selectedParts);
     if (!newSelected.contains(partName)) {
@@ -49,7 +51,9 @@ extension SelectionExtension on Power3DController {
   Future<void> unselectPart(String partName) async {
     if (_webViewController == null) return;
 
-    await _webViewController!.runJavaScript('unselectPart("$partName")');
+    await _webViewController!.evaluateJavascript(
+      source: 'unselectPart("$partName")',
+    );
 
     final newSelected = List<String>.from(value.selectedParts);
     newSelected.remove(partName);
@@ -60,7 +64,7 @@ extension SelectionExtension on Power3DController {
   Future<void> clearSelection() async {
     if (_webViewController == null) return;
 
-    await _webViewController!.runJavaScript('clearSelection()');
+    await _webViewController!.evaluateJavascript(source: 'clearSelection()');
     value = value.copyWith(selectedParts: []);
   }
 
@@ -107,8 +111,8 @@ extension SelectionExtension on Power3DController {
       };
     }
 
-    await _webViewController!.runJavaScript(
-      'enableSelectionMode(${jsonEncode(jsConfig)})',
+    await _webViewController!.evaluateJavascript(
+      source: 'enableSelectionMode(${jsonEncode(jsConfig)})',
     );
   }
 
@@ -124,8 +128,8 @@ extension SelectionExtension on Power3DController {
     if (_webViewController == null) return [];
 
     try {
-      final result = await _webViewController!.runJavaScriptReturningResult(
-        'JSON.stringify(getPartsHierarchy($useCategorization))',
+      final result = await _webViewController!.evaluateJavascript(
+        source: 'JSON.stringify(getPartsHierarchy($useCategorization))',
       );
 
       String resultString = result.toString();
@@ -161,8 +165,8 @@ extension SelectionExtension on Power3DController {
     if (_webViewController == null) return {};
 
     try {
-      final result = await _webViewController!.runJavaScriptReturningResult(
-        'JSON.stringify(getNodeExtras("$partName"))',
+      final result = await _webViewController!.evaluateJavascript(
+        source: 'JSON.stringify(getNodeExtras("$partName"))',
       );
 
       String resultString = result.toString();
@@ -192,8 +196,8 @@ extension SelectionExtension on Power3DController {
   Future<void> hideParts(List<String> partNames) async {
     if (_webViewController == null) return;
 
-    await _webViewController!.runJavaScript(
-      'hideParts(${jsonEncode(partNames)})',
+    await _webViewController!.evaluateJavascript(
+      source: 'hideParts(${jsonEncode(partNames)})',
     );
 
     final newHidden = List<String>.from(value.hiddenParts);
@@ -207,8 +211,8 @@ extension SelectionExtension on Power3DController {
   Future<void> showParts(List<String> showPartNames) async {
     if (_webViewController == null) return;
 
-    await _webViewController!.runJavaScript(
-      'showParts(${jsonEncode(showPartNames)})',
+    await _webViewController!.evaluateJavascript(
+      source: 'showParts(${jsonEncode(showPartNames)})',
     );
 
     final newHidden = List<String>.from(value.hiddenParts);
@@ -220,7 +224,7 @@ extension SelectionExtension on Power3DController {
   Future<void> hideSelected() async {
     if (_webViewController == null) return;
 
-    await _webViewController!.runJavaScript('hideSelected()');
+    await _webViewController!.evaluateJavascript(source: 'hideSelected()');
 
     final newHidden = List<String>.from(value.hiddenParts);
     for (final name in value.selectedParts) {
@@ -233,7 +237,7 @@ extension SelectionExtension on Power3DController {
   Future<void> hideUnselected() async {
     if (_webViewController == null) return;
 
-    await _webViewController!.runJavaScript('hideUnselected()');
+    await _webViewController!.evaluateJavascript(source: 'hideUnselected()');
 
     final unselected = value.availableParts
         .where((name) => !value.selectedParts.contains(name))
@@ -245,7 +249,7 @@ extension SelectionExtension on Power3DController {
   Future<void> unhideAll() async {
     if (_webViewController == null) return;
 
-    await _webViewController!.runJavaScript('unhideAll()');
+    await _webViewController!.evaluateJavascript(source: 'unhideAll()');
     value = value.copyWith(hiddenParts: []);
   }
 
@@ -272,8 +276,9 @@ extension SelectionExtension on Power3DController {
       'style': config.style.name,
     };
 
-    await _webViewController!.runJavaScript(
-      'showBoundingBox(${jsonEncode(partNames)}, ${jsonEncode(jsConfig)})',
+    await _webViewController!.evaluateJavascript(
+      source:
+          'showBoundingBox(${jsonEncode(partNames)}, ${jsonEncode(jsConfig)})',
     );
 
     final newBoxes = List<String>.from(value.boundingBoxParts);
@@ -287,8 +292,8 @@ extension SelectionExtension on Power3DController {
   Future<void> hideBoundingBox(List<String> partNames) async {
     if (_webViewController == null) return;
 
-    await _webViewController!.runJavaScript(
-      'hideBoundingBox(${jsonEncode(partNames)})',
+    await _webViewController!.evaluateJavascript(
+      source: 'hideBoundingBox(${jsonEncode(partNames)})',
     );
 
     final newBoxes = List<String>.from(value.boundingBoxParts);

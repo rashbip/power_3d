@@ -4,13 +4,13 @@ part of 'power3d_controller.dart';
 extension ViewExtension on Power3DController {
   /// Resets the camera to its default position and orientation.
   Future<void> resetView() async {
-    await _webViewController?.runJavaScript('resetView()');
+    await _webViewController?.evaluateJavascript(source: 'resetView()');
   }
 
   /// Resets the entire scene to its initial state.
   /// Stops animations, clears selections, unhides parts, and resets camera.
   Future<void> resetScene() async {
-    await _webViewController?.runJavaScript('resetScene()');
+    await _webViewController?.evaluateJavascript(source: 'resetScene()');
   }
 
   /// Updates the auto-rotation behavior of the camera.
@@ -38,8 +38,9 @@ extension ViewExtension on Power3DController {
         : 'counterClockwise';
     final stopMs = newState.rotationStopAfter?.inMilliseconds;
 
-    await _webViewController?.runJavaScript(
-      'toggleAutoRotate(${newState.autoRotate}, ${newState.rotationSpeed}, "$dirStr", $stopMs)',
+    await _webViewController?.evaluateJavascript(
+      source:
+          'toggleAutoRotate(${newState.autoRotate}, ${newState.rotationSpeed}, "$dirStr", $stopMs)',
     );
   }
 
@@ -52,7 +53,9 @@ extension ViewExtension on Power3DController {
   /// If [locked], the object can be rotated and zoomed but not moved.
   Future<void> setLockPosition(bool locked) async {
     value = value.copyWith(isPositionLocked: locked);
-    await _webViewController?.runJavaScript('setLockPosition($locked)');
+    await _webViewController?.evaluateJavascript(
+      source: 'setLockPosition($locked)',
+    );
   }
 
   /// Updates the camera zoom limits and behavior.
@@ -62,8 +65,9 @@ extension ViewExtension on Power3DController {
   /// [max]: Maximum zoom distance allowed.
   Future<void> updateZoom({bool? enabled, double? min, double? max}) async {
     value = value.copyWith(enableZoom: enabled, minZoom: min, maxZoom: max);
-    await _webViewController?.runJavaScript(
-      'updateZoom(${value.enableZoom}, ${value.minZoom}, ${value.maxZoom})',
+    await _webViewController?.evaluateJavascript(
+      source:
+          'updateZoom(${value.enableZoom}, ${value.minZoom}, ${value.maxZoom})',
     );
   }
 
@@ -71,7 +75,7 @@ extension ViewExtension on Power3DController {
   /// Note: [savePath] must include the file name and extension (e.g. 'path/to/shot.png').
   Future<void> takeScreenshot(String savePath) async {
     _pendingScreenshotPath = savePath;
-    await _webViewController?.runJavaScript('takeScreenshot()');
+    await _webViewController?.evaluateJavascript(source: 'takeScreenshot()');
   }
 
   /// Sets the camera position and orientation.
@@ -86,8 +90,9 @@ extension ViewExtension on Power3DController {
       cameraRadius: radius,
     );
     value = newState;
-    await _webViewController?.runJavaScript(
-      'setCameraPosition(${newState.cameraAlpha}, ${newState.cameraBeta}, ${newState.cameraRadius})',
+    await _webViewController?.evaluateJavascript(
+      source:
+          'setCameraPosition(${newState.cameraAlpha}, ${newState.cameraBeta}, ${newState.cameraRadius})',
     );
   }
 

@@ -41,8 +41,18 @@ dependencies:
   power3d: ^2.0.0
 ```
 
-### 2. Basic Setup (Android)
-Ensure your app supports cleartext traffic if loading models from URLs. See [Setup Guide](doc/setup.md).
+### 2. Basic Setup
+Power3D supports **Android, iOS, Web, Windows, macOS, and Linux**. 
+
+| Platform | Setup Requirement |
+| :--- | :--- |
+| **Android** | Internet & Cleartext permissions |
+| **iOS / macOS** | App Sandbox Entitlements |
+| **Windows** | WebView2 Runtime |
+| **Web** | No special config (CORS handled) |
+| **Linux** | WebKit2GTK installation |
+
+See the full **[Platform Setup Guide](doc/setup.md)** for detailed instructions.
 
 ### 3. Usage
 

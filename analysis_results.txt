@@ -1,0 +1,8 @@
+[error] Undefined name 'kDebugMode' (D:\Plugin\flutter\power3d\lib\power3d.dart:274:36)
+[error] The method 'runJavaScript' isn't defined for the type 'InAppWebViewController' (D:\Plugin\flutter\power3d\lib\src\controller\view_extension.dart:7:31)
+[error] The method 'runJavaScript' isn't defined for the type 'InAppWebViewController' (D:\Plugin\flutter\power3d\lib\src\controller\view_extension.dart:13:31)
+[error] The method 'runJavaScript' isn't defined for the type 'InAppWebViewController' (D:\Plugin\flutter\power3d\lib\src\controller\view_extension.dart:41:31)
+[error] The method 'runJavaScript' isn't defined for the type 'InAppWebViewController' (D:\Plugin\flutter\power3d\lib\src\controller\view_extension.dart:55:31)
+[error] The method 'runJavaScript' isn't defined for the type 'InAppWebViewController' (D:\Plugin\flutter\power3d\lib\src\controller\view_extension.dart:65:31)
+[error] The method 'runJavaScript' isn't defined for the type 'InAppWebViewController' (D:\Plugin\flutter\power3d\lib\src\controller\view_extension.dart:74:31)
+[error] The method 'runJavaScript' isn't defined for the type 'InAppWebViewController' (D:\Plugin\flutter\power3d\lib\src\controller\view_extension.dart:89:31)

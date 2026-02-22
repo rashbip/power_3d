@@ -6,8 +6,8 @@ extension MaterialExtension on Power3DController {
   Future<void> setShadingMode(ShadingMode mode) async {
     value = value.copyWith(shadingMode: mode);
     if (_webViewController == null) return;
-    await _webViewController!.runJavaScript(
-      'updateShadingMode("${mode.name}")',
+    await _webViewController!.evaluateJavascript(
+      source: 'updateShadingMode("${mode.name}")',
     );
   }
 
@@ -34,8 +34,8 @@ extension MaterialExtension on Power3DController {
       'doubleSided': config.doubleSided,
     };
 
-    await _webViewController!.runJavaScript(
-      'updateGlobalMaterial(${jsonEncode(jsConfig)})',
+    await _webViewController!.evaluateJavascript(
+      source: 'updateGlobalMaterial(${jsonEncode(jsConfig)})',
     );
   }
 
@@ -67,8 +67,8 @@ extension MaterialExtension on Power3DController {
       return jsConfig;
     }).toList();
 
-    await _webViewController!.runJavaScript(
-      'updateLighting(${jsonEncode(jsConfigs)})',
+    await _webViewController!.evaluateJavascript(
+      source: 'updateLighting(${jsonEncode(jsConfigs)})',
     );
   }
 
@@ -89,8 +89,8 @@ extension MaterialExtension on Power3DController {
 
     if (_webViewController == null) return;
 
-    await _webViewController!.runJavaScript(
-      'updateSceneProcessing(${value.exposure}, ${value.contrast})',
+    await _webViewController!.evaluateJavascript(
+      source: 'updateSceneProcessing(${value.exposure}, ${value.contrast})',
     );
   }
 
@@ -104,8 +104,8 @@ extension MaterialExtension on Power3DController {
   }) async {
     if (_webViewController == null) return;
 
-    await _webViewController!.runJavaScript(
-      'applyMaterialModeToSelection("${mode.name}", $applyToSelected)',
+    await _webViewController!.evaluateJavascript(
+      source: 'applyMaterialModeToSelection("${mode.name}", $applyToSelected)',
     );
   }
 }

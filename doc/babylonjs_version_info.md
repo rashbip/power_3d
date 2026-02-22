@@ -73,10 +73,10 @@ For our Flutter plugin use case (local asset), the 7.51 MB minified version is t
 
 ## Integration
 
-The babylon.js file is now stored in `/assets/babylon.js` and loaded directly in `index.html`:
+The babylon.js file is now stored in `/assets/babylon/babylon.js` and loaded directly in `index.html`:
 
 ```html
-<script src="babylon.js"></script>
+<script src="babylon/babylon.js"></script>
 ```
 
 This ensures:

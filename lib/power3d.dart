@@ -1,5 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'src/models/power3d_model.dart';
 import 'src/controller/power3d_controller.dart';
 
@@ -182,8 +183,9 @@ class Power3D extends StatefulWidget {
 }
 
 class _Power3DState extends State<Power3D> {
-  WebViewController? _webViewController;
+  InAppWebViewController? _webViewController;
   late Power3DController _controller;
+  bool _webviewInitialized = false;
 
   @override
   void initState() {
@@ -201,12 +203,6 @@ class _Power3DState extends State<Power3D> {
     }
 
     _controller.addListener(_onStateChanged);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!widget.lazy && mounted) {
-        _initController();
-      }
-    });
   }
 
   @override
@@ -220,10 +216,6 @@ class _Power3DState extends State<Power3D> {
       if (_webViewController != null) {
         _controller.setWebViewController(_webViewController!);
       }
-    }
-
-    if (oldWidget.lazy && !widget.lazy && _webViewController == null) {
-      _initController();
     }
 
     if (widget.lights != oldWidget.lights && widget.lights != null) {
@@ -260,54 +252,13 @@ class _Power3DState extends State<Power3D> {
     }
   }
 
-  void _initController() {
-    if (!mounted) return;
-
-    final controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageFinished: (String url) {
-            if (mounted) {
-              _controller.initialize();
-              if (widget.initialModel != null) {
-                _controller.loadModel(widget.initialModel!);
-              }
-            }
-          },
-          onWebResourceError: (WebResourceError error) {
-            debugPrint('WebView error: ${error.description}');
-          },
-        ),
-      )
-      ..addJavaScriptChannel(
-        'FlutterChannel',
-        onMessageReceived: (JavaScriptMessage message) {
-          if (mounted) {
-            _controller.handleWebViewMessage(message.message);
-            if (widget.onMessage != null) {
-              widget.onMessage!(message.message);
-            }
-          }
-        },
-      )
-      ..loadFlutterAsset('packages/power3d/assets/index.html');
-
-    setState(() {
-      _webViewController = controller;
-    });
-
-    _controller.setWebViewController(controller);
-  }
-
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Power3DState>(
       valueListenable: _controller,
       builder: (context, state, child) {
-        // If the model is fully loaded, show the viewer
-        if (state.status == Power3DStatus.loaded) {
+        // If the viewer should be visible
+        if (!widget.lazy || state.status != Power3DStatus.initial) {
           return SizedBox.expand(
             child: Stack(
               fit: StackFit.expand,
@@ -316,25 +267,58 @@ class _Power3DState extends State<Power3D> {
                   IgnorePointer(
                     child: widget.environmentBuilder!(context, state),
                   ),
-                if (_webViewController != null)
-                  WebViewWidget(controller: _webViewController!),
+                InAppWebView(
+                  initialFile: "packages/power3d/assets/index.html",
+                  initialSettings: InAppWebViewSettings(
+                    transparentBackground: true,
+                    supportZoom: false,
+                    isInspectable: kDebugMode,
+                  ),
+                  onWebViewCreated: (controller) {
+                    _webViewController = controller;
+                    _controller.setWebViewController(controller);
+
+                    controller.addJavaScriptHandler(
+                      handlerName: 'onMessage',
+                      callback: (args) {
+                        if (args.isNotEmpty && mounted) {
+                          final String message = args[0];
+                          _controller.handleWebViewMessage(message);
+                          widget.onMessage?.call(message);
+                        }
+                      },
+                    );
+                  },
+                  onLoadStop: (controller, url) async {
+                    if (!_webviewInitialized) {
+                      _webviewInitialized = true;
+                      _controller.initialize();
+                      if (widget.initialModel != null) {
+                        _controller.loadModel(widget.initialModel!);
+                      }
+                    }
+                  },
+                  onConsoleMessage: (controller, consoleMessage) {
+                    debugPrint('JS Console: ${consoleMessage.message}');
+                  },
+                ),
+                // Show loading UI on top if loading
+                if (state.status == Power3DStatus.loading ||
+                    state.status == Power3DStatus.initial)
+                  widget.loadingUi?.call(context, _controller) ??
+                      const Center(child: CircularProgressIndicator()),
+
+                // Show error widget if error
+                if (state.status == Power3DStatus.error)
+                  widget.errorWidget ?? const Center(child: Text("Error")),
               ],
             ),
           );
         }
 
-        // If we have an error, show the error widget
-        if (state.status == Power3DStatus.error) {
-          return widget.errorWidget ?? const Center(child: Text("Error"));
-        }
-
-        // Otherwise (status is initial or loading), show the loading UI
-        if (widget.loadingUi != null) {
-          return widget.loadingUi!(context, _controller);
-        }
-
-        // Default Fallback
-        return const Center(child: CircularProgressIndicator());
+        // Lazy initialization placeholder
+        return widget.loadingUi?.call(context, _controller) ??
+            const Center(child: CircularProgressIndicator());
       },
     );
   }

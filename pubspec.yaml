@@ -9,14 +9,14 @@ topics:
   - model-viewer
   - flutter
   - graphics
-version: 2.0.0
+version: 2.1.0
 environment:
   sdk: ^3.10.8
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  webview_flutter: ^4.10.0
+  flutter_inappwebview: ^6.1.5
   path: ^1.9.0
   path_provider: ^2.1.5
   meta: ^1.11.0
