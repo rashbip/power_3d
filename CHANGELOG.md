@@ -1,5 +1,7 @@
 # 2.1.0
 * **Improvements**: Migrated core viewer from `webview_flutter` to `flutter_inappwebview` for better performance and cross-platform consistency.
+* **Desktop Support**: Added desktop support for the plugin.
+* **Web Support**: Added web support for the plugin in beta.
 * **Screenshots**: Added screenshots to documentation.
 
 ## Features
