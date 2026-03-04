@@ -1,6 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+
+import 'src/controller/asset_manager.dart';
 import 'src/models/power3d_model.dart';
 import 'src/controller/power3d_controller.dart';
 
@@ -47,6 +49,13 @@ class Power3D extends StatefulWidget {
   /// Initial contrast level for the scene.
   final double? contrast;
 
+  /// JSON string representing the annotations.
+  final String? annotations;
+
+  /// Combined HTML/CSS/JS string for annotation styling.
+  final String? annotationStyle;
+
+
   /// Creates a new [Power3D] viewer.
   const Power3D({
     super.key,
@@ -60,6 +69,8 @@ class Power3D extends StatefulWidget {
     this.lights,
     this.exposure,
     this.contrast,
+    this.annotations,
+    this.annotationStyle,
     this.onModelLoaded,
   });
 
@@ -79,6 +90,8 @@ class Power3D extends StatefulWidget {
     List<LightingConfig>? lights,
     double? exposure,
     double? contrast,
+    String? annotations,
+    String? annotationStyle,
     VoidCallback? onModelLoaded,
   }) {
     return Power3D(
@@ -97,6 +110,8 @@ class Power3D extends StatefulWidget {
       lights: lights,
       exposure: exposure,
       contrast: contrast,
+      annotations: annotations,
+      annotationStyle: annotationStyle,
       onModelLoaded: onModelLoaded,
     );
   }
@@ -117,6 +132,8 @@ class Power3D extends StatefulWidget {
     List<LightingConfig>? lights,
     double? exposure,
     double? contrast,
+    String? annotations,
+    String? annotationStyle,
     VoidCallback? onModelLoaded,
   }) {
     return Power3D(
@@ -135,6 +152,8 @@ class Power3D extends StatefulWidget {
       lights: lights,
       exposure: exposure,
       contrast: contrast,
+      annotations: annotations,
+      annotationStyle: annotationStyle,
       onModelLoaded: onModelLoaded,
     );
   }
@@ -155,6 +174,8 @@ class Power3D extends StatefulWidget {
     List<LightingConfig>? lights,
     double? exposure,
     double? contrast,
+    String? annotations,
+    String? annotationStyle,
     VoidCallback? onModelLoaded,
   }) {
     final String path = file is String ? file : file.path;
@@ -174,6 +195,8 @@ class Power3D extends StatefulWidget {
       lights: lights,
       exposure: exposure,
       contrast: contrast,
+      annotations: annotations,
+      annotationStyle: annotationStyle,
       onModelLoaded: onModelLoaded,
     );
   }
@@ -203,7 +226,32 @@ class _Power3DState extends State<Power3D> {
     }
 
     _controller.addListener(_onStateChanged);
+
+    if (widget.annotations != null) {
+      _controller.setAnnotations(widget.annotations!);
+    }
+    if (widget.annotationStyle != null) {
+      _controller.setAnnotationStyle(widget.annotationStyle!);
+    }
+    
+    _initLib();
   }
+
+  Future<void> _initLib() async {
+    try {
+      final indexPath = await Power3DAssetManager.prepareAssets();
+      if (mounted) {
+        setState(() {
+          _webviewInitialized = true;
+          _libPath = indexPath;
+        });
+      }
+    } catch (e) {
+      debugPrint('Power3D: Failed to prepare assets: $e');
+    }
+  }
+
+  String? _libPath;
 
   @override
   void didUpdateWidget(Power3D oldWidget) {
@@ -228,6 +276,15 @@ class _Power3DState extends State<Power3D> {
         exposure: widget.exposure,
         contrast: widget.contrast,
       );
+    }
+
+    if (widget.annotations != oldWidget.annotations &&
+        widget.annotations != null) {
+      _controller.setAnnotations(widget.annotations!);
+    }
+    if (widget.annotationStyle != oldWidget.annotationStyle &&
+        widget.annotationStyle != null) {
+      _controller.setAnnotationStyle(widget.annotationStyle!);
     }
   }
 
@@ -268,11 +325,13 @@ class _Power3DState extends State<Power3D> {
                     child: widget.environmentBuilder!(context, state),
                   ),
                 InAppWebView(
-                  initialFile: "packages/power3d/assets/index.html",
+                  initialFile: _libPath,
                   initialSettings: InAppWebViewSettings(
                     transparentBackground: true,
                     supportZoom: false,
                     isInspectable: kDebugMode,
+                    allowFileAccessFromFileURLs: true,
+                    allowUniversalAccessFromFileURLs: true,
                   ),
                   onWebViewCreated: (controller) {
                     _webViewController = controller;

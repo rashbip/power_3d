@@ -87,6 +87,27 @@ function setCameraPosition(alpha, beta, radius) {
     }
 }
 
+function transitionCamera(alpha, beta, radius, target, durationMs = 500) {
+    if (window.scene && window.scene.activeCamera) {
+        const camera = window.scene.activeCamera;
+        
+        // Simple Babylon.js Animation
+        const animAlpha = new BABYLON.Animation("animAlpha", "alpha", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+        const animBeta = new BABYLON.Animation("animBeta", "beta", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+        const animRadius = new BABYLON.Animation("animRadius", "radius", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+        const animTarget = new BABYLON.Animation("animTarget", "target", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+
+        animAlpha.setKeys([{ frame: 0, value: camera.alpha }, { frame: 30, value: alpha }]);
+        animBeta.setKeys([{ frame: 0, value: camera.beta }, { frame: 30, value: beta }]);
+        animRadius.setKeys([{ frame: 0, value: camera.radius }, { frame: 30, value: radius }]);
+        animTarget.setKeys([{ frame: 0, value: camera.target }, { frame: 30, value: new BABYLON.Vector3(target.x, target.y, target.z) }]);
+
+        scene.beginDirectAnimation(camera, [animAlpha, animBeta, animRadius, animTarget], 0, 30, false, 1.0, () => {
+            reportCameraTelemetry(true);
+        });
+    }
+}
+
 function applyInitialSettings(camera) {
     // Default settings matching Power3DState defaults
     camera.lowerRadiusLimit = 1.0;

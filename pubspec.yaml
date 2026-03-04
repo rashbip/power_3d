@@ -20,32 +20,15 @@ dependencies:
   path: ^1.9.0
   path_provider: ^2.1.5
   meta: ^1.11.0
+  archive: ^3.6.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
+  flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true
 
   assets:
-    - assets/index.html
-    - assets/babylon/babylon.js
-    - assets/babylon/babylonjs.loaders.min.js
-    - assets/js/messaging.js
-    - assets/js/camera.js
-    - assets/js/lighting.js
-    - assets/js/materials.js
-    - assets/js/animations.js
-    - assets/js/selection/core.js
-    - assets/js/selection/hierarchy.js
-    - assets/js/selection/visibility.js
-    - assets/js/selection/bounding-box.js
-    - assets/js/selection/materials.js
-    - assets/js/selection/utils.js
-    - assets/js/selection/styling.js
-    - assets/js/selection/handling.js
-    - assets/js/selection/textures.js
-    - assets/js/model-loader.js
-    - assets/js/scene.js
+    - assets/power3d_assets.zip

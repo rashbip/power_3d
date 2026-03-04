@@ -396,6 +396,12 @@ class Power3DState {
   /// List of available textures in the scene.
   final List<Power3DTexture> textures;
 
+  /// JSON string representing the annotations.
+  final String? annotations;
+
+  /// Combined HTML/CSS/JS string for annotation styling.
+  final String? annotationStyle;
+
 
   /// Creates a new [Power3DState].
   const Power3DState({
@@ -429,6 +435,8 @@ class Power3DState {
     this.hiddenParts = const [],
     this.boundingBoxParts = const [],
     this.textures = const [],
+    this.annotations,
+    this.annotationStyle,
   });
 
   /// Initial state representation.
@@ -466,6 +474,8 @@ class Power3DState {
     List<String>? boundingBoxParts,
     List<dynamic>? partsHierarchy,
     List<Power3DTexture>? textures,
+    String? annotations,
+    String? annotationStyle,
   }) {
     return Power3DState(
       status: status ?? this.status,
@@ -498,6 +508,8 @@ class Power3DState {
       boundingBoxParts: boundingBoxParts ?? this.boundingBoxParts,
       partsHierarchy: partsHierarchy ?? this.partsHierarchy,
       textures: textures ?? this.textures,
+      annotations: annotations ?? this.annotations,
+      annotationStyle: annotationStyle ?? this.annotationStyle,
     );
   }
 }

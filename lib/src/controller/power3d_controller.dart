@@ -12,6 +12,7 @@ part 'selection_extension.dart';
 part 'material_extension.dart';
 part 'texture_extension.dart';
 part 'animation_extension.dart';
+part 'annotation_extension.dart';
 
 /// Controller for programmatically managing the [Power3D] viewer.
 ///
@@ -54,6 +55,14 @@ class Power3DController extends ValueNotifier<Power3DState> {
 
     // Apply selection configuration
     updateSelectionConfig(value.selectionConfig);
+
+    // Apply initial annotations
+    if (value.annotations != null) {
+      setAnnotations(value.annotations!);
+    }
+    if (value.annotationStyle != null) {
+      setAnnotationStyle(value.annotationStyle!);
+    }
 
     // Sync camera position
     unawaited(
