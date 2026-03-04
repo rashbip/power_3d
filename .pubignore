@@ -25,11 +25,37 @@ ios/Flutter/flutter_export_environment.sh
 ios/Flutter/App.framework
 ios/Flutter/App.podspec
 
+# macOS build artifacts
+macos/Flutter/ephemeral/
+macos/Runner/Logs/
+
+# Windows build artifacts
+windows/flutter/ephemeral/
+windows/CMakeCache.txt
+windows/CMakeFiles/
+windows/CMakeSettings.json
+windows/cmake_install.cmake
+windows/x64/
+
+# Linux build artifacts
+linux/flutter/ephemeral/
+
+# Web build artifacts
+web/stack_trace_mapper.js
+web/main.dart.js
+web/main.dart.js.map
+web/main.dart.js.tar.gz
+
 # Example project artifacts
 example/build/
 example/.dart_tool/
 example/.packages
 example/assets/**/*.glb
+example/windows/flutter/ephemeral/
+example/linux/flutter/ephemeral/
+example/macos/Flutter/ephemeral/
+example/web/stack_trace_mapper.js
+example/web/main.dart.js
 
 # User-requested specific ignores
 stripped_native_libs/

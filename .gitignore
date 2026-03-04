@@ -43,3 +43,21 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Platform specific ephemeral files
+**/windows/flutter/ephemeral/
+**/linux/flutter/ephemeral/
+**/macos/Flutter/ephemeral/
+
+# Windows build artifacts
+**/windows/CMakeCache.txt
+**/windows/CMakeFiles/
+**/windows/CMakeSettings.json
+**/windows/cmake_install.cmake
+**/windows/x64/
+
+# Web build artifacts
+**/web/stack_trace_mapper.js
+**/web/main.dart.js
+**/web/main.dart.js.map
+**/web/main.dart.js.tar.gz
