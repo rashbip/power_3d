@@ -11,6 +11,7 @@ import 'package:example/options/selection/selection_metadata_example.dart';
 import 'package:example/options/selection/selection_visual_styles_example.dart';
 import 'package:example/options/selection/selection_texture_example.dart';
 import 'package:example/options/animation/animations_list_example.dart';
+import 'package:example/options/annotations_example.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -170,6 +171,25 @@ class HomePage extends StatelessWidget {
             subtitle: 'Manage playback, speed, and sequences',
             icon: Icons.movie_outlined,
             target: const AnimationsListExample(),
+          ),
+          const Divider(height: 32),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              'Interactive Content',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.orange,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildExampleCard(
+            context,
+            title: 'Annotations & Tooltips',
+            subtitle: 'Rich HTML tooltips projected on 3D',
+            icon: Icons.add_comment_outlined,
+            target: const AnnotationsExample(),
           ),
         
         ],
