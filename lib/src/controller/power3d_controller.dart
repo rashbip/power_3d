@@ -58,6 +58,9 @@ class Power3DController extends ValueNotifier<Power3DState> {
 
     // Apply initial annotations
     if (value.annotations != null) {
+      debugPrint(
+        'Power3D: initialize - applying ${value.annotations!.length} chars of annotation data',
+      );
       setAnnotations(value.annotations!);
     }
     if (value.annotationStyle != null) {

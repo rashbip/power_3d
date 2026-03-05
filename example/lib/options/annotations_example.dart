@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:power3d/power3d.dart';
-import 'package:power3d_annotations/power3d_annotations.dart';
 
 class AnnotationsExample extends StatefulWidget {
   const AnnotationsExample({super.key});
@@ -12,23 +11,25 @@ class AnnotationsExample extends StatefulWidget {
 
 class _AnnotationsExampleState extends State<AnnotationsExample> {
   late Power3DController _controller;
+  bool _isVisible = true;
 
+  // Exact JSON structure provided by the user
   final List<Map<String, dynamic>> _sampleAnnotations = [
     {
       "surface": {
-        "meshName": "Cervical vertebrae (C5)",
-        "triangleIndex": 1834,
+        "meshName": "Object_4",
+        "triangleIndex": 3521,
         "barycentric": [
-          0.7429233280878619,
-          0.12119115004014532,
-          0.1358855218719927,
-        ],
+          0.1252498687723287,
+          0.46019301196035234,
+          0.41455711926731886,
+        ]
       },
       "placement": {
         "normal": [
-          0.5508035109519491,
-          0.35219299529181236,
-          -0.7566872447652251,
+          -0.22445354922545183,
+          0.35689999506205955,
+          -0.9067761563720121,
         ],
         "offset": 0.01,
         "billboard": true,
@@ -39,27 +40,76 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
         "hideWhenOccluded": true,
       },
       "ui": {
-        "title": "Vertebrata 1",
+        "title": "Left Ventricle",
         "description":
-            "The L1 vertebra is the first vertebra in the lumbar spine, located beneath the T12 vertebra. It is the smallest and most superior of the lumbar vertebrae, bearing the weight of the upper body and acting as a transition between the thoracic and lumbar vertebrae. The L1 vertebra has a large, roughly cylindrical body, which makes up most of its mass, and supports the entire weight of the tissues of the upper body.",
-        "more": "https://en.wikipedia.org/wiki/Thoracic_spinal_nerve_1",
+            "The left ventricle is the heart’s main pumping chamber, responsible for delivering oxygenated blood to the entire body through high-pressure systemic circulation.\n\nAnatomy and Structure:\nThe left ventricle is located in the lower left portion of the heart, beneath the left atrium, and forms the apex of the heart. It is conical in shape, longer than the right ventricle, and has thick muscular walls (8–12 mm), which are necessary to generate the high pressure required to pump blood throughout the body. The left ventricle is separated from the right ventricle by the interventricular septum, which bulges slightly into the right ventricle.",
+        "more":
+            "https://biologyinsights.com/what-is-the-left-ventricle-and-what-does-it-do/",
       },
       "camera": {
-        "orbit": [-1.5707963267948966, 1.0471975511965976, 0.371608743104348],
+        "orbit": [4.458062239127961, 1.8252585212556045, 2.8151857366272726],
         "target": [
-          0.11866259574890137,
-          1.3473149538040161,
-          0.0006333440542221069,
+          0.0004044175148010254,
+          -0.00259554386138916,
+          -0.00025841593742370605,
         ],
         "transitionDuration": 0.5,
       },
       "meta": {
         "version": 1,
-        "createdAt": "2026-03-04T12:01:45.349Z",
-        "updatedAt": "2026-03-04T12:01:45.349Z",
+        "createdAt": "2026-03-05T17:10:43.538Z",
+        "updatedAt": "2026-03-05T17:10:43.538Z",
       },
-      "id": 1772625705349,
+      "id": 1772730643538,
+      "isSelected": true,
     },
+    {
+      "surface": {
+        "meshName": "Object_4",
+        "triangleIndex": 3056,
+        "barycentric": [
+          0.14201931743314922,
+          0.820490215036602,
+          0.03749046753024869,
+        ],
+      },
+      "placement": {
+        "normal": [
+          -0.1324288200233617,
+          -0.2485560593826406,
+          -0.9595220127602041,
+        ],
+        "offset": 0.01,
+        "billboard": true,
+      },
+      "visibility": {
+        "minDistance": 0.2,
+        "maxDistance": 20,
+        "hideWhenOccluded": true,
+      },
+      "ui": {
+        "title": "Aortic Region",
+        "description":
+            "Visualizing the region near the aortic root. This sample hotspot demonstrates multi-point annotation on the same mesh.",
+        "more": "Just more info or link",
+      },
+      "camera": {
+        "orbit": [4.458062239127961, 1.8252585212556045, 2.8151857366272726],
+        "target": [
+          0.0004044175148010254,
+          -0.00259554386138916,
+          -0.00025841593742370605,
+        ],
+        "transitionDuration": 0.5
+      },
+      "meta": {
+        "version": 1,
+        "createdAt": "2026-03-05T17:11:18.891Z",
+        "updatedAt": "2026-03-05T17:11:18.891Z",
+      },
+      "id": 1772730678891,
+      "isSelected": false,
+    }
   ];
 
   @override
@@ -72,17 +122,17 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Annotations Example"),
+        title: const Text("Heart Anatomy"),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
       body: Stack(
         children: [
           Power3D.fromAsset(
-            "assets/shoulder.glb",
+            "assets/heart.glb",
             controller: _controller,
             annotations: jsonEncode(_sampleAnnotations),
-            annotationStyle: Power3DAnnotationStyles.tooltip,
+            // annotationStyle: "tooltip", // Now optional, defaults to tooltip
           ),
           Positioned(
             bottom: 20,
@@ -91,17 +141,34 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.center_focus_strong),
                   onPressed: () {
-                    _controller.setAnnotations(jsonEncode(_sampleAnnotations));
+                    // Focus on a specific point (e.g. Aortic Region)
+                    _controller.focusCamera(
+                      orbit: [4.458, 1.825, 2.815],
+                      target: [0.0004, -0.0025, -0.0002],
+                      duration: 1.0,
+                    );
                   },
-                  child: const Text("Reset Annotations"),
+                  label: const Text("Focus Point"),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    _controller.setAnnotations(jsonEncode([]));
+                StatefulBuilder(
+                  builder: (context, setState) {
+                    return ElevatedButton.icon(
+                      icon: Icon(
+                        _isVisible ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        _isVisible = !_isVisible;
+                        setState(() {});
+                        _controller.toggleAnnotations(_isVisible);
+                      },
+                      label: Text(
+                        _isVisible ? "Hide Annotations" : "Show Annotations",
+                      ),
+                    );
                   },
-                  child: const Text("Clear All"),
                 ),
               ],
             ),

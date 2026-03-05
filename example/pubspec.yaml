@@ -13,8 +13,6 @@ dependencies:
   path_provider: ^2.1.0
   power3d:
     path: ../
-  power3d_annotations:
-    path: ../../power3d_annotations
 
 dev_dependencies:
   flutter_test:
@@ -28,6 +26,7 @@ flutter:
     - assets/
     - assets/images/
     - assets/shoulder.glb
+    - assets/heart.glb
     - assets/robot.glb
     - assets/phoenix_bird.glb
 

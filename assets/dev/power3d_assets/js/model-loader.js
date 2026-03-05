@@ -34,6 +34,7 @@ async function loadModel(data, fileName, type) {
         }
         
         if (result.meshes.length > 0) {
+            console.log("[JS] Meshes loaded:", result.meshes.map(m => m.name));
             window.scene.createDefaultCameraOrLight(true, true, true);
             if (window.scene.activeCamera) {
                 window.scene.activeCamera.attachControl(window.canvas, true);
@@ -47,6 +48,11 @@ async function loadModel(data, fileName, type) {
         // Initialize selection and send parts list
         initializeSelection();
         sendPartsListToFlutter();
+
+        // Refresh annotations for the new model
+        if (typeof onModelLoadedForAnnotations === 'function') {
+            onModelLoadedForAnnotations();
+        }
     } catch (e) {
         console.error("Load Error:", e);
         sendMessageToFlutter({ type: 'error', message: e.message || "Failed to load 3D model" });
