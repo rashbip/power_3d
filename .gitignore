@@ -61,3 +61,7 @@ app.*.map.json
 **/web/main.dart.js
 **/web/main.dart.js.map
 **/web/main.dart.js.tar.gz
+
+#dev time
+assets/dev/*.zip
+assets/dev/*.rar
