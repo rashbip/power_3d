@@ -399,8 +399,8 @@ class Power3DState {
   /// JSON string representing the annotations.
   final String? annotations;
 
-  /// Combined HTML/CSS/JS string for annotation styling.
-  final String? annotationStyle;
+  /// Annotation style to use. Can be a predefined enum or a custom JS string.
+  final dynamic annotationStyle;
 
 
   /// Creates a new [Power3DState].

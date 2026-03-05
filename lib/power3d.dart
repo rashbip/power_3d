@@ -53,8 +53,8 @@ class Power3D extends StatefulWidget {
   /// JSON string representing the annotations.
   final String? annotations;
 
-  /// Combined HTML/CSS/JS string for annotation styling.
-  final String? annotationStyle;
+  /// Annotation style to use. Can be a [Power3DAnnotationStyle] enum or a custom JS string.
+  final dynamic annotationStyle;
 
 
   /// Creates a new [Power3D] viewer.
@@ -92,7 +92,7 @@ class Power3D extends StatefulWidget {
     double? exposure,
     double? contrast,
     String? annotations,
-    String? annotationStyle,
+    dynamic annotationStyle,
     VoidCallback? onModelLoaded,
   }) {
     return Power3D(
@@ -134,7 +134,7 @@ class Power3D extends StatefulWidget {
     double? exposure,
     double? contrast,
     String? annotations,
-    String? annotationStyle,
+    dynamic annotationStyle,
     VoidCallback? onModelLoaded,
   }) {
     return Power3D(
@@ -176,7 +176,7 @@ class Power3D extends StatefulWidget {
     double? exposure,
     double? contrast,
     String? annotations,
-    String? annotationStyle,
+    dynamic annotationStyle,
     VoidCallback? onModelLoaded,
   }) {
     final String path = file is String ? file : file.path;

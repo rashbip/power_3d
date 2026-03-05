@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:power3d/power3d.dart';
+import 'package:power3d_annotations/power3d_annotations.dart';
 
 class AnnotationsExample extends StatefulWidget {
   const AnnotationsExample({super.key});
@@ -12,53 +13,35 @@ class AnnotationsExample extends StatefulWidget {
 class _AnnotationsExampleState extends State<AnnotationsExample> {
   late Power3DController _controller;
   bool _isVisible = true;
+  Power3DAnnotationStyle _currentStyle = Power3DAnnotationStyle.tooltip;
 
-  // Exact JSON structure provided by the user
+  // Updated with HTML descriptions
   final List<Map<String, dynamic>> _sampleAnnotations = [
     {
       "surface": {
         "meshName": "Object_4",
         "triangleIndex": 3521,
-        "barycentric": [
-          0.1252498687723287,
-          0.46019301196035234,
-          0.41455711926731886,
-        ]
+        "barycentric": [0.1252, 0.4601, 0.4145]
       },
       "placement": {
-        "normal": [
-          -0.22445354922545183,
-          0.35689999506205955,
-          -0.9067761563720121,
-        ],
+        "normal": [-0.2244, 0.3568, -0.9067],
         "offset": 0.01,
         "billboard": true,
       },
       "visibility": {
-        "minDistance": 0.2,
-        "maxDistance": 20,
         "hideWhenOccluded": true,
       },
       "ui": {
         "title": "Left Ventricle",
         "description":
-            "The left ventricle is the heart’s main pumping chamber, responsible for delivering oxygenated blood to the entire body through high-pressure systemic circulation.\n\nAnatomy and Structure:\nThe left ventricle is located in the lower left portion of the heart, beneath the left atrium, and forms the apex of the heart. It is conical in shape, longer than the right ventricle, and has thick muscular walls (8–12 mm), which are necessary to generate the high pressure required to pump blood throughout the body. The left ventricle is separated from the right ventricle by the interventricular septum, which bulges slightly into the right ventricle.",
+            "<p>The <b>left ventricle</b> is the heart’s main pumping chamber.</p><ul><li>Thick muscular walls (8–12 mm)</li><li>High-pressure systemic circulation</li></ul>",
         "more":
             "https://biologyinsights.com/what-is-the-left-ventricle-and-what-does-it-do/",
       },
       "camera": {
-        "orbit": [4.458062239127961, 1.8252585212556045, 2.8151857366272726],
-        "target": [
-          0.0004044175148010254,
-          -0.00259554386138916,
-          -0.00025841593742370605,
-        ],
+        "orbit": [4.458, 1.825, 2.815],
+        "target": [0.0004, -0.0025, -0.0002],
         "transitionDuration": 0.5,
-      },
-      "meta": {
-        "version": 1,
-        "createdAt": "2026-03-05T17:10:43.538Z",
-        "updatedAt": "2026-03-05T17:10:43.538Z",
       },
       "id": 1772730643538,
       "isSelected": true,
@@ -67,45 +50,25 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
       "surface": {
         "meshName": "Object_4",
         "triangleIndex": 3056,
-        "barycentric": [
-          0.14201931743314922,
-          0.820490215036602,
-          0.03749046753024869,
-        ],
+        "barycentric": [0.1420, 0.8204, 0.0374],
       },
       "placement": {
-        "normal": [
-          -0.1324288200233617,
-          -0.2485560593826406,
-          -0.9595220127602041,
-        ],
+        "normal": [-0.1324, -0.2485, -0.9595],
         "offset": 0.01,
-        "billboard": true,
       },
       "visibility": {
-        "minDistance": 0.2,
-        "maxDistance": 20,
         "hideWhenOccluded": true,
       },
       "ui": {
         "title": "Aortic Region",
         "description":
-            "Visualizing the region near the aortic root. This sample hotspot demonstrates multi-point annotation on the same mesh.",
-        "more": "Just more info or link",
+            "Visualizing the region near the <span style='color:#38bdf8'>aortic root</span>. <br/><i>Demonstrates multi-point support.</i>",
+        "more": "About aortic region",
       },
       "camera": {
-        "orbit": [4.458062239127961, 1.8252585212556045, 2.8151857366272726],
-        "target": [
-          0.0004044175148010254,
-          -0.00259554386138916,
-          -0.00025841593742370605,
-        ],
+        "orbit": [4.458, 1.825, 2.815],
+        "target": [0.0004, -0.0025, -0.0002],
         "transitionDuration": 0.5
-      },
-      "meta": {
-        "version": 1,
-        "createdAt": "2026-03-05T17:11:18.891Z",
-        "updatedAt": "2026-03-05T17:11:18.891Z",
       },
       "id": 1772730678891,
       "isSelected": false,
@@ -125,6 +88,28 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
         title: const Text("Heart Anatomy"),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
+        actions: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: DropdownButton<Power3DAnnotationStyle>(
+              value: _currentStyle,
+              dropdownColor: Colors.black87,
+              style: const TextStyle(color: Colors.white),
+              onChanged: (val) {
+                if (val != null) {
+                  setState(() => _currentStyle = val);
+                  _controller.setAnnotationStyle(val);
+                }
+              },
+              items: Power3DAnnotationStyle.values.map((s) {
+                return DropdownMenuItem(
+                  value: s,
+                  child: Text(s.name.toUpperCase()),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -132,7 +117,7 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
             "assets/heart.glb",
             controller: _controller,
             annotations: jsonEncode(_sampleAnnotations),
-            // annotationStyle: "tooltip", // Now optional, defaults to tooltip
+            annotationStyle: _currentStyle,
           ),
           Positioned(
             bottom: 20,

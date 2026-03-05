@@ -64,4 +64,3 @@ app.*.map.json
 
 #dev time
 assets/dev/*.zip
-assets/dev/*.rar
