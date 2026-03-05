@@ -67,5 +67,8 @@ tmp/
 # Annotation tool (not part of the Dart package)
 babylon_annotator/
 
-#Screenshots
-doc/screenshots
+# Exclude doc markdown files but KEEP doc/screenshots for pub.dev gallery
+doc/*.md
+
+# Dev assets (not part of published package)
+assets/dev/

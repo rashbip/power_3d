@@ -32,3 +32,23 @@ flutter:
 
   assets:
     - assets/power3d_assets.zip
+
+screenshots:
+  - description: "Main 3D model viewer with lighting and materials"
+    path: doc/screenshots/home1.png
+  - description: "Advanced lighting controls (hemispheric, directional, point)"
+    path: doc/screenshots/lighting.png
+  - description: "Material and shading override system"
+    path: doc/screenshots/materials_and_shaiding.png
+  - description: "3D bounding boxes for selection feedback"
+    path: doc/screenshots/bounding_box.png
+  - description: "Scene hierarchy and mesh tree"
+    path: doc/screenshots/get_hiererchy.png
+  - description: "Per-part visibility control"
+    path: doc/screenshots/visibality.png
+  - description: "Texture management and extraction"
+    path: doc/screenshots/texures.png
+  - description: "Metadata extraction from GLTF extras"
+    path: doc/screenshots/metadat.png
+  - description: "Part selection and highlighting"
+    path: doc/screenshots/select_part.png

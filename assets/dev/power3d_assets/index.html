@@ -48,9 +48,12 @@
         <script src="js/scene.js"></script>
         <!-- Main initialization -->
         <script>
+            console.log("Power3D: index.html scripts started");
             const canvas = document.getElementById("renderCanvas");
             initializeScene(canvas);
-                initAnnotations();
+            console.log("Power3D: initializeScene called");
+            initAnnotations();
+            console.log("Power3D: initAnnotations called");
         </script>
     </body>
 </html>

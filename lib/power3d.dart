@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -208,12 +209,17 @@ class Power3D extends StatefulWidget {
 class _Power3DState extends State<Power3D> {
   InAppWebViewController? _webViewController;
   late Power3DController _controller;
-  bool _webviewInitialized = false;
+  // _libReady: assets unzipped, _libPath: path to index.html
+  bool _libReady = false;
+  String? _libPath;
+  // _sceneInitialized: JS scene has been initialized once
+  bool _sceneInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _controller = widget.controller ?? Power3DController();
+    debugPrint('Power3D: initState - preparing assets');
 
     if (widget.lights != null) {
       _controller.setLights(widget.lights!);
@@ -239,19 +245,19 @@ class _Power3DState extends State<Power3D> {
 
   Future<void> _initLib() async {
     try {
+      debugPrint('Power3D: _initLib - loading zip asset...');
       final indexPath = await Power3DAssetManager.prepareAssets();
+      debugPrint('Power3D: _initLib - assets ready at: $indexPath');
       if (mounted) {
         setState(() {
-          _webviewInitialized = true;
           _libPath = indexPath;
+          _libReady = true;
         });
       }
     } catch (e) {
-      debugPrint('Power3D: Failed to prepare assets: $e');
+      debugPrint('Power3D: _initLib FAILED: $e');
     }
   }
-
-  String? _libPath;
 
   @override
   void didUpdateWidget(Power3D oldWidget) {
@@ -324,41 +330,78 @@ class _Power3DState extends State<Power3D> {
                   IgnorePointer(
                     child: widget.environmentBuilder!(context, state),
                   ),
-                InAppWebView(
-                  initialFile: _libPath,
-                  initialSettings: InAppWebViewSettings(
-                    transparentBackground: true,
-                    supportZoom: false,
-                    isInspectable: kDebugMode,
-                    allowFileAccessFromFileURLs: true,
-                    allowUniversalAccessFromFileURLs: true,
-                  ),
-                  onWebViewCreated: (controller) {
-                    _webViewController = controller;
-                    _controller.setWebViewController(controller);
-
-                    controller.addJavaScriptHandler(
-                      handlerName: 'onMessage',
-                      callback: (args) {
-                        if (args.isNotEmpty && mounted) {
-                          final String message = args[0];
-                          _controller.handleWebViewMessage(message);
-                          widget.onMessage?.call(message);
-                        }
-                      },
-                    );
-                  },
-                  onLoadStop: (controller, url) async {
-                    if (!_webviewInitialized) {
-                      _webviewInitialized = true;
-                      _controller.initialize();
-                      if (widget.initialModel != null) {
-                        _controller.loadModel(widget.initialModel!);
+                if (_libReady && _libPath != null)
+                  FutureBuilder<bool>(
+                    future: File(_libPath!).exists(),
+                    builder: (context, snapshot) {
+                      final exists = snapshot.data ?? false;
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        debugPrint(
+                          'Power3D: WebView check - file exists: $exists path=$_libPath',
+                        );
                       }
-                    }
-                  },
-                  onConsoleMessage: (controller, consoleMessage) {
-                    debugPrint('JS Console: ${consoleMessage.message}');
+                      if (!exists &&
+                          snapshot.connectionState == ConnectionState.done) {
+                        return const Center(
+                          child: Text("Library file not found on disk"),
+                        );
+                      }
+                      return InAppWebView(
+                        initialUrlRequest: URLRequest(
+                          url: WebUri('file://$_libPath'),
+                        ),
+                        initialSettings: InAppWebViewSettings(
+                          transparentBackground: true,
+                          supportZoom: false,
+                          isInspectable: kDebugMode,
+                          allowFileAccess: true,
+                          allowFileAccessFromFileURLs: true,
+                          allowUniversalAccessFromFileURLs: true,
+                        ),
+                        onWebViewCreated: (controller) {
+                          _webViewController = controller;
+                          _controller.setWebViewController(controller);
+
+                          controller.addJavaScriptHandler(
+                            handlerName: 'onMessage',
+                            callback: (args) {
+                              if (args.isNotEmpty && mounted) {
+                                final String message = args[0];
+                                _controller.handleWebViewMessage(message);
+                                widget.onMessage?.call(message);
+                              }
+                            },
+                          );
+                        },
+                        onLoadStop: (controller, url) async {
+                          debugPrint(
+                            'Power3D: onLoadStop - url=$url, sceneInit=$_sceneInitialized',
+                          );
+                          if (!_sceneInitialized) {
+                            _sceneInitialized = true;
+                            _controller.initialize();
+                            debugPrint(
+                              'Power3D: onLoadStop - calling initialize()',
+                            );
+                            if (widget.initialModel != null) {
+                              debugPrint(
+                                'Power3D: onLoadStop - loading model: ${widget.initialModel!.path}',
+                              );
+                              _controller.loadModel(widget.initialModel!);
+                            }
+                          }
+                        },
+                        onLoadError: (controller, url, code, message) {
+                          debugPrint(
+                            'Power3D: onLoadError - url=$url code=$code msg=$message',
+                          );
+                        },
+                        onConsoleMessage: (controller, consoleMessage) {
+                          debugPrint(
+                            'JS [${consoleMessage.messageLevel.toString()}]: ${consoleMessage.message}',
+                          );
+                        },
+                      );
                   },
                 ),
                 // Show loading UI on top if loading

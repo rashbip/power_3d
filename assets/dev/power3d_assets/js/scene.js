@@ -11,8 +11,11 @@ function createScene(engine, canvas) {
 }
 
 function initializeScene(canvas) {
+    console.log("Power3D: initializeScene - starting engine...");
     const engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+    console.log("Power3D: initializeScene - engine created. Creating scene...");
     const scene = createScene(engine, canvas);
+    console.log("Power3D: initializeScene - scene created.");
     
     // Make globally accessible for other modules
     window.engine = engine;
@@ -32,6 +35,7 @@ function initializeScene(canvas) {
         engine.resize();
     });
     
+    console.log("Power3D: initializeScene - completed.");
     return { engine, scene };
 }
 

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -13,43 +14,62 @@ class Power3DAssetManager {
   static Future<String> prepareAssets() async {
     final appDir = await getApplicationSupportDirectory();
     final targetDir = Directory(p.join(appDir.path, _libDirName));
-
-    // Check if index.html exists, if so, assume unzipped (or check version in future)
     final indexFile = File(p.join(targetDir.path, 'index.html'));
-    
-    // For now, if directory exists, we skip unzipping. 
-    // In production, we should probably check a version file.
+
+    debugPrint('Power3DAssetManager: appDir=${appDir.path}');
+    debugPrint('Power3DAssetManager: targetDir=${targetDir.path}');
+    debugPrint(
+      'Power3DAssetManager: targetDir exists=${await targetDir.exists()}',
+    );
+    debugPrint(
+      'Power3DAssetManager: indexFile exists=${await indexFile.exists()}',
+    );
+
     if (!await targetDir.exists()) {
+      debugPrint('Power3DAssetManager: Creating dir and unzipping...');
       await targetDir.create(recursive: true);
       await _unzipAssets(targetDir.path);
     } else if (!await indexFile.exists()) {
-      // Emergency re-unzip if directory exists but index is missing
+      debugPrint(
+        'Power3DAssetManager: Dir exists but index.html missing - re-unzipping...',
+      );
       await _unzipAssets(targetDir.path);
+    } else {
+      debugPrint(
+        'Power3DAssetManager: Assets already present, skipping unzip.',
+      );
     }
 
+    debugPrint('Power3DAssetManager: returning indexFile=${indexFile.path}');
     return indexFile.path;
   }
 
   static Future<void> _unzipAssets(String targetPath) async {
     try {
+      debugPrint('Power3DAssetManager: Loading zip from assets: $_zipPath');
       final ByteData data = await rootBundle.load(_zipPath);
       final List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      debugPrint(
+        'Power3DAssetManager: Zip loaded, ${bytes.length} bytes. Decoding...',
+      );
 
       final archive = ZipDecoder().decodeBytes(bytes);
+      debugPrint('Power3DAssetManager: Archive has ${archive.length} files');
 
       for (final file in archive) {
         final filename = file.name;
         if (file.isFile) {
-          final data = file.content as List<int>;
+          final fileData = file.content as List<int>;
           final outFile = File(p.join(targetPath, filename));
           await outFile.create(recursive: true);
-          await outFile.writeAsBytes(data);
+          await outFile.writeAsBytes(fileData);
         } else {
           await Directory(p.join(targetPath, filename)).create(recursive: true);
         }
       }
+      debugPrint('Power3DAssetManager: Unzip complete!');
     } catch (e) {
-      print('Error unzipping Power3D assets: $e');
+      debugPrint('Power3DAssetManager: ERROR unzipping: $e');
       rethrow;
     }
   }
