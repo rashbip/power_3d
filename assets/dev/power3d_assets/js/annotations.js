@@ -21,36 +21,61 @@ async function setAnnotationStyle(style) {
     if (!style) return;
     const s = style.toLowerCase().trim();
     
+    console.log("[JS Bridge] setAnnotationStyle called with:", style);
+
     // Built-in names
     if (s === 'tooltip' || s === 'toolpit') {
-        if (window.Power3DTooltipStyle) Power3DAnnotationEngine.useStyle(Power3DTooltipStyle);
+        if (window.Power3DTooltipStyle) {
+            Power3DAnnotationEngine.useStyle(Power3DTooltipStyle);
+        } else {
+            console.warn("[JS Bridge] TooltipStyle object not found, maybe script not loaded yet.");
+        }
         return;
     }
 
-    // Dynamic file loading (from power3d_annotations)
+    // Dynamic file loading
     if (s.endsWith('.js')) {
         try {
-            console.log("[JS Bridge] Loading dynamic style from:", style);
+            console.log("[JS Bridge] Attempting to load dynamic script:", style);
             await new Promise((resolve, reject) => {
                 const script = document.createElement('script');
-                script.src = style;
-                script.onload = resolve;
-                script.onerror = reject;
+                script.src = style + "?t=" + new Date().getTime(); // Cache busting
+                script.onload = () => {
+                    console.log("[JS Bridge] Script loaded successfully:", style);
+                    resolve();
+                };
+                script.onerror = (e) => {
+                    console.error("[JS Bridge] Script load failed:", style, e);
+                    reject(e);
+                };
                 document.head.appendChild(script);
             });
 
-            // Map filename to expected global object
-            const base = style.split('/').pop().replace('.js', '');
-            const objName = 'Power3D' + base.charAt(0).toUpperCase() + base.slice(1) + 'Style';
-            console.log("[JS Bridge] Looking for style object:", objName);
+            // Resolve the correct style object from the global window
+            // Pattern: base filename -> Power3D[Name]Style
+            const base = style.split('/').pop().replace('.js', '').toLowerCase();
             
-            if (window[objName]) {
-                Power3DAnnotationEngine.useStyle(window[objName]);
+            // Look for matching object in window (case-insensitive approach)
+            let foundStyle = null;
+            const keys = Object.keys(window);
+            for (const key of keys) {
+                if (key.startsWith('Power3D') && key.endsWith('Style')) {
+                    const styleName = key.replace('Power3D', '').replace('Style', '').toLowerCase();
+                    if (styleName === base) {
+                        foundStyle = window[key];
+                        console.log("[JS Bridge] Found matching style object:", key);
+                        break;
+                    }
+                }
+            }
+
+            if (foundStyle) {
+                Power3DAnnotationEngine.useStyle(foundStyle);
             } else {
-                console.error("[JS Bridge] Style object not found:", objName);
+                console.error("[JS Bridge] Could not find style object for:", base);
             }
         } catch (e) {
-            console.error("[JS Bridge] Failed to load style:", style, e);
+            console.error("[JS Bridge] Error during dynamic style loading:", e);
         }
     }
 }

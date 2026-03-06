@@ -22,8 +22,6 @@ dependencies:
   path_provider: ^2.1.5
   meta: ^1.11.0
   archive: ^3.6.1
-  power3d_annotations:
-    path: ../power3d_annotations
 
 dev_dependencies:
   flutter_test:

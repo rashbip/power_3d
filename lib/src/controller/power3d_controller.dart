@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:path/path.dart' as p;
-import 'package:power3d_annotations/power3d_annotations.dart';
 import 'dart:async';
 import '../models/power3d_model.dart';
 

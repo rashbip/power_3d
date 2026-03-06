@@ -34,9 +34,16 @@ class Power3DAssetManager {
         'Power3DAssetManager: Dir exists but index.html missing - re-unzipping...',
       );
       await _unzipAssets(targetDir.path);
-    } else {
+    }
+
+    // Ensure style directory exists for optional plugins
+    final styleDir = Directory(
+      p.join(targetDir.path, 'js', 'annotation', 'styles'),
+    );
+    if (!await styleDir.exists()) {
+      await styleDir.create(recursive: true);
       debugPrint(
-        'Power3DAssetManager: Assets already present, skipping unzip.',
+        'Power3DAssetManager: Created styles directory for external plugins.',
       );
     }
 

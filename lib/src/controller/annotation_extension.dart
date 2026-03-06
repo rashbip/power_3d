@@ -15,28 +15,17 @@ extension AnnotationExtension on Power3DController {
     }
   }
 
-  /// Sets the annotation style. Can be a [Power3DAnnotationStyle] enum
-  /// or a custom HTML/CSS/JS string.
-  Future<void> setAnnotationStyle(dynamic style) async {
+  /// Sets the annotation style. Expects an HTML/CSS/JS string or a path to a JS file.
+  void setAnnotationStyle(String style) {
     if (value.annotationStyle == style) return;
     value = value.copyWith(annotationStyle: style);
 
     if (value.isInitialized) {
-      if (style is Power3DAnnotationStyle) {
-        // Provision the style file and get its path
-        final path = await Power3DAnnotationProvider.useStyle(style);
-        await _webViewController?.evaluateJavascript(
-          source: 'setAnnotationStyle("$path")',
-        );
-      } else {
-        // Fallback for custom raw strings
-        unawaited(
-          _webViewController?.evaluateJavascript(
-            source:
-                'setAnnotationStyle(`${style.toString().replaceAll('`', '\\`')}`)',
-          ),
-        );
-      }
+      unawaited(
+        _webViewController?.evaluateJavascript(
+          source: 'setAnnotationStyle(`${style.replaceAll('`', '\\`')}`)',
+        ),
+      );
     }
   }
 

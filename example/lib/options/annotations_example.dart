@@ -14,6 +14,7 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
   late Power3DController _controller;
   bool _isVisible = true;
   Power3DAnnotationStyle _currentStyle = Power3DAnnotationStyle.tooltip;
+  String _stylePath = 'tooltip';
 
   // Updated with HTML descriptions
   final List<Map<String, dynamic>> _sampleAnnotations = [
@@ -98,7 +99,7 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
               onChanged: (val) {
                 if (val != null) {
                   setState(() => _currentStyle = val);
-                  _controller.setAnnotationStyle(val);
+                  _controller.setAnnotationStyleEnum(val);
                 }
               },
               items: Power3DAnnotationStyle.values.map((s) {
@@ -117,7 +118,7 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
             "assets/heart.glb",
             controller: _controller,
             annotations: jsonEncode(_sampleAnnotations),
-            annotationStyle: _currentStyle,
+            annotationStyle: _stylePath,
           ),
           Positioned(
             bottom: 20,
