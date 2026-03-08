@@ -6,7 +6,10 @@
 function initAnnotations() {
     Power3DAnnotationEngine.init();
     // Default style: tooltip
-    setAnnotationStyle('tooltip');
+    // We use a small timeout to ensure tooltip.js is fully parsed if needed
+    setTimeout(() => {
+        setAnnotationStyle('tooltip');
+    }, 100);
 }
 
 function setAnnotations(json) {

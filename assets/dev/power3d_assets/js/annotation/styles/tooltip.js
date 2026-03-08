@@ -13,7 +13,6 @@ window.Power3DTooltipStyle = (() => {
             .p3d-tooltip-el {
                 position: absolute;
                 pointer-events: auto;
-                transform: translate(-50%, -100%);
                 margin-top: -12px;
                 z-index: 2100;
                 font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -23,11 +22,11 @@ window.Power3DTooltipStyle = (() => {
                 background: rgba(15, 23, 42, 0.95);
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 12px;
-                padding: 12px;
-                width: 220px;
+                padding: 16px;
+                width: 260px;
                 -webkit-backdrop-filter: blur(12px);
                 backdrop-filter: blur(12px);
-                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+                box-shadow: 0 12px 32px -5px rgba(0, 0, 0, 0.6), 0 8px 12px -6px rgba(0, 0, 0, 0.5);
                 transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 opacity: 0.9;
             }
@@ -38,7 +37,7 @@ window.Power3DTooltipStyle = (() => {
             .p3d-tooltip-title { 
                 color: #f8fafc; 
                 font-weight: 700; 
-                font-size: 14px; 
+                font-size: 16px; 
                 margin: 0;
                 letter-spacing: -0.01em;
             }
@@ -47,25 +46,25 @@ window.Power3DTooltipStyle = (() => {
                 overflow: hidden; 
                 opacity: 0; 
                 transition: all 0.4s ease;
-                color: #94a3b8;
-                font-size: 12px;
-                line-height: 1.5;
+                color: #cbd5e1;
+                font-size: 14px;
+                line-height: 1.6;
             }
             .p3d-tooltip-el.active .p3d-tooltip-content {
-                max-height: 200px;
+                max-height: 300px;
                 opacity: 1;
-                margin-top: 10px;
-                border-top: 1px solid rgba(255, 255, 255, 0.05);
-                padding-top: 10px;
+                margin-top: 12px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                padding-top: 12px;
             }
             .p3d-tooltip-dot {
-                width: 12px;
-                height: 12px;
+                width: 14px;
+                height: 14px;
                 background: #38bdf8;
                 border: 2px solid #fff;
                 border-radius: 50%;
-                margin: 4px auto 0;
-                box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+                margin: 6px auto 0;
+                box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
                 transition: all 0.3s ease;
             }
             .p3d-tooltip-el.active .p3d-tooltip-dot {
@@ -104,11 +103,9 @@ window.Power3DTooltipStyle = (() => {
 
         el.onclick = (e) => {
             e.stopPropagation();
-            // Close others
-            document.querySelectorAll('.p3d-tooltip-el').forEach(o => {
+            document.querySelectorAll('.p3d-tooltip-el, .p3d-callout-el, .p3d-hotspot-el').forEach(o => {
                 if(o !== el) o.classList.remove('active');
             });
-            
             const isActive = el.classList.toggle('active');
             if (isActive && ann.camera && window.Power3DAnnotationEngine) {
                 window.Power3DAnnotationEngine.flyTo(ann.camera);

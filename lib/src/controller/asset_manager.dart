@@ -25,13 +25,17 @@ class Power3DAssetManager {
       'Power3DAssetManager: indexFile exists=${await indexFile.exists()}',
     );
 
+    final tooltipFile = File(
+      p.join(targetDir.path, 'js', 'annotation', 'styles', 'tooltip.js'),
+    );
+
     if (!await targetDir.exists()) {
       debugPrint('Power3DAssetManager: Creating dir and unzipping...');
       await targetDir.create(recursive: true);
       await _unzipAssets(targetDir.path);
-    } else if (!await indexFile.exists()) {
+    } else if (!await indexFile.exists() || !await tooltipFile.exists()) {
       debugPrint(
-        'Power3DAssetManager: Dir exists but index.html missing - re-unzipping...',
+        'Power3DAssetManager: Assets incomplete (index or tooltip missing) - re-unzipping...',
       );
       await _unzipAssets(targetDir.path);
     }

@@ -58,11 +58,10 @@ window.Power3DAnnotationEngine = (() => {
                 return;
             }
 
-            // 1. Create a tracking sphere like babylon_annotator
-            const sphere = BABYLON.MeshBuilder.CreateSphere("hotspot_" + ann.id, { diameter: 0.02 }, window.scene);
+            // 1. Create a tracking point (invisible)
+            const sphere = new BABYLON.TransformNode("hotspot_" + ann.id, window.scene);
             sphere.position = worldPos;
-            sphere.isVisible = false;
-            sphere.isPickable = false;
+            // No direct mesh needed, we just need the transform node
 
             // 2. Create a GUI Label for stable coordinate extraction
             // We use this dummy label to leverage linkWithMesh logic which is perfectly stable in Babylon
@@ -91,24 +90,69 @@ window.Power3DAnnotationEngine = (() => {
      * This is the "secret sauce" of babylon_annotator stability.
      */
     function _updateHTMLOverlays() {
-        if (!_visible) return;
+        if (!_visible || !window.scene.activeCamera) return;
+
+        const cam = window.scene.activeCamera;
+        const engine = window.scene.getEngine();
+        const viewport = cam.viewport;
 
         _markers.forEach((m, id) => {
-            if (!m.element || !m.label) return;
+            if (!m.element || !m.sphere) return;
 
-            // label.centerX/centerY give us the screen coordinates automatically linked to mesh
-            const screenX = m.label.centerX;
-            const screenY = m.label.centerY;
+            // Project 3D point to screen
+            const worldPos = m.sphere.getAbsolutePosition();
+            const transformMatrix = window.scene.getTransformMatrix();
+            const screenPos = BABYLON.Vector3.Project(
+                worldPos,
+                BABYLON.Matrix.Identity(),
+                transformMatrix,
+                viewport.toGlobal(engine.getRenderWidth(), engine.getRenderHeight())
+            );
 
-            // Simple frustum check (GUI label internally handles hidden state if out of view)
-            const isVisible = m.label.isVisible;
+            // Distance check for scaling
+            const distance = BABYLON.Vector3.Distance(cam.position, worldPos);
+            
+            // Frustum check
+            const isInFrustum = cam.isInFrustum(new BABYLON.BoundingInfo(
+                worldPos.subtract(new BABYLON.Vector3(0.01,0.01,0.01)), 
+                worldPos.add(new BABYLON.Vector3(0.01,0.01,0.01))
+            ));
+            
+            // Occlusion check: cast ray from cam to point
+            let isOccluded = false;
+            if (isInFrustum) {
+                const ray = BABYLON.Ray.CreateNewFromTo(cam.position.clone(), worldPos);
+                // We pick meshes, ignoring internal helper objects
+                const pick = window.scene.pickWithRay(ray, (mesh) => 
+                    mesh.isVisible && mesh.isEnabled() && mesh.isPickable && !mesh.name.startsWith('hotspot_')
+                );
+                // If we hit something closer than the target point, it's occluded
+                if (pick && pick.hit && pick.distance < distance - 0.02) {
+                    isOccluded = true;
+                }
+            }
 
-            if (isVisible) {
+            // Dynamic Scaling factor: More aggressive as requested
+            // 3.5 at radius=3 -> ~1.1x. At radius=1 -> 3.5x.
+            const scaleFactor = Math.min(Math.max(3.5 / distance, 0.6), 3.0);
+
+            if (screenPos.z >= 0 && screenPos.z <= 1 && isInFrustum && !isOccluded) {
                 m.element.style.display = 'block';
-                m.element.style.left = screenX + 'px';
-                m.element.style.top = screenY + 'px';
+                m.element.style.left = screenPos.x + 'px';
+                m.element.style.top = screenPos.y + 'px';
+                m.element.style.opacity = '1';
+                m.element.style.pointerEvents = 'auto'; // Ensure clickable
+                
+                const isHotspot = m.element.classList.contains('p3d-hotspot-el');
+                const translate = isHotspot ? 'translate(-50%, -50%)' : 'translate(-50%, -100%)';
+                
+                m.element.style.transform = `${translate} scale(${scaleFactor})`;
+                m.element.style.zIndex = Math.floor((1 - screenPos.z) * 10000);
             } else {
+                // If occluded or off-screen, hide completely as requested
+                // We use display: none to ensure it's not pickable and zero footprint
                 m.element.style.display = 'none';
+                m.element.style.pointerEvents = 'none';
             }
         });
     }
@@ -161,12 +205,22 @@ window.Power3DAnnotationEngine = (() => {
     function flyTo(cfg) {
         if (!window.scene || !window.scene.activeCamera) return;
         const cam = window.scene.activeCamera;
-        const dur = (cfg.transitionDuration || 0.5) * 60;
-        BABYLON.Animation.CreateAndStartAnimation('cA', cam, 'alpha', 60, dur, cam.alpha, cfg.orbit[0], 0);
-        BABYLON.Animation.CreateAndStartAnimation('cB', cam, 'beta', 60, dur, cam.beta, cfg.orbit[1], 0);
-        BABYLON.Animation.CreateAndStartAnimation('cR', cam, 'radius', 60, dur, cam.radius, cfg.orbit[2], 0);
+        
+        // Ensure we are using ArcRotateCamera
+        if (cam.getTypeName() !== "ArcRotateCamera") return;
+
+        console.log("[AnnotationEngine] Flying to target:", cfg.target, "orbit:", cfg.orbit);
+
         const targetVec = new BABYLON.Vector3(...cfg.target);
-        cam.setTarget(targetVec);
+        const orbit = cfg.orbit; // [alpha, beta, radius]
+        const duration = (cfg.transitionDuration || 0.5);
+
+        // stop existing animations
+        window.scene.stopAllAnimations();
+
+        // Use built-in smooth framing behavior or manual interpolation
+        // Set new target and orbit angles smoothly
+        cam.setCameraTargetAnimated(targetVec, orbit[0], orbit[1], orbit[2], duration * 60);
     }
 
     return { init, setAnnotations, useStyle, setVisible, refresh, flyTo };
