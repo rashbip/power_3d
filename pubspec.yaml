@@ -45,8 +45,10 @@ screenshots:
     path: doc/screenshots/bounding_box.png
   - description: "Scene hierarchy and mesh tree"
     path: doc/screenshots/get_hiererchy.png
-  - description: "Per-part visibility control"
-    path: doc/screenshots/visibality.png
+  - description: "Interactive point-of-interest annotations"
+    path: doc/screenshots/super_annotation.png
+  - description: "Master skeletal animation system"
+    path: doc/screenshots/master_animation.png
   - description: "Texture management and extraction"
     path: doc/screenshots/texures.png
   - description: "Metadata extraction from GLTF extras"
