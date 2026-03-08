@@ -1,4 +1,4 @@
-# 2.2.0
+# 2.3.0
 * **New Annotation System**: Introduced a modular and extensible annotation system.
   * **Interactive Actions**: Replaced hardcoded links with a unified `onAnnotationMore` callback in Flutter.
   * **Dynamic Navigation**: New `focusCamera` method in controller to smoothly transition camera based on annotation data.
@@ -9,6 +9,12 @@
   * Fixed rapid rotation ("spinning") when flying to an annotation.
   * Corrected hotspot alignment and restored pointer interactions after rotation.
   * Resolved type-mismatch crashes when passing annotation styles as Enums.
+* **Stability & Compatibility**:
+  * Fixed `onLoadError` deprecation warning by migrating to `onReceivedError` in the WebView.
+* **Documentation & Polish**:
+  * **Full Inline Docs**: Major documentation pass adding detailed comments to all public widgets, controllers, and extensions.
+  * **Improved Showcase**: Expanded the README gallery with a 3x3 layout covering all 14 feature screenshots with improved sizing.
+  * **Developer Guidance**: Added quick links for Repository, pub.dev, and extensive API guides in the README.
 
 # 2.1.0
 * **Improvements**: Migrated core viewer from `webview_flutter` to `flutter_inappwebview` for better performance and cross-platform consistency.
