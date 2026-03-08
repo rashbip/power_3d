@@ -10,10 +10,14 @@ import 'src/controller/power3d_controller.dart';
 export 'src/models/power3d_model.dart';
 export 'src/controller/power3d_controller.dart';
 
-/// A powerful 3D model viewer widget using Babylon.js.
+/// A powerful, industry-level 3D model viewer widget built on top of Babylon.js.
 ///
-/// Supports loading models from assets, network, or local files.
-/// Provides advanced controls for camera, lighting, and object selection.
+/// [Power3D] provides a high-level API for rendering complex GLB/GLTF models
+/// with support for advanced features like hardware-accelerated screenshots,
+/// skeletal animations, PBR material overrides, and interactive annotations.
+///
+/// It is designed to be architecture-agnostic and works seamlessly with
+/// popular state management solutions like Bloc, Riverpod, or Provider.
 class Power3D extends StatefulWidget {
   /// Optional controller to programmatically interact with the 3D scene.
   final Power3DController? controller;
@@ -27,7 +31,9 @@ class Power3D extends StatefulWidget {
   /// Callback triggered when a 3D model is successfully loaded.
   final VoidCallback? onModelLoaded;
 
-  /// If true, the viewer will not initialize until manually triggered.
+  /// If set to `true`, the internal WebView engine will only start up 
+  /// when the controller's `initialize()` method is called. Useful for 
+  /// performance optimization in multi-tabbed or complex UIs.
   final bool lazy;
 
   /// Widget to display if an error occurs during model loading.
@@ -37,7 +43,9 @@ class Power3D extends StatefulWidget {
   final Widget Function(BuildContext context, Power3DController controller)?
   loadingUi;
 
-  /// Builder for providing a custom background or environment UI (e.g., gradients, images).
+  /// A builder function to overlay custom Flutter widgets on top of the 3D scene.
+  /// This is ideal for adding environment backgrounds, custom HUDs,
+  /// or floating camera controls that react to the viewer's state.
   final Widget Function(BuildContext context, Power3DState state)?
   environmentBuilder;
 
@@ -53,7 +61,11 @@ class Power3D extends StatefulWidget {
   /// JSON string representing the annotations.
   final String? annotations;
 
-  /// Annotation style to use. Can be a [Power3DAnnotationStyle] enum or a custom JS string.
+  /// The visual style applied to the annotations.
+  ///
+  /// Can be a direct HTML/CSS/JS string for custom styling, a local JS file path,
+  /// or an abstract type (like the `Power3DAnnotationStyle` Enum from
+  /// the `power3d_annotations` plugin).
   final dynamic annotationStyle;
 
 
@@ -83,7 +95,10 @@ class Power3D extends StatefulWidget {
   /// in the source configuration.
   final Function(String id, Map<String, dynamic> data)? onAnnotationMore;
 
-  /// Creates a [Power3D] viewer from a Flutter asset path.
+  /// Creates a [Power3D] viewer that loads a 3D model from the Flutter asset bundle.
+  ///
+  /// [path] should be the logical path to the asset (e.g., 'assets/models/car.glb').
+  /// Ensure the asset is correctly listed in your `pubspec.yaml`.
   factory Power3D.fromAsset(
     String path, {
     Key? key,
@@ -127,7 +142,10 @@ class Power3D extends StatefulWidget {
     );
   }
 
-  /// Creates a [Power3D] viewer from a network URL.
+  /// Creates a [Power3D] viewer that loads a 3D model from a remote URL.
+  ///
+  /// [url] must be a direct link to a GLB or GLTF file.
+  /// Note: Ensure the hosting server allows CORS requests for web platforms.
   factory Power3D.fromNetwork(
     String url, {
     Key? key,
@@ -408,9 +426,9 @@ class _Power3DState extends State<Power3D> {
                             }
                           }
                         },
-                        onLoadError: (controller, url, code, message) {
+                        onReceivedError: (controller, request, error) {
                           debugPrint(
-                            'Power3D: onLoadError - url=$url code=$code msg=$message',
+                            'Power3D: onReceivedError - url=${request.url} code=${error.type} msg=${error.description}',
                           );
                         },
                         onConsoleMessage: (controller, consoleMessage) {

@@ -46,9 +46,11 @@ class Power3DController extends ValueNotifier<Power3DState> {
     _webViewController = controller;
   }
 
-  /// Initializes the controller and applies initial state to the scene.
-  ///
-  /// This is called automatically by the [Power3D] widget.
+  /// Internal initialization logic that synchronizes the default [Power3DState] 
+  /// with the underlying Babylon.js engine once the WebView is ready.
+  /// 
+  /// This applies initial lighting, materials, shading modes, and 
+  /// selection configurations.
   void initialize() {
     if (value.isInitialized) return;
     value = value.copyWith(isInitialized: true);
@@ -86,9 +88,11 @@ class Power3DController extends ValueNotifier<Power3DState> {
     );
   }
 
-  /// Loads a 3D model from the specified [data] source.
-  ///
-  /// Supports assets, network URLs, and local files.
+  /// Loads a 3D model into the scene.
+  /// 
+  /// The [data] parameter specifies the source (Asset, Network, or File).
+  /// For large models, this method handles Base64 encoding for local files
+  /// and direct URL loading for network sources.
   Future<void> loadModel(Power3DData data) async {
     if (!value.isInitialized || _webViewController == null) return;
 
@@ -136,7 +140,8 @@ class Power3DController extends ValueNotifier<Power3DState> {
     }
   }
 
-  /// Internal message handler for communication from the JavaScript layer.
+  /// The primary communication bridge that receives raw JSON messages 
+  /// from the JavaScript engine and translates them into [Power3DState] updates.
   @internal
   void handleWebViewMessage(String message) {
     try {

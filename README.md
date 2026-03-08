@@ -1,16 +1,39 @@
 # Power3D
 
+[![pub package](https://img.shields.io/pub/v/power3d.svg)](https://pub.dev/packages/power3d)
+[![Language](https://img.shields.io/badge/language-dart-blue.svg)](https://dart.dev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A powerful, industry-level Flutter plugin for rendering 3D models using Babylon.js. Designed for ease of use, extensibility, and seamless integration into any architecture.
+
+[**pub.dev**](https://pub.dev/packages/power3d) | [**Repository**](https://github.com/rashbip/power_3d) | [**Documentation**](./doc) | [**Examples**](./example)
 
 ## 📸 Showcase
 
-| Main View | Scene Hierarchy | Texture Management |
+| **Core Viewer** | **Advanced Lighting** | **Material Shading** |
 | :---: | :---: | :---: |
-| ![Main View](doc/screenshots/home1.png) | ![Hierarchy](doc/screenshots/get_hiererchy.png) | ![Textures](doc/screenshots/texures.png) |
+| <img src="doc/screenshots/home1.png" width="280"> | <img src="doc/screenshots/lighting.png" width="280"> | <img src="doc/screenshots/materials_and_shaiding.png" width="280"> |
+| _Main View_ | _Lighting Engine_ | _PBR Overrides_ |
 
-| Lighting Controls | Bounding Boxes | Visibility & Mesh List |
+| **Scene Graph** | **Part Inspector** | **Metadata Systems** |
 | :---: | :---: | :---: |
-| ![Lighting](doc/screenshots/lighting.png) | ![Bounding Box](doc/screenshots/bounding_box.png) | ![Visibility](doc/screenshots/visibality.png) |
+| <img src="doc/screenshots/get_hiererchy.png" width="280"> | <img src="doc/screenshots/get_all_meshes.png" width="280"> | <img src="doc/screenshots/metadata.png" width="280"> |
+| _Hierarchy Tree_ | _Mesh Explorer_ | _GLTF Extras_ |
+
+| **Texture Management** | **Selection System** | **Visibility Controls** |
+| :---: | :---: | :---: |
+| <img src="doc/screenshots/texures.png" width="280"> | <img src="doc/screenshots/select_part.png" width="280"> | <img src="doc/screenshots/visibality.png" width="280"> |
+| _Bitmap extraction_ | _Mesh highlighting_ | _Per-part Toggles_ |
+
+| **Interactive Points** | **Annotation Data** | **Bounding Boxes** |
+| :---: | :---: | :---: |
+| <img src="doc/screenshots/super_annotation.png" width="280"> | <img src="doc/screenshots/annotation_data.png" width="280"> | <img src="doc/screenshots/bounding_box.png" width="280"> |
+| _Hotspot Logic_ | _Detail Cards_ | _Selection Feedback_ |
+
+| **Skeletal System** | **Alternative Scene** | |
+| :---: | :---: | :---: |
+| <img src="doc/screenshots/master_animation.png" width="280"> | <img src="doc/screenshots/home2.png" width="280"> | |
+| _Dynamic Animation_ | _Secondary View_ | |
 
 ## Features
 
@@ -38,7 +61,7 @@ A powerful, industry-level Flutter plugin for rendering 3D models using Babylon.
 ### 1. Add dependency
 ```yaml
 dependencies:
-  power3d: ^2.0.0
+  power3d: ^2.2.0
 ```
 
 ### 2. Basic Setup
