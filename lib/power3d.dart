@@ -73,7 +73,15 @@ class Power3D extends StatefulWidget {
     this.annotations,
     this.annotationStyle,
     this.onModelLoaded,
+    this.onAnnotationMore,
   });
+
+  /// Triggered when an annotation's 'Learn More' action is clicked.
+  ///
+  /// The [id] is the unique identifier of the annotation point.
+  /// The [data] contains the full JSON object of the annotation as defined
+  /// in the source configuration.
+  final Function(String id, Map<String, dynamic> data)? onAnnotationMore;
 
   /// Creates a [Power3D] viewer from a Flutter asset path.
   factory Power3D.fromAsset(
@@ -94,6 +102,7 @@ class Power3D extends StatefulWidget {
     String? annotations,
     dynamic annotationStyle,
     VoidCallback? onModelLoaded,
+    Function(String id, Map<String, dynamic> data)? onAnnotationMore,
   }) {
     return Power3D(
       key: key,
@@ -114,6 +123,7 @@ class Power3D extends StatefulWidget {
       annotations: annotations,
       annotationStyle: annotationStyle,
       onModelLoaded: onModelLoaded,
+      onAnnotationMore: onAnnotationMore,
     );
   }
 
@@ -136,6 +146,7 @@ class Power3D extends StatefulWidget {
     String? annotations,
     dynamic annotationStyle,
     VoidCallback? onModelLoaded,
+    Function(String id, Map<String, dynamic> data)? onAnnotationMore,
   }) {
     return Power3D(
       key: key,
@@ -156,6 +167,7 @@ class Power3D extends StatefulWidget {
       annotations: annotations,
       annotationStyle: annotationStyle,
       onModelLoaded: onModelLoaded,
+      onAnnotationMore: onAnnotationMore,
     );
   }
 
@@ -178,6 +190,7 @@ class Power3D extends StatefulWidget {
     String? annotations,
     dynamic annotationStyle,
     VoidCallback? onModelLoaded,
+    Function(String id, Map<String, dynamic> data)? onAnnotationMore,
   }) {
     final String path = file is String ? file : file.path;
     return Power3D(
@@ -199,6 +212,7 @@ class Power3D extends StatefulWidget {
       annotations: annotations,
       annotationStyle: annotationStyle,
       onModelLoaded: onModelLoaded,
+      onAnnotationMore: onAnnotationMore,
     );
   }
 
@@ -361,6 +375,9 @@ class _Power3DState extends State<Power3D> {
                         onWebViewCreated: (controller) {
                           _webViewController = controller;
                           _controller.setWebViewController(controller);
+
+                          _controller.onAnnotationMoreCallback =
+                              widget.onAnnotationMore;
 
                           controller.addJavaScriptHandler(
                             handlerName: 'onMessage',

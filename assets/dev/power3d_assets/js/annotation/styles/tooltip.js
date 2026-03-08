@@ -95,7 +95,7 @@ window.Power3DTooltipStyle = (() => {
                 <p class="p3d-tooltip-title">${ann.ui.title}</p>
                 <div class="p3d-tooltip-content">
                     ${ann.ui.description || ''}
-                    ${ann.ui.more ? `<br><a href="${ann.ui.more}" target="_blank" style="color:#38bdf8;text-decoration:none;font-weight:600;display:block;margin-top:8px;">Learn More →</a>` : ''}
+                    ${ann.ui.more ? `<br><button onclick="window.onAnnotationMoreClicked('${ann.id}')" style="background:#38bdf8;border:none;border-radius:6px;color:#0f172a;cursor:pointer;font-weight:600;display:block;margin-top:8px;padding:6px 12px;width:100%;">Learn More →</button>` : ''}
                 </div>
             </div>
             <div class="p3d-tooltip-dot"></div>

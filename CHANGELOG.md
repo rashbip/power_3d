@@ -1,3 +1,15 @@
+# 2.2.0
+* **New Annotation System**: Introduced a modular and extensible annotation system.
+  * **Interactive Actions**: Replaced hardcoded links with a unified `onAnnotationMore` callback in Flutter.
+  * **Dynamic Navigation**: New `focusCamera` method in controller to smoothly transition camera based on annotation data.
+  * **Live Data Access**: `getAnnotationData(id)` allows retrieving real-time engine state for any annotation point.
+  * **Visual Improvements**: Added dynamic scaling based on distance, occlusion detection (auto-fade/hide), and depth sorting.
+  * **Modular Styles**: Support for external style packages (like `power3d_annotations`).
+* **Bug Fixes**:
+  * Fixed rapid rotation ("spinning") when flying to an annotation.
+  * Corrected hotspot alignment and restored pointer interactions after rotation.
+  * Resolved type-mismatch crashes when passing annotation styles as Enums.
+
 # 2.1.0
 * **Improvements**: Migrated core viewer from `webview_flutter` to `flutter_inappwebview` for better performance and cross-platform consistency.
 * **Desktop Support**: Added desktop support for the plugin.

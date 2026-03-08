@@ -28,6 +28,16 @@ class Power3DController extends ValueNotifier<Power3DState> {
   final Map<String, Completer<String?>> _textureCompleters = {};
   String? _pendingScreenshotPath;
   Function(String partName, bool selected)? _onPartSelectedCallback;
+  /// Triggered when an annotation's 'Learn More' or 'Details' button is clicked.
+  /// Relayed from the JavaScript bridge.
+  Function(String id, Map<String, dynamic> data)? onAnnotationMoreCallback;
+
+  /// A customizable hook for resolving non-string annotation styles.
+  ///
+  /// This is used by companion plugins (like `power3d_annotations`) to
+  /// map abstract types (like Enums) to specific JavaScript asset paths
+  /// before they are sent to the engine.
+  Future<void> Function(dynamic style)? onResolveStyle;
 
   /// Internal method to set the WebView controller.
   /// This should only be used by the Power3D widget.
@@ -223,6 +233,12 @@ class Power3DController extends ValueNotifier<Power3DState> {
           return a.name == updatedAnim.name ? updatedAnim : a;
         }).toList();
         value = value.copyWith(animations: newAnimations);
+      } else if (data['type'] == 'annotationMore') {
+        final id = data['id'].toString();
+        final Map<String, dynamic> annotationData = Map<String, dynamic>.from(
+          data['data'],
+        );
+        onAnnotationMoreCallback?.call(id, annotationData);
       }
     } catch (e) {
       // Ignore parse errors from JS
@@ -245,5 +261,21 @@ class Power3DController extends ValueNotifier<Power3DState> {
     }
     _textureCompleters.clear();
     super.dispose();
+  }
+
+  /// Gets the data for a specific annotation by its [id].
+  Future<Map<String, dynamic>?> getAnnotationData(String id) async {
+    if (!value.isInitialized || _webViewController == null) return null;
+    try {
+      final String? result = await _webViewController!.evaluateJavascript(
+        source: 'getAnnotationData("$id")',
+      );
+      if (result != null && result.isNotEmpty && result != "null") {
+        return jsonDecode(result);
+      }
+    } catch (e) {
+      debugPrint('Power3DController: Error getting annotation data: $e');
+    }
+    return null;
   }
 }

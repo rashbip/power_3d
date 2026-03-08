@@ -91,3 +91,7 @@ function onModelLoadedForAnnotations() {
     console.log("[JS Bridge] Refreshing annotations after model load.");
     Power3DAnnotationEngine.refresh();
 }
+
+function getAnnotationData(id) {
+    return JSON.stringify(Power3DAnnotationEngine.getAnnotationById(id));
+}

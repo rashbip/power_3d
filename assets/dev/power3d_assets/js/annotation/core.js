@@ -26,6 +26,18 @@ window.Power3DAnnotationEngine = (() => {
             window.scene.onBeforeRenderObservable.add(_updateHTMLOverlays);
             console.log("[AnnotationEngine] GUI Texture initialized.");
         }
+
+        // Global handler for 'more' clicks
+        window.onAnnotationMoreClicked = (id) => {
+            const marker = _markers.get(id.toString());
+            if (marker && marker.data) {
+                sendMessageToFlutter({
+                    type: 'annotationMore',
+                    id: id,
+                    data: marker.data
+                });
+            }
+        };
     }
 
     function useStyle(styleModule) {
@@ -202,6 +214,10 @@ window.Power3DAnnotationEngine = (() => {
 
     function refresh() { _rebuild(); }
 
+    /**
+     * Smoothly transitions the camera to a specific annotation viewpoint.
+     * @param {Object} cfg - The camera configuration containing orbit and target.
+     */
     function flyTo(cfg) {
         if (!window.scene || !window.scene.activeCamera) return;
         const cam = window.scene.activeCamera;
@@ -223,5 +239,15 @@ window.Power3DAnnotationEngine = (() => {
         cam.setCameraTargetAnimated(targetVec, orbit[0], orbit[1], orbit[2], duration * 60);
     }
 
-    return { init, setAnnotations, useStyle, setVisible, refresh, flyTo };
+    /**
+     * Retrieves the raw data of an annotation by its unique ID.
+     * @param {string|number} id - The annotation ID.
+     * @returns {Object|null}
+     */
+    function getAnnotationById(id) {
+        const m = _markers.get(id.toString());
+        return m ? m.data : null;
+    }
+
+    return { init, setAnnotations, useStyle, setVisible, refresh, flyTo, getAnnotationById };
 })();

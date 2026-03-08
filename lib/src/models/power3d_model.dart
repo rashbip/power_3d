@@ -475,7 +475,7 @@ class Power3DState {
     List<dynamic>? partsHierarchy,
     List<Power3DTexture>? textures,
     String? annotations,
-    String? annotationStyle,
+    dynamic annotationStyle,
   }) {
     return Power3DState(
       status: status ?? this.status,

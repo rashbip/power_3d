@@ -14,7 +14,6 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
   late Power3DController _controller;
   bool _isVisible = true;
   Power3DAnnotationStyle _currentStyle = Power3DAnnotationStyle.tooltip;
-  String _stylePath = 'tooltip';
 
   // Updated with HTML descriptions
   final List<Map<String, dynamic>> _sampleAnnotations = [
@@ -79,7 +78,7 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
   @override
   void initState() {
     super.initState();
-    _controller = Power3DController();
+    _controller = Power3DController()..initForAnnotations();
   }
 
   @override
@@ -118,7 +117,25 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
             "assets/heart.glb",
             controller: _controller,
             annotations: jsonEncode(_sampleAnnotations),
-            annotationStyle: _stylePath,
+            annotationStyle: _currentStyle,
+            onAnnotationMore: (id, data) {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text("Learn More: ${data['ui']['title']}"),
+                  content: Text(
+                    "Annotation ID: $id\n\nFull Data Received:\n${jsonEncode(data)}",
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text("CLOSE"),
+                    ),
+                  ],
+                ),
+              );
+              debugPrint("Power3D Example: More clicked for $id. Data: $data");
+            },
           ),
           Positioned(
             bottom: 20,
@@ -129,15 +146,30 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
               children: [
                 ElevatedButton.icon(
                   icon: const Icon(Icons.center_focus_strong),
-                  onPressed: () {
-                    // Focus on a specific point (e.g. Aortic Region)
-                    _controller.focusCamera(
-                      orbit: [4.458, 1.825, 2.815],
-                      target: [0.0004, -0.0025, -0.0002],
-                      duration: 1.0,
-                    );
+                  onPressed: () async {
+                    // Dynamic focus: Get data for currently selected ID
+                    // In a real app, you might track the selected ID in state.
+                    // Here we manually check the first sample for demo.
+                    const testId = "1772730643538";
+                    final data = await _controller.getAnnotationData(testId);
+                    debugPrint("Retrieved point data for focus: $data");
+
+                    if (data != null && data['camera'] != null) {
+                      final cam = data['camera'];
+                      _controller.focusCamera(
+                        orbit: (cam['orbit'] as List)
+                            .cast<num>()
+                            .map((e) => e.toDouble())
+                            .toList(),
+                        target: (cam['target'] as List)
+                            .cast<num>()
+                            .map((e) => e.toDouble())
+                            .toList(),
+                        duration: 1.0,
+                      );
+                    }
                   },
-                  label: const Text("Focus Point"),
+                  label: const Text("Focus Left Ventricle"),
                 ),
                 StatefulBuilder(
                   builder: (context, setState) {
