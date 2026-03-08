@@ -5,10 +5,10 @@ packages:
     dependency: transitive
     description:
       name: archive
-      sha256: a96e8b390886ee8abb49b7bd3ac8df6f451c621619f52a26e815fdcf568959ff
+      sha256: cb6a278ef2dbb298455e1a713bda08524a175630ec643a242c399c932a0a1f7d
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.9"
+    version: "3.6.1"
   async:
     dependency: transitive
     description:
@@ -352,27 +352,21 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
-  posix:
-    dependency: transitive
-    description:
-      name: posix
-      sha256: "185ef7606574f789b40f289c233efa52e96dead518aed988e040a10737febb07"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.5.0"
   power3d:
     dependency: "direct main"
     description:
-      path: ".."
-      relative: true
-    source: path
+      name: power3d
+      sha256: fbe39096f84fd4bd1ac43bb27a9f880354982094307d6a1bb2d27a3199566765
+      url: "https://pub.dev"
+    source: hosted
     version: "2.2.0"
   power3d_annotations:
     dependency: "direct main"
     description:
-      path: "../../power3d_annotations"
-      relative: true
-    source: path
+      name: power3d_annotations
+      sha256: ffbd3f4956aef2e951d1c1ebe2031d04366e3d6c797d73f8eaefbaa26e0a0cd0
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.0"
   pub_semver:
     dependency: transitive

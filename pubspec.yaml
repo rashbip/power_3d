@@ -50,6 +50,6 @@ screenshots:
   - description: "Texture management and extraction"
     path: doc/screenshots/texures.png
   - description: "Metadata extraction from GLTF extras"
-    path: doc/screenshots/metadat.png
+    path: doc/screenshots/metadata.png
   - description: "Part selection and highlighting"
     path: doc/screenshots/select_part.png
