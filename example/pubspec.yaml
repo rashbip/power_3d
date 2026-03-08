@@ -16,6 +16,10 @@ dependencies:
   power3d_annotations:
     path: ../../power3d_annotations
 
+dependency_overrides:
+  power3d:
+    path: ../
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
