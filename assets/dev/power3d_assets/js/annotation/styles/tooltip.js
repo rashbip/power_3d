@@ -95,19 +95,25 @@ window.Power3DTooltipStyle = (() => {
                 <p class="p3d-tooltip-title">${ann.ui.title}</p>
                 <div class="p3d-tooltip-content">
                     ${ann.ui.description || ''}
-                    ${ann.ui.more ? `<br><button onclick="window.onAnnotationMoreClicked('${ann.id}')" style="background:#38bdf8;border:none;border-radius:6px;color:#0f172a;cursor:pointer;font-weight:600;display:block;margin-top:8px;padding:6px 12px;width:100%;">Learn More →</button>` : ''}
+                    ${ann.ui.more ? `<br><button class="p3d-learn-more-btn" style="background:#38bdf8;border:none;border-radius:6px;color:#0f172a;cursor:pointer;font-weight:600;display:block;margin-top:8px;padding:6px 12px;width:100%;">Learn More →</button>` : ''}
                 </div>
             </div>
             <div class="p3d-tooltip-dot"></div>
         `;
 
+        const btn = el.querySelector('.p3d-learn-more-btn');
+        if (btn) {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                if (window.onAnnotationMoreClicked) {
+                    window.onAnnotationMoreClicked(ann.id);
+                }
+            };
+        }
+
         el.onclick = (e) => {
             e.stopPropagation();
             
-            // If clicking a button or link inside, trigger its specific action and stay open or just let it bubble
-            // Actually, for "Learn More", the button has its own onclick. We just need to NOT toggle 'active' here.
-            if (['BUTTON', 'A', 'I', 'SPAN'].includes(e.target.tagName) && e.target.closest('button, a')) return;
-
             document.querySelectorAll('.p3d-tooltip-el, .p3d-callout-el, .p3d-hotspot-el').forEach(o => {
                 if(o !== el) o.classList.remove('active');
             });
