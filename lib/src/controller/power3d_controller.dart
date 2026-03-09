@@ -33,11 +33,19 @@ class Power3DController extends ValueNotifier<Power3DState> {
   Function(String id, Map<String, dynamic> data)? onAnnotationMoreCallback;
 
   /// A customizable hook for resolving non-string annotation styles.
-  ///
-  /// This is used by companion plugins (like `power3d_annotations`) to
-  /// map abstract types (like Enums) to specific JavaScript asset paths
-  /// before they are sent to the engine.
-  Future<void> Function(dynamic style)? onResolveStyle;
+  static Future<void> Function(Power3DController controller, dynamic style)? globalStyleResolver;
+
+  Future<void> Function(dynamic style)? _onResolveStyle;
+  Future<void> Function(dynamic style)? get onResolveStyle => _onResolveStyle;
+  set onResolveStyle(Future<void> Function(dynamic style)? hook) {
+    if (_onResolveStyle == hook) return;
+    _onResolveStyle = hook;
+    
+    // If we just got a hook and there's a pending non-string style (enum/object), resolve it!
+    if (hook != null && value.annotationStyle != null && value.annotationStyle is! String) {
+      setAnnotationStyle(value.annotationStyle);
+    }
+  }
 
   /// Internal method to set the WebView controller.
   /// This should only be used by the Power3D widget.
@@ -76,7 +84,7 @@ class Power3DController extends ValueNotifier<Power3DState> {
       setAnnotations(value.annotations!);
     }
     if (value.annotationStyle != null) {
-      setAnnotationStyle(value.annotationStyle!);
+      setAnnotationStyle(value.annotationStyle!, force: true);
     }
 
     // Sync camera position

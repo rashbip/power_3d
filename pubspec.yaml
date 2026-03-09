@@ -12,7 +12,7 @@ topics:
   - graphics
 version: 2.3.0
 environment:
-  sdk: ^3.10.8
+  sdk: ^3.10.8 
 dependencies:
   flutter:
     sdk: flutter

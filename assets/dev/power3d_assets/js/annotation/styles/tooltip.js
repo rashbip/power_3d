@@ -103,9 +103,15 @@ window.Power3DTooltipStyle = (() => {
 
         el.onclick = (e) => {
             e.stopPropagation();
+            
+            // If clicking a button or link inside, trigger its specific action and stay open or just let it bubble
+            // Actually, for "Learn More", the button has its own onclick. We just need to NOT toggle 'active' here.
+            if (['BUTTON', 'A', 'I', 'SPAN'].includes(e.target.tagName) && e.target.closest('button, a')) return;
+
             document.querySelectorAll('.p3d-tooltip-el, .p3d-callout-el, .p3d-hotspot-el').forEach(o => {
                 if(o !== el) o.classList.remove('active');
             });
+            
             const isActive = el.classList.toggle('active');
             if (isActive && ann.camera && window.Power3DAnnotationEngine) {
                 window.Power3DAnnotationEngine.flyTo(ann.camera);

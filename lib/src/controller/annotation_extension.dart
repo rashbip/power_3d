@@ -21,12 +21,14 @@ extension AnnotationExtension on Power3DController {
   /// - A raw HTML/CSS/JS string to be injected.
   /// - A path to a local JavaScript style file.
   /// - A custom type (like an Enum) handled by the `onResolveStyle` hook.
-  void setAnnotationStyle(dynamic style) {
-    if (style is String) {
-      if (value.annotationStyle == style) return;
+  void setAnnotationStyle(dynamic style, {bool force = false}) {
+    final bool changed = value.annotationStyle != style;
+    if (changed) {
       value = value.copyWith(annotationStyle: style);
+    }
 
-      if (value.isInitialized) {
+    if (style is String) {
+      if (value.isInitialized && (changed || force)) {
         unawaited(
           _webViewController?.evaluateJavascript(
             source: 'setAnnotationStyle(`${style.replaceAll('`', '\\`')}`)',
@@ -34,12 +36,14 @@ extension AnnotationExtension on Power3DController {
         );
       }
     } else {
-      // It's likely an Enum or custom Style object
+      // It's likely an Enum or custom Style object. Check local hook, then global.
       if (onResolveStyle != null) {
         unawaited(onResolveStyle!(style));
+      } else if (Power3DController.globalStyleResolver != null) {
+        unawaited(Power3DController.globalStyleResolver!(this, style));
       } else {
         debugPrint(
-          'Power3D: Warning - annotationStyle is not a String and onResolveStyle hook is missing. Is power3d_annotations plugin available?',
+          'Power3D: Warning - annotationStyle is not a String and no resolver found. Is power3d_annotations plugin registered?',
         );
       }
     }
