@@ -34,7 +34,7 @@ class _AnnotationsExampleState extends State<AnnotationsExample> {
       "ui": {
         "title": "Left Ventricle",
         "description":
-            "<p>The <b>left ventricle</b> is the heart’s main pumping chamber.</p><ul><li>Thick muscular walls (8–12 mm)</li><li>High-pressure systemic circulation</li></ul>",
+            "<div style='display:flex; align-items:flex-start; gap:8px;'> <img src='https://cdn-icons-png.flaticon.com/512/833/833472.png' style='width:28px; height:28px; margin-top:4px;' alt='heart icon'> <div> <p style='color:#333; line-height:1.6; margin:0 0 10px 0;'> The <b style='color:#c0392b;'>left ventricle</b> is the heart’s main pumping chamber. </p> <ul style='padding-left:20px; margin:0; color:#444;'> <li style='margin-bottom:6px;'>Thick muscular walls (8–12 mm)</li> <li style='margin-bottom:6px;'>High-pressure systemic circulation</li> </ul> </div> </div>",
         "more":
             "https://biologyinsights.com/what-is-the-left-ventricle-and-what-does-it-do/",
       },

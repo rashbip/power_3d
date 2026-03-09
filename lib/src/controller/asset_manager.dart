@@ -29,14 +29,27 @@ class Power3DAssetManager {
       p.join(targetDir.path, 'js', 'annotation', 'styles', 'tooltip.js'),
     );
 
+    final babylonFile = File(p.join(targetDir.path, 'babylon', 'babylon.js'));
+    final brokenBabylonFile = File(p.join(targetDir.path, 'babylon\\babylon.js'));
+
     if (!await targetDir.exists()) {
       debugPrint('Power3DAssetManager: Creating dir and unzipping...');
       await targetDir.create(recursive: true);
       await _unzipAssets(targetDir.path);
-    } else if (!await indexFile.exists() || !await tooltipFile.exists()) {
+    } else if (!await indexFile.exists() || 
+               !await tooltipFile.exists() || 
+               !await babylonFile.exists() ||
+               await brokenBabylonFile.exists()) {
       debugPrint(
-        'Power3DAssetManager: Assets incomplete (index or tooltip missing) - re-unzipping...',
+        'Power3DAssetManager: Assets incomplete or broken (backslash issue detected) - cleaning and re-unzipping...',
       );
+      // Clean up the directory to remove files with wrong names/separators
+      try {
+        await targetDir.delete(recursive: true);
+        await targetDir.create(recursive: true);
+      } catch (e) {
+        debugPrint('Power3DAssetManager: Error cleaning targetDir: $e');
+      }
       await _unzipAssets(targetDir.path);
     }
 
@@ -68,7 +81,10 @@ class Power3DAssetManager {
       debugPrint('Power3DAssetManager: Archive has ${archive.length} files');
 
       for (final file in archive) {
-        final filename = file.name;
+        // Normalize separators to forward slashes to ensure directories are 
+        // correctly created on Android/Linux.
+        final filename = file.name.replaceAll('\\', '/');
+        
         if (file.isFile) {
           final fileData = file.content as List<int>;
           final outFile = File(p.join(targetPath, filename));
