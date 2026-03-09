@@ -68,6 +68,10 @@ class Power3D extends StatefulWidget {
   /// the `power3d_annotations` plugin).
   final dynamic annotationStyle;
 
+  /// Controls how sensitive pinch-to-zoom and scroll-wheel zooming are.
+  ///
+  /// Range: 0.0 (fastest) to 1.0 (slowest). Defaults to 0.5.
+  final double zoomSensitivity;
 
   /// Creates a new [Power3D] viewer.
   const Power3D({
@@ -86,6 +90,7 @@ class Power3D extends StatefulWidget {
     this.annotationStyle,
     this.onModelLoaded,
     this.onAnnotationMore,
+    this.zoomSensitivity = 0.5,
   });
 
   /// Triggered when an annotation's 'Learn More' action is clicked.
@@ -118,6 +123,7 @@ class Power3D extends StatefulWidget {
     dynamic annotationStyle,
     VoidCallback? onModelLoaded,
     Function(String id, Map<String, dynamic> data)? onAnnotationMore,
+    double zoomSensitivity = 0.5,
   }) {
     return Power3D(
       key: key,
@@ -139,6 +145,7 @@ class Power3D extends StatefulWidget {
       annotationStyle: annotationStyle,
       onModelLoaded: onModelLoaded,
       onAnnotationMore: onAnnotationMore,
+      zoomSensitivity: zoomSensitivity,
     );
   }
 
@@ -165,6 +172,7 @@ class Power3D extends StatefulWidget {
     dynamic annotationStyle,
     VoidCallback? onModelLoaded,
     Function(String id, Map<String, dynamic> data)? onAnnotationMore,
+    double zoomSensitivity = 0.5,
   }) {
     return Power3D(
       key: key,
@@ -186,6 +194,7 @@ class Power3D extends StatefulWidget {
       annotationStyle: annotationStyle,
       onModelLoaded: onModelLoaded,
       onAnnotationMore: onAnnotationMore,
+      zoomSensitivity: zoomSensitivity,
     );
   }
 
@@ -209,6 +218,7 @@ class Power3D extends StatefulWidget {
     dynamic annotationStyle,
     VoidCallback? onModelLoaded,
     Function(String id, Map<String, dynamic> data)? onAnnotationMore,
+    double zoomSensitivity = 0.5,
   }) {
     final String path = file is String ? file : file.path;
     return Power3D(
@@ -231,6 +241,7 @@ class Power3D extends StatefulWidget {
       annotationStyle: annotationStyle,
       onModelLoaded: onModelLoaded,
       onAnnotationMore: onAnnotationMore,
+      zoomSensitivity: zoomSensitivity,
     );
   }
 
@@ -262,6 +273,10 @@ class _Power3DState extends State<Power3D> {
         contrast: widget.contrast,
       );
     }
+    // Apply initial zoom sensitivity to the controller state
+    _controller.value = _controller.value.copyWith(
+      zoomSensitivity: widget.zoomSensitivity,
+    );
 
     _controller.addListener(_onStateChanged);
 

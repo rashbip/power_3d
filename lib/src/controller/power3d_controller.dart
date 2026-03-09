@@ -86,6 +86,9 @@ class Power3DController extends ValueNotifier<Power3DState> {
             'setCameraPosition(${value.cameraAlpha}, ${value.cameraBeta}, ${value.cameraRadius})',
       ),
     );
+
+    // Apply initial zoom sensitivity
+    unawaited(updateZoomSensitivity(value.zoomSensitivity));
   }
 
   /// Loads a 3D model into the scene.

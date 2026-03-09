@@ -63,11 +63,36 @@ extension ViewExtension on Power3DController {
   /// [enabled]: Whether zooming interaction is allowed.
   /// [min]: Minimum zoom distance allowed.
   /// [max]: Maximum zoom distance allowed.
-  Future<void> updateZoom({bool? enabled, double? min, double? max}) async {
-    value = value.copyWith(enableZoom: enabled, minZoom: min, maxZoom: max);
+  /// [sensitivity]: How sensitive the zoom is (0.0 = fastest, 1.0 = slowest).
+  Future<void> updateZoom({
+    bool? enabled,
+    double? min,
+    double? max,
+    double? sensitivity,
+  }) async {
+    value = value.copyWith(
+      enableZoom: enabled,
+      minZoom: min,
+      maxZoom: max,
+      zoomSensitivity: sensitivity,
+    );
     await _webViewController?.evaluateJavascript(
       source:
           'updateZoom(${value.enableZoom}, ${value.minZoom}, ${value.maxZoom})',
+    );
+    if (sensitivity != null) {
+      await updateZoomSensitivity(sensitivity);
+    }
+  }
+
+  /// Controls how sensitive the pinch-to-zoom and scroll-wheel interactions are.
+  ///
+  /// [sensitivity]: A value from 0.0 (fastest) to 1.0 (slowest). Default is 0.5.
+  Future<void> updateZoomSensitivity(double sensitivity) async {
+    final clamped = sensitivity.clamp(0.0, 1.0);
+    value = value.copyWith(zoomSensitivity: clamped);
+    await _webViewController?.evaluateJavascript(
+      source: 'updateZoomSensitivity($clamped)',
     );
   }
 

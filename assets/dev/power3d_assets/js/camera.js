@@ -113,4 +113,22 @@ function applyInitialSettings(camera) {
     camera.lowerRadiusLimit = 1.0;
     camera.upperRadiusLimit = 20.0;
     camera.panningSensibility = 0; // Locked by default
+    // Default zoom sensitivity: higher number = slower zoom
+    camera.wheelPrecision = 50;
+    camera.pinchPrecision = 200;
+}
+
+/// Controls how sensitive the zoom interaction is.
+/// [sensitivity]: A value from 0.0 to 1.0. Lower = faster, higher = slower.
+/// Internally mapped to wheelPrecision and pinchPrecision (range: 5 to 500).
+function updateZoomSensitivity(sensitivity) {
+    if (window.scene && window.scene.activeCamera) {
+        const camera = window.scene.activeCamera;
+        // Map 0.0-1.0 sensitivity to precision range (5 fast -> 500 slow)
+        const minPrec = 5;
+        const maxPrec = 500;
+        const precision = minPrec + (maxPrec - minPrec) * sensitivity;
+        camera.wheelPrecision = precision;
+        camera.pinchPrecision = precision * 4; // pinch needs a higher value
+    }
 }

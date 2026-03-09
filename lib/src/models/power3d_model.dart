@@ -338,6 +338,12 @@ class Power3DState {
   /// Minimum allowed zoom level.
   final double minZoom;
 
+  /// Controls how sensitive pinch-to-zoom and scroll-wheel zoom are.
+  ///
+  /// Range: 0.0 (fastest / most sensitive) to 1.0 (slowest / least sensitive).
+  /// Default is 0.5 (balanced).
+  final double zoomSensitivity;
+
   /// Whether the camera position (panning) is locked.
   final bool isPositionLocked;
 
@@ -422,6 +428,7 @@ class Power3DState {
     this.enableZoom = true,
     this.minZoom = 0.5,
     this.maxZoom = 20.0,
+    this.zoomSensitivity = 0.5,
     this.cameraAlpha = -1.57,
     this.cameraBeta = 1.25,
     this.cameraRadius = 3.0,
@@ -455,6 +462,7 @@ class Power3DState {
     bool? enableZoom,
     double? maxZoom,
     double? minZoom,
+    double? zoomSensitivity,
     bool? isPositionLocked,
     double? cameraAlpha,
     double? cameraBeta,
@@ -489,6 +497,7 @@ class Power3DState {
       enableZoom: enableZoom ?? this.enableZoom,
       maxZoom: maxZoom ?? this.maxZoom,
       minZoom: minZoom ?? this.minZoom,
+      zoomSensitivity: zoomSensitivity ?? this.zoomSensitivity,
       isPositionLocked: isPositionLocked ?? this.isPositionLocked,
       cameraAlpha: cameraAlpha ?? this.cameraAlpha,
       cameraBeta: cameraBeta ?? this.cameraBeta,
