@@ -36,6 +36,11 @@ extension AnnotationExtension on Power3DController {
         );
       }
     } else {
+      // Provisioning style files requires the engine's assets to be ready. 
+      // If we're not initialized yet, we just keep the style in state.
+      // The initialize() method will call this again once ready.
+      if (!value.isInitialized && !force) return;
+
       // It's likely an Enum or custom Style object. Check local hook, then global.
       if (onResolveStyle != null) {
         unawaited(onResolveStyle!(style));

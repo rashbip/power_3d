@@ -417,13 +417,24 @@ class _Power3DState extends State<Power3D> {
                             callback: (args) {
                               if (args.isNotEmpty && mounted) {
                                 final String message = args[0];
-                                _controller.handleWebViewMessage(message);
-                                widget.onMessage?.call(message);
+                                // We use a microtask to avoid updating state during the build phase,
+                                // which can happen if the WebView triggers messages synchronously
+                                // during its creation or initial loading.
+                                Future.microtask(() {
+                                  if (mounted) {
+                                    _controller.handleWebViewMessage(message);
+                                    widget.onMessage?.call(message);
+                                  }
+                                });
                               }
                             },
                           );
                         },
                         onLoadStop: (controller, url) async {
+                          // Defer initialization to avoid build-phase conflicts
+                          await Future.microtask(() {});
+                          if (!mounted) return;
+
                           debugPrint(
                             'Power3D: onLoadStop - url=$url, sceneInit=$_sceneInitialized',
                           );

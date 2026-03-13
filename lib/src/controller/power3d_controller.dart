@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:path/path.dart' as p;
 import 'dart:async';
@@ -261,11 +263,42 @@ class Power3DController extends ValueNotifier<Power3DState> {
     }
   }
 
-  /// Internal helper to update value safely checking disposal status.
+  Power3DState? _pendingValue;
+
+  @override
+  Power3DState get value => _pendingValue ?? super.value;
+
+  /// Updates the controller's state.
+  /// 
+  /// This override ensures that notifications are handled safely, especially
+  /// when triggered by asynchronous WebView events that might arrive during
+  /// a Flutter build phase. 
+  /// 
+  /// We use a "pending value" pattern to keep state updates synchronous for
+  /// sequential logic (like initialization) while deferring the actual 
+  /// notifications to the next microtask when the framework is busy building.
   @override
   set value(Power3DState newValue) {
-    if (_isDisposed) return;
-    super.value = newValue;
+    if (_isDisposed || value == newValue) return;
+
+    final widgetsBinding = WidgetsBinding.instance;
+    // SchedulerPhase.persistentCallbacks matches build, layout, and paint phases.
+    if (widgetsBinding.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      if (_pendingValue == null) {
+        scheduleMicrotask(() {
+          if (!_isDisposed && _pendingValue != null) {
+            final val = _pendingValue!;
+            _pendingValue = null;
+            // super.value = val triggers notifyListeners() outside the build phase.
+            super.value = val;
+          }
+        });
+      }
+      _pendingValue = newValue; // Update immediately for local controller logic.
+    } else {
+      _pendingValue = null;
+      super.value = newValue;
+    }
   }
 
   @override
