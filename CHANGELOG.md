@@ -1,3 +1,15 @@
+# 2.3.1
+* **Improvements**:
+  * Massive Performance Improvements.
+  * Added a new `onAnnotationMore` callback to the `Power3D` widget for better annotation handling.
+  * Added a new annotation feature to have default annotaion style set by applying Annotatipn style to the paramater like this: `Power3DAnnotationStyle.textCallout`.
+* **Bug Fixes**:
+  * Fixed major issues of the plugin.
+  * Fixed `onLoadError` deprecation warning by migrating to `onReceivedError` in the WebView.
+  * Fixed too much zoom in and out with the Zoom sensitivity.
+  * Fixed the issues of asset unzipping on appDirectory.
+  * Fixed the issue of annotation not showing on the model and annotaion missing.
+
 # 2.3.0
 * **New Annotation System**: Introduced a modular and extensible annotation system.
   * **Interactive Actions**: Replaced hardcoded links with a unified `onAnnotationMore` callback in Flutter.

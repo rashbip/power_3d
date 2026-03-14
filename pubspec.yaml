@@ -6,17 +6,16 @@ repository: https://github.com/rashbip/power_3d
 issue_tracker: https://github.com/rashbip/power_3d/issues
 topics:
   - three-d
+  - three-d-viewer
   - babylonjs
   - model-viewer
-  - flutter
   - graphics
-version: 2.3.0
+version: 2.3.1
 environment:
   sdk: ^3.10.8 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
   flutter_inappwebview: ^6.1.5
   path: ^1.9.0
   path_provider: ^2.1.5
